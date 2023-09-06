@@ -10,25 +10,25 @@
     "format": "prettier --write ./src"
   },
   "dependencies": {
-    "ra-data-json-server": "^4.12.0",
+    "ra-data-json-server": "^4.13.3",
     "react": "^18.2.0",
-    "react-admin": "^4.12.0",
+    "react-admin": "^4.13.3",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.197",
-    "@types/node": "^18.16.1",
-    "@types/react": "^18.0.22",
-    "@types/react-dom": "^18.0.7",
-    "@typescript-eslint/eslint-plugin": "^5.60.1",
-    "@typescript-eslint/parser": "^5.60.1",
-    "@vitejs/plugin-react": "^4.0.1",
-    "eslint": "^8.43.0",
+    "@types/lodash": "^4.14.198",
+    "@types/node": "^18.17.14",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "@vitejs/plugin-react": "^4.0.4",
+    "eslint": "^8.48.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^2.8.8",
-    "typescript": "^5.1.6",
-    "vite": "^4.3.9"
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9"
   }
 }

@@ -9,6 +9,7 @@ import {
   SimpleForm,
   TextInput,
   Create,
+  useUnique
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 
@@ -39,12 +40,15 @@ export const PostEdit = () => {
 
 export const PostCreate = () => {
   const onSuccess = useSuccessHandler("Post created", "/posts");
+  const unique = useUnique();
   return (
     <Create mutationOptions={{ onSuccess }}>
       <SimpleForm warnWhenUnsavedChanges>
         <ReferenceInput source="userId" reference="users" />
         <TextInput source="id" />
-        <TextInput source="title" />
+        <TextInput source="title" validate={
+          unique({message:"El problema ya fue reportado.", debounce:2000})
+        } />
         <TextInput source="body" />
       </SimpleForm>
     </Create>
