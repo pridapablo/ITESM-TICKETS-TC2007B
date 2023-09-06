@@ -4,7 +4,7 @@ import { UserCreate, UserEdit, UserList } from "./resources/users";
 import { PostCreate, PostEdit, PostList } from "./resources/posts";
 import { AlbumCreate, AlbumEdit, AlbumList } from "./resources/albums";
 import { CustomLayout } from "./layout/CustomLayout";
-import i18nProvider from "./locale/i18nProvider";
+import { i18nProvider } from "./locale/I18nProvider";
 
 export const App = () => {
   return (
