@@ -1,6 +1,6 @@
 import { TranslationMessages } from "react-admin";
 
-export const englishMessages: TranslationMessages = {
+export const en: TranslationMessages = {
   ra: {
     action: {
       add_filter: "Add filter",
