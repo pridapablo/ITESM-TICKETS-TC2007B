@@ -1,18 +1,23 @@
-import { Admin, Resource } from "react-admin";
+import { Admin, Resource, useLogin } from "react-admin";
 import { dataProvider } from "./data/dataProvider";
 import { UserCreate, UserEdit, UserList } from "./resources/users";
 import { PostCreate, PostEdit, PostList } from "./resources/posts";
 import { AlbumCreate, AlbumEdit, AlbumList } from "./resources/albums";
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
+import MyLoginPage from "./auth/MyLoginPage";
+import { authProvider } from "./auth/authProvider";
 
 export const App = () => {
+
   return (
     <Admin
       dataProvider={dataProvider}
       layout={CustomLayout}
       darkTheme={{ palette: { mode: "dark" } }}
       i18nProvider={i18nProvider}
+      authProvider={authProvider}
+      loginPage={MyLoginPage}
     >
       <Resource
         name="posts"
