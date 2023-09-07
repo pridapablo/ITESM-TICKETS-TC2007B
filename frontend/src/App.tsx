@@ -5,8 +5,8 @@ import { PostCreate, PostEdit, PostList } from "./resources/posts";
 import { AlbumCreate, AlbumEdit, AlbumList } from "./resources/albums";
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
-import MyLoginPage from "./MyLoginPage";
-import { authProvider } from "./authProvider";
+import MyLoginPage from "./auth/MyLoginPage";
+import { authProvider } from "./auth/authProvider";
 
 export const App = () => {
 
