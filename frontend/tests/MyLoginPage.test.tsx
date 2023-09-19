@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MyLoginPage from './MyLoginPage';
+import MyLoginPage from '../src/auth/MyLoginPage';
 import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import { waitFor } from '@testing-library/react';
