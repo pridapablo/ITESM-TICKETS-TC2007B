@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, FC, useCallback } from 'react';
-import { useLogin, useNotify, SimpleForm, TextInput, Button } from 'react-admin';
+import { useLogin, useNotify, SimpleForm, TextInput, Button, ToggleThemeButton, useTranslate } from 'react-admin';
+import { useTheme } from "@mui/material/styles";
 
 interface LoginState {
     username: string;
@@ -11,6 +12,8 @@ const MyLoginPage: FC = () => {
     const [loginState, setLoginState] = useState<LoginState>({ username: '', password: '' });
     const login = useLogin();
     const notify = useNotify();
+    const theme = useTheme();
+    const translate = useTranslate();
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.currentTarget;
@@ -18,8 +21,8 @@ const MyLoginPage: FC = () => {
     }, []);
 
     const handleSubmit = useCallback(() => {
-        login(loginState).catch(() => notify('Error during login process'));
-    }, [login, loginState, notify]);
+        login(loginState).catch(() => notify(translate('login.loginError')));
+    }, [login, loginState, notify, translate]);
 
     const containerStyle: React.CSSProperties = {
         display: 'flex',
@@ -27,8 +30,9 @@ const MyLoginPage: FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        width: '100vw'
-    };    
+        width: '100vw',
+        backgroundColor: theme.palette.mode === "dark" ? "#333" : "#FFF",
+    };
 
     const buttonStyle: React.CSSProperties = {
         marginTop: '1rem',
@@ -39,16 +43,17 @@ const MyLoginPage: FC = () => {
 
     return (
         <div style={containerStyle}>
+            <ToggleThemeButton />
             <SimpleForm onSubmit={handleSubmit} toolbar={false}>
                 <TextInput
-                    label="Username"
+                    label={translate('login.username')}
                     source="username"
                     value={loginState.username}
                     onChange={handleInputChange}
                     fullWidth
                 />
                 <TextInput
-                    label="Password"
+                    label={translate('login.password')}
                     source="password"
                     type="password"
                     value={loginState.password}
@@ -60,7 +65,7 @@ const MyLoginPage: FC = () => {
                         type="submit"
                         color="primary"
                         variant="contained"
-                        label="Login"
+                        label={translate('login.loginButton')}
                     />
                 </div>
             </SimpleForm>
