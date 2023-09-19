@@ -1,6 +1,17 @@
 import { TranslationMessages } from "react-admin";
 
 export const es: TranslationMessages = {
+  resources: {
+    posts: 'Publicaciones',
+    users: 'Usuarios',
+    albums: 'Álbumes',
+  },
+  login: {
+    username: 'Nombre de usuario',
+    password: 'Contraseña',
+    loginButton: 'Iniciar sesión',
+    loginError: 'Error durante el proceso de inicio de sesión',
+  },
   ra: {
     action: {
       add_filter: "Añadir filtro",
