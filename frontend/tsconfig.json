@@ -23,5 +23,5 @@
   },
   "include": [
     "src"
-, "tests/MyLoginPage.test.tsx"  ]
+, "src/__tests__/MyLoginPage.test.tsx"  ]
 }
