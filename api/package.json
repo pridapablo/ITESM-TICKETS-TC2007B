@@ -1,17 +1,29 @@
 {
-  "name": "test-express",
+  "name": "restapi",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "ts-node-dev src/index.ts",
+    "tsc": "tsc",
+    "lint":"ts-standard"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "ts-node-dev": "^2.0.0",
+    "ts-standard": "^12.0.2",
+    "typescript": "^5.2.2"
+  },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "mongodb": "^6.0.0"
+    "express": "4.18.2"
+  },
+  "eslintConfig": {
+    "parserOptions": {
+      "project":"./tsconfig.json"
+    },
+    "extends":["./node_modules/ts-standard/eslintrc.json"]
   }
 }
