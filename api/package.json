@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node-dev src/index.ts",
     "tsc": "tsc",
-    "lint":"ts-standard"
+    "lint": "ts-standard"
   },
   "keywords": [],
   "author": "",
@@ -18,12 +18,15 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "express": "4.18.2"
+    "express": "4.18.2",
+    "mongoose": "^7.5.2"
   },
   "eslintConfig": {
     "parserOptions": {
-      "project":"./tsconfig.json"
+      "project": "./tsconfig.json"
     },
-    "extends":["./node_modules/ts-standard/eslintrc.json"]
+    "extends": [
+      "./node_modules/ts-standard/eslintrc.json"
+    ]
   }
 }
