@@ -1,11 +1,9 @@
 import { Schema, model } from 'mongoose';
 
 const UserSchema = new Schema({
-    classification: String,
-    type: String,
-    priority: Number,
-    resolutionID: String,
-    closureTime: Date,
+    username: String,
+    pwdHash: String,
+    role: ['admin', 'user', 'manager'],
 });
 
 export default model('User', UserSchema);
