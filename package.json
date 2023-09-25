@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@types/morgan": "^1.9.5"
+  }
+}
