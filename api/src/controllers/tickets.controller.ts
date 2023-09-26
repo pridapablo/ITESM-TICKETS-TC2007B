@@ -1,8 +1,10 @@
+import {Request,Response} from 'express'
+
 // @ts-ignore
 import ticket from "../models/ticket";
 
-// @ts-ignore
-export const getTickets = async (_req, res) => {
+
+export const getTickets = async (_req:Request, res:Response) => {
     let u;
     try {
         u = await ticket.find();
@@ -15,8 +17,7 @@ export const getTickets = async (_req, res) => {
     res.status(200).json(u);
 };
 
-// @ts-ignore
-export const getTicket = async (req, res) => {
+export const getTicket = async (req:Request, res:Response) => {
     let u;
     try {
         u =await ticket.findById(req.params.id);
@@ -30,8 +31,7 @@ export const getTicket = async (req, res) => {
     res.status(200).json(u);
 }
 
-// @ts-ignore
-export const createTicket = async (req, res) => {
+export const createTicket = async (req:Request, res:Response) => {
     const { classification, type, priority, resolutionID, closureTime } = req.body;
 
     if (!classification || !type || !priority || !resolutionID || !closureTime) {
@@ -47,7 +47,7 @@ export const createTicket = async (req, res) => {
 
     let result;
     try {
-         result = await u.save();
+        result = await u.save();
     } catch (error : any) {
         res.status(500).json({message: error.message});
     }
@@ -57,8 +57,7 @@ export const createTicket = async (req, res) => {
     res.status(201).json(result);
 }   
 
-// @ts-ignore
-export const updateTicket = async (req, res) => {
+export const updateTicket = async (req:Request, res:Response) => {
     if (!req.params.id) {
         res.status(400).json({ message: 'Faltan datos' });
     }
@@ -73,11 +72,10 @@ export const updateTicket = async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar usuario' });
     }
     
-  res.status(200).json(u);
+    res.status(200).json(u);
 }
 
-// @ts-ignore
-export const deleteTicket = async (req, res) => {
+export const deleteTicket = async (req:Request, res:Response) => {
     let u;
 try {
         u = await ticket.findByIdAndDelete(req.params.id);

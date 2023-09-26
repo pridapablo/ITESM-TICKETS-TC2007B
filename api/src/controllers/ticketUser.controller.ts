@@ -1,8 +1,7 @@
-// @ts-ignore
+import {Request,Response} from 'express'
 import ticketUser from "../models/ticket";
 
-// @ts-ignore
-export const getTicketsUser = async (_req, res) => {
+export const getTicketsUser = async (_req:Request, res:Response) => {
     let u;
     try {
         u = await ticketUser.find();
@@ -15,8 +14,7 @@ export const getTicketsUser = async (_req, res) => {
     res.status(200).json(u);
 };
 
-// @ts-ignore
-export const getTicketUser = async (req, res) => {
+export const getTicketUser = async (req:Request, res:Response) => {
     let u;
     try {
         u =await ticketUser.findById(req.params.id);
@@ -30,8 +28,7 @@ export const getTicketUser = async (req, res) => {
     res.status(200).json(u);
 }
 
-// @ts-ignore
-export const createTicketUser = async (req, res) => {
+export const createTicketUser = async (req:Request, res:Response) => {
     const { classification, type, priority, resolutionID, closureTime } = req.body;
 
     if (!classification || !type || !priority || !resolutionID || !closureTime) {
@@ -47,7 +44,7 @@ export const createTicketUser = async (req, res) => {
 
     let result;
     try {
-         result = await u.save();
+        result = await u.save();
     } catch (error : any) {
         res.status(500).json({message: error.message});
     }
@@ -57,8 +54,7 @@ export const createTicketUser = async (req, res) => {
     res.status(201).json(result);
 }   
 
-// @ts-ignore
-export const updateTicketUser = async (req, res) => {
+export const updateTicketUser = async (req:Request, res:Response) => {
     if (!req.params.id) {
         res.status(400).json({ message: 'Faltan datos' });
     }
@@ -73,11 +69,10 @@ export const updateTicketUser = async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar usuario' });
     }
     
-  res.status(200).json(u);
+    res.status(200).json(u);
 }
 
-// @ts-ignore
-export const deleteTicketUser = async (req, res) => {
+export const deleteTicketUser = async (req:Request, res:Response) => {
     let u;
 try {
         u = await ticketUser.findByIdAndDelete(req.params.id);
