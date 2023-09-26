@@ -1,11 +1,11 @@
 // @ts-ignore
-import ticket from "../models/ticket";
+import ticketUser from "../models/ticket";
 
 // @ts-ignore
-export const getTickets = async (_req, res) => {
+export const getTicketsUser = async (_req, res) => {
     let u;
     try {
-        u = await ticket.find();
+        u = await ticketUser.find();
     } catch (error: any) {
         res.status(500).json({message: error.message});
     }
@@ -16,10 +16,10 @@ export const getTickets = async (_req, res) => {
 };
 
 // @ts-ignore
-export const getTicket = async (req, res) => {
+export const getTicketUser = async (req, res) => {
     let u;
     try {
-        u =await ticket.findById(req.params.id);
+        u =await ticketUser.findById(req.params.id);
     }
     catch (error: any) {
         res.status(500).json({message: error.message});
@@ -31,13 +31,13 @@ export const getTicket = async (req, res) => {
 }
 
 // @ts-ignore
-export const createTicket = async (req, res) => {
+export const createTicketUser = async (req, res) => {
     const { classification, type, priority, resolutionID, closureTime } = req.body;
 
     if (!classification || !type || !priority || !resolutionID || !closureTime) {
         res.status(400).json({message: 'Faltan datos'});
     }
-    const u = new ticket({
+    const u = new ticketUser({
         classification,
         type,
         priority,
@@ -58,13 +58,13 @@ export const createTicket = async (req, res) => {
 }   
 
 // @ts-ignore
-export const updateTicket = async (req, res) => {
+export const updateTicketUser = async (req, res) => {
     if (!req.params.id) {
         res.status(400).json({ message: 'Faltan datos' });
     }
     let u;
     try {
-        u = await ticket.findByIdAndUpdate(req.params.id, req.body);
+        u = await ticketUser.findByIdAndUpdate(req.params.id, req.body);
     
     } catch (error: any) {
         res.status(500).json({ message: error.message });
@@ -77,10 +77,10 @@ export const updateTicket = async (req, res) => {
 }
 
 // @ts-ignore
-export const deleteTicket = async (req, res) => {
+export const deleteTicketUser = async (req, res) => {
     let u;
 try {
-        u = await ticket.findByIdAndDelete(req.params.id);
+        u = await ticketUser.findByIdAndDelete(req.params.id);
     
 } catch (error: any) {
     res.status(500).json({message: error.message});
