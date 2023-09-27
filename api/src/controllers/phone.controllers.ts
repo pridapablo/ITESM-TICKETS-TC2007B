@@ -58,7 +58,7 @@ export const handleTicket = async (req, res) => {
                     await u.save();
 
                      // Send categories menu
-                    const categoriesMenuText = menu.join(', ');
+                    let categoriesMenuText = menu.map((item, index) => `${index + 1}. ${item}`).join('\n');
                     await client.messages.create({
                         body: `Por favor, selecciona una categoría: \n\n ${categoriesMenuText}`,
                         from: "whatsapp:+14155238886",
@@ -85,12 +85,11 @@ export const handleTicket = async (req, res) => {
                         });
                     }
 
-                    // Send subcategories menu based on category
+                   // Send subcategories menu based on category
                     if (u.chat_ticket_category && u.chat_ticket_category in subMenu) {
-                        console.log("entro", u.chat_ticket_category);
-                        const subcategoriesMenuText = subMenu[u.chat_ticket_category as keyof typeof subMenu].join(', ');
+                        let subcategoriesMenuText = subMenu[u.chat_ticket_category as keyof typeof subMenu].map((item, index) => `${index + 1}. ${item}`).join('\n');
                         await client.messages.create({
-                            body: `Por favor, selecciona una subcategoría. Aquí están las opciones: ${subcategoriesMenuText}`,
+                            body: `Por favor, selecciona una subcategoría. Aquí están las opciones: \n\n${subcategoriesMenuText}`,
                             from: "whatsapp:+14155238886",
                             to: `whatsapp:+${WaId}`,
                         });
@@ -177,7 +176,7 @@ export const handleTicket = async (req, res) => {
                     // Validate yes/no
                     const processedBody4 = Body.toLowerCase();
 
-                    if (processedBody4 === 'si') {
+                    if (processedBody4 === 'Si' || processedBody4 === 'Sí' || processedBody4 === 'si' || processedBody4 === 'sí' || processedBody4 === 's') {
                          const t = new ticket({
                         description: u.chat_ticket_description,
                         category: u.chat_ticket_category,
@@ -193,7 +192,7 @@ export const handleTicket = async (req, res) => {
                         });
                         u.chat_state = 0;
                         await u.save();
-                    } else if (processedBody4 === 'no') {
+                    } else if (processedBody4 === 'No' || processedBody4 === 'no' || processedBody4 === 'n') {
                         u.chat_state = 0;
                         await client.messages.create({
                             body: "Reiniciando chatbot.",
@@ -203,7 +202,7 @@ export const handleTicket = async (req, res) => {
                         await u.save();
                     } else {
                         await client.messages.create({
-                            body: "Por favor, responde con 'si' o 'no'.",
+                            body: "Por favor, responde con 'Si' o 'No'.",
                             from: "whatsapp:+14155238886",
                             to: `whatsapp:+${WaId}`,
                         });
