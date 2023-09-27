@@ -10,7 +10,7 @@ export const getResolutions = async (_req, res) => {
         res.status(500).json({message: error.message});
     }
     if(!u) {
-        res.status(500).json({message: 'Error al obtener usuarios'});
+        res.status(500).json({message: 'Error al obtener soluciones'});
     }
     res.status(200).json(u);
 };
@@ -25,7 +25,7 @@ export const getResolution = async (req, res) => {
         res.status(500).json({message: error.message});
     }
     if(!u) {
-        res.status(500).json({message: 'Error al obtener usuario'});
+        res.status(500).json({message: 'Error al obtener solución'});
     }
     res.status(200).json(u);
 }
@@ -52,7 +52,7 @@ export const createResolution = async (req, res) => {
         res.status(500).json({message: error.message});
     }
     if(!result) {
-        res.status(500).json({message: 'Error al crear usuario'});
+        res.status(500).json({message: 'Error al crear solución'});
     }
     res.status(201).json(result);
 }   
@@ -70,7 +70,7 @@ export const updateResolution = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
     if (!u) {
-        res.status(500).json({ message: 'Error al actualizar usuario' });
+        res.status(500).json({ message: 'Error al actualizar solución' });
     }
     
   res.status(200).json(u);
@@ -87,7 +87,7 @@ try {
     
 }
     if (!u) {
-        res.status(500).json({message: 'Error al eliminar usuario'});
+        res.status(500).json({message: 'Error al eliminar solución'});
     }
     res.status(200).json(u);
 }

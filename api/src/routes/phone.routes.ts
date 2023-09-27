@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { } from "../controllers/phone.controllers";
+import {  handleTicket, sendConfirmation } from "../controllers/phone.controllers";
 
 const router = Router();
 
 // Phone added to user
-router.post('/:id', sendConfirmation);
+router.post('/confirm', sendConfirmation);
 
 // Chatbot
-router.post('/', 
+router.post('/ticket', handleTicket);
+    
 export default router;

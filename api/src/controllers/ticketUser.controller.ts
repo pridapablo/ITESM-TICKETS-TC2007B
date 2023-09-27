@@ -1,5 +1,5 @@
 // @ts-ignore
-import ticketUser from "../models/ticket";
+import ticketUser from "../models/ticketUser";
 
 // @ts-ignore
 export const getTicketsUser = async (_req, res) => {
@@ -10,7 +10,7 @@ export const getTicketsUser = async (_req, res) => {
         res.status(500).json({message: error.message});
     }
     if(!u) {
-        res.status(500).json({message: 'Error al obtener usuarios'});
+        res.status(500).json({message: 'Error al obtener ticket-user'});
     }
     res.status(200).json(u);
 };
@@ -25,7 +25,7 @@ export const getTicketUser = async (req, res) => {
         res.status(500).json({message: error.message});
     }
     if(!u) {
-        res.status(500).json({message: 'Error al obtener usuario'});
+        res.status(500).json({message: 'Error al obtener ticket-user'});
     }
     res.status(200).json(u);
 }
@@ -52,7 +52,7 @@ export const createTicketUser = async (req, res) => {
         res.status(500).json({message: error.message});
     }
     if(!result) {
-        res.status(500).json({message: 'Error al crear usuario'});
+        res.status(500).json({message: 'Error al crear ticket-user'});
     }
     res.status(201).json(result);
 }   
@@ -70,7 +70,7 @@ export const updateTicketUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
     if (!u) {
-        res.status(500).json({ message: 'Error al actualizar usuario' });
+        res.status(500).json({ message: 'Error al actualizar ticket-user' });
     }
     
   res.status(200).json(u);
@@ -87,7 +87,7 @@ try {
     
 }
     if (!u) {
-        res.status(500).json({message: 'Error al eliminar usuario'});
+        res.status(500).json({message: 'Error al eliminar ticket-user'});
     }
     res.status(200).json(u);
 }
