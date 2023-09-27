@@ -190,8 +190,8 @@ export const handleTicket = async (req, res) => {
                     if (processedBody4 === 'Si' || processedBody4 === 'Sí' || processedBody4 === 'si' || processedBody4 === 'sí' || processedBody4 === 's') {
                         const t = new ticket({
                         description: u.chat_ticket_description,
-                        category: u.chat_ticket_category,
-                        subcategory: u.chat_ticket_subcategory,
+                        classification: u.chat_ticket_category,
+                        subclassification: u.chat_ticket_subcategory,
                         priority: u.chat_ticket_priority,
                         user: u._id,
                         });
