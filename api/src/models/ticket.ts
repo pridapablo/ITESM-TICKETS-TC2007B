@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const TicketSchema = new Schema({
-    classification: { type: Schema.Types.ObjectId, ref: 'Classification' },
+    classification: String,
     subclassification: String,
     priority: Number,
     description: String,
