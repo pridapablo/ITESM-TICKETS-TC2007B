@@ -31,27 +31,29 @@ export const getUser = async (req, res) => {
 
 // @ts-ignore
 export const createUser = async (req, res) => {
-    const { username, pwdHash, role } = req.body;
+    const { username, pwdHash, role, phone } = req.body;
+    console.log(req.body);
 
     if (!username || !pwdHash || !role) {
-        res.status(400).json({message: 'Faltan datos'});
+        return res.status(400).json({message: 'Faltan datos'});
     }
     const u = new user({
         username,
         pwdHash,
         role,
+        phone,
     });
 
     let result;
     try {
          result = await u.save();
     } catch (error : any) {
-        res.status(500).json({message: error.message});
+        return res.status(500).json({message: error.message});
     }
     if(!result) {
-        res.status(500).json({message: 'Error al crear usuario'});
+        return res.status(500).json({message: 'Error al crear usuario'});
     }
-    res.status(201).json(result);
+    return res.status(201).json(result);
 }   
 
 // @ts-ignore
