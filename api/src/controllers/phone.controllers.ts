@@ -1,20 +1,21 @@
 import twilio from "twilio";
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "../const"
 import user from "../models/user";
+import ticket from "../models/ticket";
 
 const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-const menu = "Por favor, ingresa una opción válida: \n\n 1. Servicios \n 2. Digital \n 3. Infraestructura \n 4. Recursos Humanos \n 5. Beneficiarios \n 6. Mobiliario \n 7. Seguridad \n 8. Materiales \n 9. Fenómeno meteorológico";
+const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
-    '1': ['Agua', 'Luz', 'Teléfono', 'Basura', 'Limpeza del Aula'],
-    '2': ['Internet, Servidores y Equipos, Software', 'Hardware', 'Cámaras de Seguridad', 'Soporte Técnico Presencial y Remoto'],
-    '3': ['Paredes', 'Techo', 'Ventanas', 'Puertas', 'Aulas en general'],
-    '4': ['Permisos', 'Asistencias', 'Salud', 'Trámites', 'Honorarios', 'Asistencias'],
-    '5': ['Asistencias', 'Documentación', 'Apoyo Académico', 'Salud', 'Seguridad/Bullying'],
-    '6': ['Sillas/Butacas', 'Escritorios', 'Pizarrones', 'Cafetería', 'Estantes/Archiveros'],
-    '7': ['Delincuencia', 'Robos', 'Bandalismo', 'Imagen Institucional'],
-    '8': ['Educativos', 'Papelería', 'Limpieza'],
-    '9': ['Inundaciones', 'Incendios', 'Sismos' ]
+    'Servicios': ['Agua', 'Luz', 'Teléfono', 'Basura', 'Limpeza del Aula'],
+    'Digital': ['Internet', 'Servidores y Equipos', 'Software', 'Hardware', 'Cámaras de Seguridad', 'Soporte Técnico Presencial y Remoto'],
+    'Infraestructura': ['Paredes', 'Techo', 'Ventanas', 'Puertas', 'Aulas en general'],
+    'Recursos Humanos': ['Permisos', 'Asistencias', 'Salud', 'Trámites', 'Honorarios', 'Asistencias'],
+    'Beneficiarios': ['Asistencias', 'Documentación', 'Apoyo Académico', 'Salud', 'Seguridad/Bullying'],
+    'Mobiliario': ['Sillas/Butacas', 'Escritorios', 'Pizarrones', 'Cafetería', 'Estantes/Archiveros'],
+    'Seguridad': ['Delincuencia', 'Robos', 'Bandalismo', 'Imagen Institucional'],
+    'Materiales': ['Educativos', 'Papelería', 'Limpieza'],
+    'Fenómeno meteorológico': ['Inundaciones', 'Incendios', 'Sismos']
 };
 
 //@ts-ignore
@@ -38,76 +39,192 @@ export const handleTicket = async (req, res) => {
                 message: `User with phone number ${WaId} not found`,
             });
         } else {
-           
-            switch (u.chat_state){
+            switch (u.chat_state) {
                 case 0:
                 case undefined:
-                   //Ask for ticket description and store the user's response
+                    // Ask for ticket description
                     await client.messages.create({
-                        body: "Please enter your ticket description.",
+                        body: "Por favor, ingresa la descripción de tu ticket.",
                         from: "whatsapp:+14155238886",
                         to: `whatsapp:+${WaId}`,
                     });
                     u.chat_state = 1;
                     await u.save();
                     break;
-                
+
                 case 1:
-                    //Ask for ticket category and store the user's response
-                    await client.messages.create({
-                        body: menu,
-                        from: "whatsapp:+14155238886",
-                        to: `whatsapp:+${WaId}`,
-                    });
-                    u.chat_ticket_category = Body;
+                    //Store ticket description directly
+                    u.chat_ticket_description = Body;
                     u.chat_state = 2;
                     await u.save();
                     break;
 
                 case 2:
-                //Ask for ticket subcategory
-                if((subMenu as {[key: string]: string[]})[Body]){
-                    let formattedSubMenu = (subMenu as {[key: string]: string[]})[Body].join('\n');
+                     // Send categories menu
+                    const categoriesMenuText = menu.join(', ');
                     await client.messages.create({
-                        body: `Please enter your ticket subcategory: \n${formattedSubMenu}`,
+                        body: `Por favor, selecciona una categoría: \n\n ${categoriesMenuText}`,
                         from: "whatsapp:+14155238886",
                         to: `whatsapp:+${WaId}`,
                     });
-                    u.chat_ticket_subcategory = Body;
                     u.chat_state = 3;
                     await u.save();
-                } else {
+                    break;
+            
+                case 3:
+                    // Store category
+                    const index = parseInt(Body) - 1; // Subtract 1 because array indices start at 0
+                    if (index >= 0 && index < menu.length) {
+                        const processedBody = menu[index];
+                        u.chat_ticket_category = processedBody;
+                        u.chat_state = 4;
+                        await u.save();
+                    }
+                    else {
+                        // Handle the case where the index is out of bounds
+                    }
+                    break;
+                
+                case 4:
+                    // Send subcategories menu based on category
+                    if (u.chat_ticket_category && u.chat_ticket_category in subMenu) {
+                        console.log("entro", u.chat_ticket_category);
+                        const subcategoriesMenuText = subMenu[u.chat_ticket_category as keyof typeof subMenu].join(', ');
+                        await client.messages.create({
+                            body: `Por favor, selecciona una subcategoría. Aquí están las opciones: ${subcategoriesMenuText}`,
+                            from: "whatsapp:+14155238886",
+                            to: `whatsapp:+${WaId}`,
+                        });
+                        u.chat_state = 5;
+                        await u.save();
+                    } else {
+                        console.log("no entro", u.chat_ticket_category);
+                        // Handle the case where the category is not in the subMenu
+                    }
+                    break;
+                
+                case 5:
+                    // Store subcategory
+                    // Assuming Body contains the integer response
+                    const index2 = parseInt(Body) - 1; // Subtract 1 because array indices start at 0
+
+                    // Check if the index is within the array bounds
+                    if (u.chat_ticket_category && u.chat_ticket_category in subMenu) {
+                        const subcategories = subMenu[u.chat_ticket_category as keyof typeof subMenu];
+                        if (index2 >= 0 && index2 < subcategories.length) {
+                            const processedBody2 = subcategories[index2];
+                            u.chat_ticket_subcategory = processedBody2;
+                            u.chat_state = 6;
+                            await u.save();
+                        } else {
+                            // Handle the case where the index is out of bounds
+                        }
+                    } else {
+                        // Handle the case where the category is not in the subMenu
+                    }
+                    break;
+                
+                case 6:
+                    const prioritiesMenuText = ["1", "2", "3", "4", "5"].join(', ');
                     await client.messages.create({
-                        body: "Invalid Category",
+                        body: `Por favor, selecciona una prioridad. Aquí están las opciones: ${prioritiesMenuText}`,
                         from: "whatsapp:+14155238886",
                         to: `whatsapp:+${WaId}`,
                     });
-                }
-                break;
-            case 3:
-                //Ask for ticket priority
+                    u.chat_state = 7;
+                    await u.save();
+                    break;
+                
+                case 7:
+                    // Store priority
+                    const priority = parseInt(Body);
+                    if (isNaN(priority) || priority < 1 || priority > 5) {
+                        // Handle the case where the input is not a number or not within the range
+                    } else {
+                        const processedBody3 = priority;
+                        u.chat_ticket_priority = processedBody3;
+                        u.chat_state = 8;
+                        await u.save();
+                    }
+                    break;
+                
+                case 8:
+                    // Ask for ticket confirmation
+                    await client.messages.create({
+                        body: "Por favor, confirma tu ticket.",
+                        from: "whatsapp:+14155238886",
+                        to: `whatsapp:+${WaId}`,
+                    });
+                    u.chat_state = 9;
+                    await u.save();
+                    break;
+                
+               case 9:
+                // Print ticket details
                 await client.messages.create({
-                    body: "Please enter your ticket priority from 1 to 5.",
+                    body: `Aquí están los detalles de tu ticket:\n\n
+                    Descripción: ${u.chat_ticket_description}
+                    Categoría: ${u.chat_ticket_category}
+                    Subcategoría: ${u.chat_ticket_subcategory}
+                    Prioridad: ${u.chat_ticket_priority} \n\n
+                    Por favor confirma si los detalles son correctos. Responde con "si" o "no".`,
                     from: "whatsapp:+14155238886",
                     to: `whatsapp:+${WaId}`,
                 });
-                u.chat_ticket_priority = Body;
-                /*Create send confirmation here*/
-                await client.messages.create({
-                    body: `Your ticket has been created successfully. Thank you!`,
-                    from: "whatsapp:+14155238886",
-                    to: `whatsapp:+${WaId}`,
-                });
-                u.chat_state = 0; // Reset the state to initial
+                u.chat_state = 10;
                 await u.save();
                 break;
+                
+                case 10:
+                    // Validate yes/no
+                    const processedBody4 = Body.toLowerCase();
+
+                    if (processedBody4 === 'si') {
+                        u.chat_state = 11;
+                        await u.save();
+                    } else if (processedBody4 === 'no') {
+                        u.chat_state = 0;
+                        await client.messages.create({
+                            body: "Reiniciando chatbot.",
+                            from: "whatsapp:+14155238886",
+                            to: `whatsapp:+${WaId}`,
+                        });
+
+                        await u.save();
+                    } else {
+                        // Handle the case where the input is not yes/no
+                    }
+                    u.chat_state = 11;
+                    await u.save();
+                    break;
+                
+                case 11:
+                    // Create ticket
+                    const t = new ticket({
+                        description: u.chat_ticket_description,
+                        category: u.chat_ticket_category,
+                        subcategory: u.chat_ticket_subcategory,
+                        priority: u.chat_ticket_priority,
+                        user: u._id,
+                    });
+                    await t.save();
+                    await client.messages.create({
+                        body: "Ticket creado con éxito.",
+                        from: "whatsapp:+14155238886",
+                        to: `whatsapp:+${WaId}`,
+                    });
+                    u.chat_state = 0;
+                    await u.save();
+                    break;
 
                 default:
                     await client.messages.create({
-                        body: "Invalid State",
+                        body: "Estado desconocido, reiniciando chatbot.",
                         from: "whatsapp:+14155238886",
                         to: `whatsapp:+${WaId}`,
                     });
+                    u.chat_state = 0;
+                    await u.save();
                     break;
             }
                

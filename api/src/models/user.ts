@@ -10,7 +10,7 @@ const UserSchema = new Schema({
     chat_ticket_description: String,
     chat_ticket_category: String,
     chat_ticket_subcategory: String,
-    chat_ticket_priority: String,
+    chat_ticket_priority: Number,
 });
 
 export default model('User', UserSchema);
