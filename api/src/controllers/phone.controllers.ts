@@ -18,6 +18,24 @@ const subMenu = {
     'Fenómeno meteorológico': ['Inundaciones', 'Incendios', 'Sismos']
 };
 
+const restartChatbot = async (WaId: string, u: any) => {
+    await client.messages.create({
+        body: "Error. Vuelve a comenzar enviando un mensaje con la palabra 'ticket'.",
+        from: "whatsapp:+14155238886",
+        to: `whatsapp:+${WaId}`,
+    });
+    u.chat_state = 0;
+    await u.save();
+}
+
+const printMessage = async (WaId: string, message: string) => {
+    await client.messages.create({
+        body: message,
+        from: "whatsapp:+14155238886",
+        to: `whatsapp:+${WaId}`,
+    });
+}
+
 //@ts-ignore
 export const handleTicket = async (req, res) => {
     // @ts-ignore body unused 
@@ -43,14 +61,13 @@ export const handleTicket = async (req, res) => {
                 case 0:
                 case undefined:
                     // Ask for ticket description
-                    await client.messages.create({
-                        body: "Por favor, ingresa la descripción de tu ticket.",
-                        from: "whatsapp:+14155238886",
-                        to: `whatsapp:+${WaId}`,
-                    });
+                    await printMessage(WaId, "Por favor, ingresa la descripción de tu ticket.");
                     u.chat_state = 1;
                     await u.save();
-                    break;
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Description request sent'
+                    });
 
                 case 1:
                     //Store ticket description directly
@@ -59,14 +76,13 @@ export const handleTicket = async (req, res) => {
 
                      // Send categories menu
                     let categoriesMenuText = menu.map((item, index) => `${index + 1}. ${item}`).join('\n');
-                    await client.messages.create({
-                        body: `Por favor, selecciona una categoría: \n\n ${categoriesMenuText}`,
-                        from: "whatsapp:+14155238886",
-                        to: `whatsapp:+${WaId}`,
-                    });
+                    await printMessage(WaId, `Por favor, selecciona una categoría: \n\n ${categoriesMenuText}`);
                     u.chat_state = 2;
                     await u.save();
-                    break;
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Description stored and categories menu sent'
+                    });
             
                 case 2:
                     // Store category
@@ -78,33 +94,31 @@ export const handleTicket = async (req, res) => {
                     }
                     else {
                         // Handle the case where the index is out of bounds
-                        await client.messages.create({
-                            body: "Por favor, selecciona una opción válida. (Digita el número de la opción)",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
+                        await printMessage(WaId, "El número ingresado no es válido. Por favor, ingresa una opción mostrada en el menú.");
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Index is not valid'
                         });
                     }
 
                    // Send subcategories menu based on category
                     if (u.chat_ticket_category && u.chat_ticket_category in subMenu) {
                         let subcategoriesMenuText = subMenu[u.chat_ticket_category as keyof typeof subMenu].map((item, index) => `${index + 1}. ${item}`).join('\n');
-                        await client.messages.create({
-                            body: `Por favor, selecciona una subcategoría. Aquí están las opciones: \n\n${subcategoriesMenuText}`,
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
-                        });
+                        await printMessage(WaId, `Por favor, selecciona una subcategoría. Aquí están las opciones: \n\n${subcategoriesMenuText}`);
                         u.chat_state = 3;
                         await u.save();
                     } else {
-                        console.log("no entro", u.chat_ticket_category);
                         // Handle the case where the category is not in the subMenu
-                        await client.messages.create({
-                            body: "Por favor, selecciona una opción válida. (Digita el número de la opción)",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
+                        await printMessage(WaId, "El número ingresado no es válido. Por favor, ingresa una opción mostrada en el menú.");
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Category is not valid'
                         });
                     }
-                    break;
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Category stored and subcategories menu sent'
+                    });
                 
                 case 3:
                     // Store subcategory
@@ -120,41 +134,39 @@ export const handleTicket = async (req, res) => {
                             await u.save();
                         } else {
                             // Handle the case where the index is out of bounds
-                            await client.messages.create({
-                                body: "Por favor, selecciona una opción válida. (Digita el número de la opción)",
-                                from: "whatsapp:+14155238886",
-                                to: `whatsapp:+${WaId}`,
+                            await printMessage(WaId, "El número ingresado no es válido. Por favor, ingresa una opción mostrada en el menú.");
+                            return res.status(400).json({
+                                success: false,
+                                message: 'Index is not valid'
                             });
                         }
                     } else {
                         // Handle the case where the category is not in the subMenu
-                        await client.messages.create({
-                            body: "Por favor, selecciona una opción válida. (Digita el número de la opción)",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
+                        await printMessage(WaId, "El número ingresado no es válido. Por favor, ingresa una opción mostrada en el menú.");
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Category is not valid'
                         });
                     }
 
                     // Send priorities menu
-                    const prioritiesMenuText = ["1", "2", "3", "4", "5"].join(', ');
-                    await client.messages.create({
-                        body: `Por favor, selecciona una prioridad. Aquí están las opciones: ${prioritiesMenuText}`,
-                        from: "whatsapp:+14155238886",
-                        to: `whatsapp:+${WaId}`,
-                    });
+                    await printMessage(WaId, `Por favor, ingresa la prioridad de tu ticket. Las opciones son del 1 al 5.\n\n1. Muy baja\n2. Baja\n3. Media\n4. Alta\n5. Muy alta`);
                     u.chat_state = 4;
                     await u.save();
-                    break;
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Subcategory stored and priorities menu sent'
+                    });
                 
                 case 4:
                     // Store priority
                     const priority = parseInt(Body);
                     if (isNaN(priority) || priority < 1 || priority > 5) {
                         // Handle the case where the priority is not a number or is out of bounds
-                        await client.messages.create({
-                            body: "Por favor, selecciona una opción válida. (Digita la prioridad en número del 1 al 5)",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
+                        await printMessage(WaId, "El número ingresado no es válido. Por favor, ingresa un número del 1 al 5.");
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Priority is not valid'
                         });
                     } else {
                         const processedBody3 = priority;
@@ -163,21 +175,20 @@ export const handleTicket = async (req, res) => {
                     }
 
                      // Ask for ticket confirmation
-                    await client.messages.create({
-                    body: `Aquí están los detalles de tu ticket:\n\nDescripción: ${u.chat_ticket_description}\nCategoría: ${u.chat_ticket_category}\nSubcategoría: ${u.chat_ticket_subcategory}\nPrioridad: ${u.chat_ticket_priority}\n\nPor favor confirma si los detalles son correctos. Responde con "si" o "no".`,
-                    from: "whatsapp:+14155238886",
-                    to: `whatsapp:+${WaId}`,
-                    });
+                    await printMessage(WaId, `Aquí están los detalles de tu ticket:\n\nDescripción: ${u.chat_ticket_description}\nCategoría: ${u.chat_ticket_category}\nSubcategoría: ${u.chat_ticket_subcategory}\nPrioridad: ${u.chat_ticket_priority}\n\nPor favor confirma si los detalles son correctos. Responde con "si" o "no".`);
                     u.chat_state = 5;
                     await u.save();
-                    break;
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Priority stored and confirmation message sent'
+                    });
               
                 case 5:
                     // Validate yes/no
                     const processedBody4 = Body.toLowerCase();
 
                     if (processedBody4 === 'Si' || processedBody4 === 'Sí' || processedBody4 === 'si' || processedBody4 === 'sí' || processedBody4 === 's') {
-                         const t = new ticket({
+                        const t = new ticket({
                         description: u.chat_ticket_description,
                         category: u.chat_ticket_category,
                         subcategory: u.chat_ticket_subcategory,
@@ -185,46 +196,42 @@ export const handleTicket = async (req, res) => {
                         user: u._id,
                         });
                         await t.save();
-                        await client.messages.create({
-                            body: "Ticket creado con éxito.",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
-                        });
+                        await printMessage(WaId, "Ticket creado con éxito.");
                         u.chat_state = 0;
                         await u.save();
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Ticket created'
+                        });
                     } else if (processedBody4 === 'No' || processedBody4 === 'no' || processedBody4 === 'n') {
+                        await printMessage(WaId, "Ticket cancelado, vuelve a comenzar enviando un mensaje con la palabra 'ticket'.");
                         u.chat_state = 0;
-                        await client.messages.create({
-                            body: "Reiniciando chatbot.",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
-                        });
                         await u.save();
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Ticket cancelled'
+                        });
                     } else {
-                        await client.messages.create({
-                            body: "Por favor, responde con 'Si' o 'No'.",
-                            from: "whatsapp:+14155238886",
-                            to: `whatsapp:+${WaId}`,
+                        // Handle the case where the user did not respond with yes or no
+                        await printMessage(WaId, "El texto ingresado no es válido. Por favor, responde con 'si' o 'no'.");
+                        return res.status(400).json({
+                            success: false,
+                            message: 'Text is not valid'
                         });
                     }
-                    break;
                 default:
-                    await client.messages.create({
-                        body: "Estado desconocido, reiniciando chatbot.",
-                        from: "whatsapp:+14155238886",
-                        to: `whatsapp:+${WaId}`,
+                    // Handle the case where the user's chat_state is not valid
+                    await restartChatbot(WaId, u);
+                    return res.status(500).json({
+                        success: false,
+                        message: 'An error occurred'
                     });
-                    u.chat_state = 0;
-                    await u.save();
-                    break;
             }
         }
     } catch (e) {
-        await client.messages.create({
-            body: "Lo sentimos, ha ocurrido un error procesando su solicitud.",
-            from: "whatsapp:+14155238886",
-            to: `whatsapp:+${WaId}`,
-        });
+        await printMessage(WaId, "Lo sentimos, ha ocurrido un error procesando su solicitud.");
+        // Handle the case where an error occurred
+        await restartChatbot(WaId, u);
         
         return res.status(500).json({
             success: false,
@@ -233,7 +240,6 @@ export const handleTicket = async (req, res) => {
     }   
 };
 
-
 //@ts-ignore
 export const sendConfirmation = async (req, res) => {
     const { name, phone } = req.body;
@@ -241,14 +247,7 @@ export const sendConfirmation = async (req, res) => {
         res.status(400).json({ message: 'Faltan datos' });
     }
 try {
-    const message = await client.messages.create({
-      body: `Felicidades, ${name}. Ya puedes crear tickets desde aquí.`,
-      from: "whatsapp:+14155238886",
-      to: `whatsapp:${phone}`,
-    });
-
-    console.log(message.sid);
-    console.log(message.body);
+    await printMessage(phone, `Felicidades, ${name}. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
     res.status(200).json({ message: "Message sent" });
   } catch (error) {
     console.error(error);
