@@ -1,7 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const mongoURI = process.env.MONGO_URI;
-const SECRET = process.env.SECRET;
+export const mongoURI = process.env.MONGO_URI;
+export const SECRET: string = process.env.SECRET || 'teamteammitty';
 
-export { mongoURI, SECRET };
+
+console.log(SECRET)
+
+

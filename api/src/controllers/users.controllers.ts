@@ -1,6 +1,7 @@
 import User, { IUser } from "../models/user";
 import {Request,Response} from 'express'
-
+import jwt from 'jsonwebtoken'
+import {SECRET} from '../const'
 
 export const getUsers = async (_req:Request, res:Response) => {
     let u;
@@ -98,6 +99,9 @@ export const authUser = async (req: Request, res: Response) => {
         return res.status(403).json({ message: "Incorrect Password" });
     }
 
-    return res.status(200).json({ message: "Bien" }); 
+    const token: string = jwt.sign({ _id: u._id },SECRET, { expiresIn: 86400 });
+
+
+    return res.header("auth-token", token).json(u);
 };
 

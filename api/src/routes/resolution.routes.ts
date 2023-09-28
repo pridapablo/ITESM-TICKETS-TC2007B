@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { createResolution, deleteResolution, getResolution, getResolutions, updateResolution } from "../controllers/resolution.controller";
+import * as ResolutionCtrl from '../controllers/resolution.controller';
 
 const router = Router();
 
-router.get('/resolution/:id', getResolution);
+router.get('/resolution/:id', ResolutionCtrl.getResolution);
 
-router.get('/resolution/', getResolutions);
+router.get('/resolution/', ResolutionCtrl.getResolutions);
 
-router.post('/resolution/', createResolution);
+router.post('/resolution/', ResolutionCtrl.createResolution);
 
-router.put('/resolution/:id', updateResolution);
+router.put('/resolution/:id', ResolutionCtrl.updateResolution);
 
-router.delete('/resolution/:id', deleteResolution);
+router.delete('/resolution/:id', ResolutionCtrl.deleteResolution);
 
 export default router;
