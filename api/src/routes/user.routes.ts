@@ -5,16 +5,18 @@ import {TokenValidation} from '../middlewares/authJwt'
 
 const router = Router();
 
-router.get('/',TokenValidation ,UserCtrl.getUsers);
+router.get('/',TokenValidation,TokenValidation ,UserCtrl.getUsers);
 
-router.get('/:id', UserCtrl.getUser);
+router.get('/:id',TokenValidation, UserCtrl.getUser);
 
-router.post('/auth', UserCtrl.authUser);
+//Sign in route
 
-router.post('/', UserCtrl.createUser);
+router.post('/auth',UserCtrl.authUser);
 
-router.put('/:id', UserCtrl.updateUser);
+router.post('/', TokenValidation,UserCtrl.createUser);
 
-router.delete('/:id', UserCtrl.deleteUser);
+router.put('/:id',TokenValidation ,UserCtrl.updateUser);
+
+router.delete('/:id', TokenValidation,UserCtrl.deleteUser);
 
 export default router;

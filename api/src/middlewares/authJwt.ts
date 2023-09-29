@@ -1,23 +1,28 @@
-import {Request,Response, NextFunction} from 'express'
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import {SECRET} from '../const'
+import { SECRET } from '../const';
 
-//Schema
-//import User from '../models/user';
-
-export const TokenValidation =  (req:Request, res:Response, next:NextFunction)=>{
-    const token = req.header('auth-token');
-
-    if(!token){
-        return res.status(401).json("Access-denied")
-    }
-
-    const verifyToken = jwt.verify(token,SECRET);
-    console.log(verifyToken);
-
-    return res.status(200);
-
-    next();
-    
+interface IVerifyToken{
+    _id:string;
+    iat:number;
+    exp:number;
 }
 
+// @ts-ignore
+export const TokenValidation = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.header('auth-token');
+
+    if (!token) {
+        return res.status(401).json("Access-denied");
+    }
+
+    try {
+        const verifyToken = jwt.verify(token, SECRET) as IVerifyToken;
+        req.userId = verifyToken._id;
+
+        next();
+    } catch (error) {
+        // Si hay un error al verificar el token, responder con un error
+        return res.status(401).json("Invalid token");
+    }
+};
