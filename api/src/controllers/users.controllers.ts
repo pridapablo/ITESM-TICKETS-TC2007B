@@ -30,7 +30,7 @@ export const getUser = async (req:Request, res:Response) => {
 }
 
 export const createUser = async (req: Request, res: Response) => {
-    const { username, pwdHash, role } = req.body;
+    const { username, pwdHash, role, phone} = req.body;
 
     if (!username || !pwdHash || !role) {
         return res.status(400).json({ message: 'Faltan datos' });
@@ -41,6 +41,7 @@ export const createUser = async (req: Request, res: Response) => {
             username,
             pwdHash,
             role,
+            phone,
     });
 
     await u.encryptPassword(pwdHash);
