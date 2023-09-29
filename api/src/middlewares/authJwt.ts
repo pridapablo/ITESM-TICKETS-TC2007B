@@ -22,7 +22,6 @@ export const TokenValidation = (req: Request, res: Response, next: NextFunction)
 
         next();
     } catch (error) {
-        // Si hay un error al verificar el token, responder con un error
         return res.status(401).json("Invalid token");
     }
 };
