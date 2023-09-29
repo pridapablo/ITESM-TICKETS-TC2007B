@@ -20,10 +20,15 @@ const MyLoginPage: FC = () => {
         setLoginState(prevState => ({ ...prevState, [name]: value }));
     }, []);
 
-    const handleSubmit = useCallback(() => {
-        login(loginState).catch(() => notify(translate('login.loginError')));
-    }, [login, loginState, notify, translate]);
-
+    const handleSubmit = useCallback(async () => {
+        try {
+            const successMessage = await login(loginState);
+            notify(successMessage);
+        } catch (error: any) {
+            notify(error.message);
+        }
+    }, [login, loginState, notify]);
+    
     const containerStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'column',

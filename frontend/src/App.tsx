@@ -2,6 +2,7 @@ import { dataProvider } from "./data/dataProvider";
 import { UserCreate, UserEdit, UserList } from "./resources/users";
 import { PostCreate, PostEdit, PostList } from "./resources/posts";
 import { AlbumCreate, AlbumEdit, AlbumList } from "./resources/albums";
+import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
 import MyLoginPage from "./auth/MyLoginPage";
@@ -9,6 +10,7 @@ import { authProvider } from "./auth/authProvider";
 import PostIcon from "@mui/icons-material/Book";
 import UserIcon from "@mui/icons-material/Group";
 import AlbumIcon from "@mui/icons-material/PhotoAlbum";
+import NoteIcon from "@mui/icons-material/Note";
 import React from 'react';
 import { Admin, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -62,6 +64,14 @@ export const App = () => {
           edit={AlbumEdit}
           create={AlbumCreate}
           icon={AlbumIcon}
+        />
+        <Resource
+          name="tickets"
+          options={{ label: 'resources.tickets' }}
+          list={TicketList}
+          edit={TicketEdit}
+          create={TicketCreate}
+          icon={NoteIcon}
         />
       </Admin>
     </ThemeProvider>

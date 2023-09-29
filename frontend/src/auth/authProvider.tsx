@@ -2,10 +2,32 @@ import { AuthProvider } from "react-admin";
 
 export const authProvider: AuthProvider = {
     // called when the user attempts to log in
-    login: ({ username }) => {
-        localStorage.setItem("username", username);
-        // accept all username/password combinations
-        return Promise.resolve();
+    login: async ({ username, password }) => {
+        try {
+            const response = await fetch('http://localhost:8000/user/auth', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username,
+                    pwdHash: password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.message === "Usuario o password incorrecto") {
+                // Si la respuesta no es correcta o si el mensaje indica un error, lanzamos una excepción
+                throw new Error(data.message);
+            }
+
+            localStorage.setItem("username", username);
+            return data.message;  // Devolvemos el mensaje "bien"
+
+        } catch (error: any) {
+            throw new Error(error.message);  // Aquí arrojamos el mensaje de error
+        }
     },
     // called when the user clicks on the logout button
     logout: () => {
