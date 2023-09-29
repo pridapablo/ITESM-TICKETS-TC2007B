@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 
 const TicketUserSchema = new Schema({
-    userID: String,
-    ticketID: String,
+    userID: { type: Schema.Types.ObjectId, ref: 'User' },
+    ticketID: { type: Schema.Types.ObjectId, ref: 'Ticket' },
     interactionDate: [Date],
 });
 

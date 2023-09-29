@@ -1,6 +1,7 @@
 import User, { IUser } from "../models/user";
 import {Request,Response} from 'express'
-
+import jwt from 'jsonwebtoken'
+import {SECRET} from '../const'
 
 export const getUsers = async (_req:Request, res:Response) => {
     let u;
@@ -30,7 +31,7 @@ export const getUser = async (req:Request, res:Response) => {
 }
 
 export const createUser = async (req: Request, res: Response) => {
-    const { username, pwdHash, role } = req.body;
+    const { username, pwdHash, role, phone} = req.body;
 
     if (!username || !pwdHash || !role) {
         return res.status(400).json({ message: 'Faltan datos' });
@@ -41,6 +42,7 @@ export const createUser = async (req: Request, res: Response) => {
             username,
             pwdHash,
             role,
+            phone,
     });
 
     await u.encryptPassword(pwdHash);
@@ -98,6 +100,9 @@ export const authUser = async (req: Request, res: Response) => {
         return res.status(403).json({ message: "Incorrect Password" });
     }
 
-    return res.status(200).json({ message: "Bien" }); 
+    const token: string = jwt.sign({ _id: u._id },SECRET, { expiresIn: 86400 });
+
+
+    return res.header("auth-token", token).json(u);
 };
 
