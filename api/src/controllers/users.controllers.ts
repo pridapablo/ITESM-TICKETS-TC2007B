@@ -90,6 +90,7 @@ try {
 export const authUser = async (req: Request, res: Response) => {
     const { username, pwdHash } = req.body;
     const u = await User.findOne({ username });
+
     if (!u) {
         return res.status(400).json({ message: "Username or password incorrect" });
     }
@@ -101,7 +102,5 @@ export const authUser = async (req: Request, res: Response) => {
     }
 
     const token: string = jwt.sign({ _id: u._id }, SECRET, { expiresIn: 86400 });
-    res.status(200).json({ message: "¡Bienvenido, " + u.username + "!" });
-    return res.header("auth-token", token).json(u);
+    return res.header("auth-token", token).status(200).json({ message: "¡Bienvenido, " + u.username + "!", user: u });
 };
-
