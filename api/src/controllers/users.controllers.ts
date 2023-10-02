@@ -47,8 +47,8 @@ export const createUser = async (req: Request, res: Response) => {
 
     await u.encryptPassword(pwdHash);
 
-    const result = await u.save();
-    return res.status(201).json(result);
+        const result = await u.save();
+        return res.status(201).json({ message: result });
     } catch (error:any) {
         return res.status(500).json({ message: error.message });
     }
@@ -100,9 +100,8 @@ export const authUser = async (req: Request, res: Response) => {
         return res.status(403).json({ message: "Incorrect Password" });
     }
 
-    const token: string = jwt.sign({ _id: u._id },SECRET, { expiresIn: 86400 });
-
-
+    const token: string = jwt.sign({ _id: u._id }, SECRET, { expiresIn: 86400 });
+    res.status(200).json({ message: "¡Bienvenido, " + u.username + "!" });
     return res.header("auth-token", token).json(u);
 };
 
