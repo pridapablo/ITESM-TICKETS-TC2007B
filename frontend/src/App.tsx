@@ -1,18 +1,16 @@
 import { dataProvider } from "./data/dataProvider";
-import { UserCreate, UserEdit, UserList } from "./resources/users";
-import { PostCreate, PostEdit, PostList } from "./resources/posts";
-import { AlbumCreate, AlbumEdit, AlbumList } from "./resources/albums";
+import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
 import MyLoginPage from "./auth/MyLoginPage";
 import { authProvider } from "./auth/authProvider";
-import PostIcon from "@mui/icons-material/Book";
-import UserIcon from "@mui/icons-material/Group";
-import AlbumIcon from "@mui/icons-material/PhotoAlbum";
-import React from 'react';
+import NoteIcon from "@mui/icons-material/Note";
 import { Admin, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
+import { CssBaseline } from '@mui/material';
+import { useTheme } from "@mui/material/styles";
+import { GlobalStyles } from '@mui/system';
 
 const lightTheme = createTheme({
   palette: {
@@ -28,9 +26,16 @@ const darkTheme = createTheme({
 
 export const App = () => {
   const [currentTheme, setCurrentTheme] = usePersistentState<'light' | 'dark'>('theme', 'light');
+  const theme = useTheme();
 
   return (
     <ThemeProvider theme={currentTheme === 'light' ? lightTheme : darkTheme}>
+      <CssBaseline />
+      <GlobalStyles styles={{
+        '.ra-layout .ra-content': {
+          paddingTop: `${theme.spacing(8)}px`,
+        },
+      }} />
       <Admin
         dataProvider={dataProvider}
         layout={CustomLayout}
@@ -40,28 +45,12 @@ export const App = () => {
         loginPage={MyLoginPage}
       >
         <Resource
-          name="posts"
-          options={{ label: 'resources.posts' }}
-          list={PostList}
-          edit={PostEdit}
-          create={PostCreate}
-          icon={PostIcon}
-        />
-        <Resource
-          name="users"
-          options={{ label: 'resources.users' }}
-          list={UserList}
-          edit={UserEdit}
-          create={UserCreate}
-          icon={UserIcon}
-        />
-        <Resource
-          name="albums"
-          options={{ label: 'resources.albums' }}
-          list={AlbumList}
-          edit={AlbumEdit}
-          create={AlbumCreate}
-          icon={AlbumIcon}
+          name="tickets"
+          options={{ label: 'resources.tickets' }}
+          list={TicketList}
+          edit={TicketEdit}
+          create={TicketCreate}
+          icon={NoteIcon}
         />
       </Admin>
     </ThemeProvider>
