@@ -14,7 +14,7 @@ router.get('/:id',TokenValidation, UserCtrl.getUser)
 
 router.post('/auth',UserCtrl.authUser);
 
-router.post('/', TokenValidation,AdminAuth,UserCtrl.createUser);
+router.post('/', UserCtrl.createUser);
 
 router.put('/:id',TokenValidation,AdminAuth ,UserCtrl.updateUser);
 
