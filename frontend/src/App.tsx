@@ -11,6 +11,8 @@ import usePersistentState from "./hooks/usePersistentState";
 import { CssBaseline } from '@mui/material';
 import { useTheme } from "@mui/material/styles";
 import { GlobalStyles } from '@mui/system';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
 
 const lightTheme = createTheme({
   palette: {

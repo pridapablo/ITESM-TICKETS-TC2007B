@@ -4,5 +4,4 @@ const originalDataProvider = jsonServerProvider(
   import.meta.env.VITE_JSON_SERVER_URL
 );
 
-
 export const dataProvider = originalDataProvider;

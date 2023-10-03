@@ -20,10 +20,7 @@ export const getTickets = async (_req: Request, res: Response) => {
         // Set the X-Total-Count header
         res.setHeader('X-Total-Count', modifiedTickets.length);
         
-        return res.status(200).json({
-            data: { data: modifiedTickets },
-            total: modifiedTickets.length
-        });
+        return res.status(200).json(modifiedTickets);
     } catch (error: any) {
         return res.status(500).json({message: error.message});
     }
