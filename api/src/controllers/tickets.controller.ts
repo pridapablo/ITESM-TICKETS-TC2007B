@@ -26,19 +26,28 @@ export const getTickets = async (_req: Request, res: Response) => {
     }
 };
 
-export const getTicket = async (req:Request, res:Response) => {
-    let u;
+export const getTicket = async (req: Request, res: Response) => {
+    let t;
     try {
-        u =await ticket.findById(req.params.id);
+        t = await ticket.findById(req.params.id);
     }
     catch (error: any) {
         res.status(500).json({message: error.message});
+        return;  // Don't forget to return here to exit the function
     }
-    if(!u) {
-        res.status(500).json({message: 'Error al obtener ticket'});
+    if (!t) {
+        res.status(404).json({message: 'Error al obtener ticket'});  // Consider using 404 for not found
+        return;  // Don't forget to return here to exit the function
     }
-    res.status(200).json(u);
-}
+    // Create a new object with the desired structure
+    const responseObj = {
+        id: t._id,
+        // ...other fields from t you want to include
+        // e.g., name: t.name,
+    };
+    res.status(200).json(responseObj);
+};
+
 
 export const createTicket = async (req:Request, res:Response) => {
     const { classification, subclassification, priority, description } = req.body;
