@@ -4,17 +4,29 @@ import {Request,Response} from 'express'
 import ticket from "../models/ticket";
 
 
-export const getTickets = async (_req:Request, res:Response) => {
-    let u;
+export const getTickets = async (_req: Request, res: Response) => {
     try {
-        u = await ticket.find();
+        const tickets = await ticket.find();
+        if (!tickets) {
+            return res.status(500).json({message: 'Error al obtener tickets'});
+        }
+        
+        // Convert _id to id
+        const modifiedTickets = tickets.map((ticket: any) => {
+            const { _id, ...otherProps } = ticket.toObject(); // Convert the ticket to a plain object and destructure to get _id and other properties
+            return { id: _id, ...otherProps }; // Return the modified object
+        });
+        
+        // Set the X-Total-Count header
+        res.setHeader('X-Total-Count', modifiedTickets.length);
+        
+        return res.status(200).json({
+            data: { data: modifiedTickets },
+            total: modifiedTickets.length
+        });
     } catch (error: any) {
-        res.status(500).json({message: error.message});
+        return res.status(500).json({message: error.message});
     }
-    if(!u) {
-        res.status(500).json({message: 'Error al obtener tickets'});
-    }
-    res.status(200).json(u);
 };
 
 export const getTicket = async (req:Request, res:Response) => {
@@ -32,17 +44,16 @@ export const getTicket = async (req:Request, res:Response) => {
 }
 
 export const createTicket = async (req:Request, res:Response) => {
-    const { classification, type, priority, resolutionID, closureTime } = req.body;
+    const { classification, subclassification, priority, description } = req.body;
 
-    if (!classification || !type || !priority || !resolutionID || !closureTime) {
+    if (!classification || !subclassification || !priority || !description ) {
         res.status(400).json({message: 'Faltan datos'});
     }
     const u = new ticket({
         classification,
-        type,
+        subclassification,
         priority,
-        resolutionID,
-        closureTime,
+        description,
     });
 
     let result;

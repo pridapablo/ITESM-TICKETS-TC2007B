@@ -5,7 +5,7 @@ import { i18nProvider } from "./locale/i18nProvider";
 import MyLoginPage from "./auth/MyLoginPage";
 import { authProvider } from "./auth/authProvider";
 import NoteIcon from "@mui/icons-material/Note";
-import { Admin, Resource } from "react-admin";
+import { Admin, ListGuesser, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
 import { CssBaseline } from '@mui/material';
@@ -45,9 +45,10 @@ export const App = () => {
         loginPage={MyLoginPage}
       >
         <Resource
-          name="tickets"
+          name="ticket"
           options={{ label: 'resources.tickets' }}
-          list={TicketList}
+          // list={TicketList}
+          list={ListGuesser}
           edit={TicketEdit}
           create={TicketCreate}
           icon={NoteIcon}
