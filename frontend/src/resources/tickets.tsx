@@ -11,7 +11,8 @@ import {
     NumberInput,
     DateField,
     DateInput,
-    SelectInput
+    SelectInput,
+    BooleanInput
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import { useState } from "react";
@@ -45,13 +46,19 @@ export const TicketList = () => (
     </List>
 );
 
+
 export const TicketEdit = () => {
     const [typeChoices, setTypeChoices] = useState([]);
+    const [isSolved, setIsSolved] = useState(false);
     const onSuccess = useSuccessHandler("Ticket updated", "/tickets");
 
     const handleClassificationChange = (event) => {
         const selectedClassification = event.target.value;
         setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+    };
+
+    const handleIsSolvedChange = (event) => {
+        setIsSolved(event.target.checked);
     };
 
     return (
@@ -63,16 +70,30 @@ export const TicketEdit = () => {
                     onChange={handleClassificationChange}
                 />
                 <SelectInput
-                    source="type"
+                    source="subclassification"
                     choices={typeChoices}
                 />
-                <NumberInput source="priority" />
-                <TextInput source="resolutionID" />
-                <DateInput source="closureTime" />
+                <TextInput source="description" multiline />
+                <SelectInput source="priority" choices={[
+                    { id: '1', name: 'Muy baja' },
+                    { id: '2', name: 'Baja' },
+                    { id: '3', name: 'Media' },
+                    { id: '4', name: 'Alta' },
+                    { id: '5', name: 'Muy alta' },
+                ]} />
+                <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} />
+                {isSolved && <><DateInput source="resolution.closureTime" label="Closure Time" />
+                <TextInput source="resolution.whatWasDone" label="What Was Done" />
+                <TextInput source="resolution.howWasDone" label="How Was Done" />
+                    <TextInput source="resolution.whyWasDone" label="Why Was Done" />
+                    </>
+                }
+                
             </SimpleForm>
         </Edit>
     );
 };
+
 
 export const TicketCreate = () => {
     const [typeChoices, setTypeChoices] = useState([]);
