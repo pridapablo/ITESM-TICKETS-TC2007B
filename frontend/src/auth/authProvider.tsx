@@ -5,7 +5,7 @@ export const authProvider: AuthProvider = {
     // called when the user attempts to log in
     login: async ({ username, password }) => {
         try {
-            const response = await fetch('http://localhost:8000/user/auth', {
+            const response = await fetch(`${import.meta.env.API}/user/auth`, {
                 method: 'POST',
                 headers: new Headers({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({

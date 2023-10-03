@@ -89,22 +89,36 @@ export const createTicket = async (req: Request, res: Response) => {
 }
 
 
-export const updateTicket = async (req:Request, res:Response) => {
-    if (!req.params.id) {
-        res.status(400).json({ message: 'Faltan datos' });
+export const updateTicket = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { userID } = req.body;  // assuming userID is provided in the request body
+
+    if (!id || !mongoose.Types.ObjectId.isValid(userID)) {
+        return res.status(400).json({ message: 'Faltan datos' });
     }
-    let u;
+
+    let ticketUpdateResult;
+    let ticketUserCreateRes;
+
     try {
-        u = await ticket.findByIdAndUpdate(req.params.id, req.body);
-    
+        ticketUpdateResult = await ticket.findByIdAndUpdate(id, req.body, { new: true });  // { new: true } to return the updated document
+
+        ticketUserCreateRes = await ticketUser.create({
+            userID,
+            ticketID: id,
+            interactionDate: new Date(),
+            interactionType: 'update',
+        });
+
     } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
-    if (!u) {
-        res.status(500).json({ message: 'Error al actualizar ticket' });
+
+    if (!ticketUpdateResult || !ticketUserCreateRes) {
+        return res.status(500).json({ message: 'Error al actualizar ticket o usuario del ticket' });
     }
-    
-    res.status(200).json(u);
+
+    return res.status(200).json({ ticket: ticketUpdateResult, ticketUser: ticketUserCreateRes });
 }
 
 export const deleteTicket = async (req:Request, res:Response) => {
