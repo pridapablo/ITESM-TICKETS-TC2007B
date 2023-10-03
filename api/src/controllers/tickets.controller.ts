@@ -1,64 +1,95 @@
+import {Request,Response} from 'express'
+
 // @ts-ignore
 import ticket from "../models/ticket";
+import ticketUser from '../models/ticketUser';
+import mongoose from 'mongoose';
 
-// @ts-ignore
-export const getTickets = async (_req, res) => {
-    let u;
+
+export const getTickets = async (_req: Request, res: Response) => {
     try {
-        u = await ticket.find();
+        const tickets = await ticket.find();
+        if (!tickets) {
+            return res.status(500).json({message: 'Error al obtener tickets'});
+        }
+        
+        // Convert _id to id
+        const modifiedTickets = tickets.map((ticket: any) => {
+            const { _id, ...otherProps } = ticket.toObject(); // Convert the ticket to a plain object and destructure to get _id and other properties
+            return { id: _id, ...otherProps }; // Return the modified object
+        });
+        
+        // Set the X-Total-Count header
+        res.setHeader('X-Total-Count', modifiedTickets.length);
+        
+        return res.status(200).json(modifiedTickets);
     } catch (error: any) {
-        res.status(500).json({message: error.message});
+        return res.status(500).json({message: error.message});
     }
-    if(!u) {
-        res.status(500).json({message: 'Error al obtener tickets'});
-    }
-    res.status(200).json(u);
 };
 
-// @ts-ignore
-export const getTicket = async (req, res) => {
-    let u;
+export const getTicket = async (req: Request, res: Response) => {
+    let t;
     try {
-        u =await ticket.findById(req.params.id);
+        t = await ticket.findById(req.params.id);
     }
     catch (error: any) {
         res.status(500).json({message: error.message});
+        return;  // Don't forget to return here to exit the function
     }
-    if(!u) {
-        res.status(500).json({message: 'Error al obtener ticket'});
-    }
-    res.status(200).json(u);
-}
+    if (!t) 
+        return res.status(404).json({message: 'Error al obtener ticket'});  // Consider using 404 for not found
+    
+    // Create a new object with the desired structure
+    const responseObj = {
+        id: t._id,
+        ...t.toObject(),
+    };
+   return res.status(200).json(responseObj);
+};
 
-// @ts-ignore
-export const createTicket = async (req, res) => {
-    const { classification, type, priority, resolutionID, closureTime } = req.body;
 
-    if (!classification || !type || !priority || !resolutionID || !closureTime) {
-        res.status(400).json({message: 'Faltan datos'});
+export const createTicket = async (req: Request, res: Response) => {
+    const { classification, subclassification, priority, description, userID } = req.body;
+
+
+    if (!classification || !subclassification || !priority || !description || !mongoose.Types.ObjectId.isValid(userID)) {
+        res.status(400).json({ message: 'Faltan datos' });
+        return;  
     }
-    const u = new ticket({
+
+    const t = new ticket({
         classification,
-        type,
+        subclassification,
         priority,
-        resolutionID,
-        closureTime,
+        description,
     });
 
-    let result;
-    try {
-         result = await u.save();
-    } catch (error : any) {
-        res.status(500).json({message: error.message});
-    }
-    if(!result) {
-        res.status(500).json({message: 'Error al crear ticket'});
-    }
-    res.status(201).json(result);
-}   
+    let ticketResult;
+    let userResult;
 
-// @ts-ignore
-export const updateTicket = async (req, res) => {
+    try {
+        ticketResult = await t.save();
+
+        userResult = await ticketUser.create({
+            userID,
+            ticketID: ticketResult._id,
+            interactionDate: new Date(),
+            interactionType: 'create',
+        });
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
+    }
+
+    if (!ticketResult || !userResult) {
+       return res.status(500).json({ message: 'Error al crear ticket o usuario del ticket' });
+    }
+
+    return res.status(201).json({ ticket: ticketResult, user: userResult });
+}
+
+
+export const updateTicket = async (req:Request, res:Response) => {
     if (!req.params.id) {
         res.status(400).json({ message: 'Faltan datos' });
     }
@@ -73,11 +104,10 @@ export const updateTicket = async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar ticket' });
     }
     
-  res.status(200).json(u);
+    res.status(200).json(u);
 }
 
-// @ts-ignore
-export const deleteTicket = async (req, res) => {
+export const deleteTicket = async (req:Request, res:Response) => {
     let u;
 try {
         u = await ticket.findByIdAndDelete(req.params.id);

@@ -1,5 +1,7 @@
 import jsonServerProvider from "ra-data-json-server";
 
-export const dataProvider = jsonServerProvider(
+const originalDataProvider = jsonServerProvider(
   import.meta.env.VITE_JSON_SERVER_URL
 );
+
+export const dataProvider = originalDataProvider;

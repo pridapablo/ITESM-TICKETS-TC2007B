@@ -5,6 +5,7 @@ export const en: TranslationMessages = {
     posts: 'Posts',
     users: 'Users',
     albums: 'Albums',
+    tickets: 'Tickets',
   },
   login: {
     username: 'Username',

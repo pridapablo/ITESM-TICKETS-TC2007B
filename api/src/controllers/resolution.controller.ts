@@ -1,8 +1,7 @@
-// @ts-ignore
+import {Request,Response} from 'express'
 import resolution from "../models/resolution";
 
-// @ts-ignore
-export const getResolutions = async (_req, res) => {
+export const getResolutions = async (_req:Request, res:Response) => {
     let u;
     try {
         u = await resolution.find();
@@ -15,8 +14,7 @@ export const getResolutions = async (_req, res) => {
     res.status(200).json(u);
 };
 
-// @ts-ignore
-export const getResolution = async (req, res) => {
+export const getResolution = async (req:Request, res:Response) => {
     let u;
     try {
         u =await resolution.findById(req.params.id);
@@ -30,8 +28,7 @@ export const getResolution = async (req, res) => {
     res.status(200).json(u);
 }
 
-// @ts-ignore
-export const createResolution = async (req, res) => {
+export const createResolution = async (req:Request, res:Response) => {
     const { classification, type, priority, resolutionID, closureTime } = req.body;
 
     if (!classification || !type || !priority || !resolutionID || !closureTime) {
@@ -47,7 +44,7 @@ export const createResolution = async (req, res) => {
 
     let result;
     try {
-         result = await u.save();
+        result = await u.save();
     } catch (error : any) {
         res.status(500).json({message: error.message});
     }
@@ -57,8 +54,7 @@ export const createResolution = async (req, res) => {
     res.status(201).json(result);
 }   
 
-// @ts-ignore
-export const updateResolution = async (req, res) => {
+export const updateResolution = async (req:Request, res:Response) => {
     if (!req.params.id) {
         res.status(400).json({ message: 'Faltan datos' });
     }
@@ -73,11 +69,10 @@ export const updateResolution = async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar solución' });
     }
     
-  res.status(200).json(u);
+    res.status(200).json(u);
 }
 
-// @ts-ignore
-export const deleteResolution = async (req, res) => {
+export const deleteResolution = async (req:Request, res:Response) => {
     let u;
 try {
         u = await resolution.findByIdAndDelete(req.params.id);
