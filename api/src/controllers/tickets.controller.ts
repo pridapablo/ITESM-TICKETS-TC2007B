@@ -2,6 +2,8 @@ import {Request,Response} from 'express'
 
 // @ts-ignore
 import ticket from "../models/ticket";
+import ticketUser from '../models/ticketUser';
+import mongoose from 'mongoose';
 
 
 export const getTickets = async (_req: Request, res: Response) => {
@@ -35,44 +37,55 @@ export const getTicket = async (req: Request, res: Response) => {
         res.status(500).json({message: error.message});
         return;  // Don't forget to return here to exit the function
     }
-    if (!t) {
-        res.status(404).json({message: 'Error al obtener ticket'});  // Consider using 404 for not found
-        return;  // Don't forget to return here to exit the function
-    }
+    if (!t) 
+        return res.status(404).json({message: 'Error al obtener ticket'});  // Consider using 404 for not found
+    
     // Create a new object with the desired structure
     const responseObj = {
         id: t._id,
-        // ...other fields from t you want to include
-        // e.g., name: t.name,
+        ...t.toObject(),
     };
-    res.status(200).json(responseObj);
+   return res.status(200).json(responseObj);
 };
 
 
-export const createTicket = async (req:Request, res:Response) => {
-    const { classification, subclassification, priority, description } = req.body;
+export const createTicket = async (req: Request, res: Response) => {
+    const { classification, subclassification, priority, description, userID } = req.body;
 
-    if (!classification || !subclassification || !priority || !description ) {
-        res.status(400).json({message: 'Faltan datos'});
+    if (!classification || !subclassification || !priority || !description || !mongoose.Types.ObjectId.isValid(userID)) {
+        res.status(400).json({ message: 'Faltan datos' });
+        return;  
     }
-    const u = new ticket({
+
+    const t = new ticket({
         classification,
         subclassification,
         priority,
         description,
     });
 
-    let result;
+    let ticketResult;
+    let userResult;
+
     try {
-        result = await u.save();
-    } catch (error : any) {
-        res.status(500).json({message: error.message});
+        ticketResult = await t.save();
+
+        userResult = await ticketUser.create({
+            userID,
+            ticketID: ticketResult._id,
+            interactionDate: [new Date()],
+        });
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
     }
-    if(!result) {
-        res.status(500).json({message: 'Error al crear ticket'});
+
+    if (!ticketResult || !userResult) {
+       return res.status(500).json({ message: 'Error al crear ticket o usuario del ticket' });
     }
-    res.status(201).json(result);
-}   
+
+    return res.status(201).json({ ticket: ticketResult, user: userResult });
+}
+
 
 export const updateTicket = async (req:Request, res:Response) => {
     if (!req.params.id) {

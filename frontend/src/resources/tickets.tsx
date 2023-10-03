@@ -84,7 +84,12 @@ export const TicketCreate = () => {
     };
 
     return (
-        <Create mutationOptions={{ onSuccess }}>
+        <Create mutationOptions={{
+                onSuccess,
+                // variables: {
+                //     userID, // Get the current user ID using localStorage
+                // },
+            }}>
             <SimpleForm warnWhenUnsavedChanges>
                 <SelectInput
                     source="classification"
