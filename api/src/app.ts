@@ -5,7 +5,7 @@ import cors from 'cors';
 const app = express();
 
 const corsOptions = {
-    exposedHeaders: ['X-Total-Count'],
+    exposedHeaders: ['X-Total-Count', 'Authorization'],
 };
 
 app.use(express.json());

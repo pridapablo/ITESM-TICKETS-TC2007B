@@ -83,13 +83,10 @@ export const TicketCreate = () => {
         setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
     };
 
+    const userID = localStorage.getItem('userID');
+
     return (
-        <Create mutationOptions={{
-                onSuccess,
-                // variables: {
-                //     userID, // Get the current user ID using localStorage
-                // },
-            }}>
+        <Create mutationOptions={{onSuccess}}>
             <SimpleForm warnWhenUnsavedChanges>
                 <SelectInput
                     source="classification"
@@ -110,6 +107,7 @@ export const TicketCreate = () => {
                     { id: '4', name: 'Alta' },
                     { id: '5', name: 'Muy alta' },
                 ]} />
+                <TextInput source="userID" label="User ID" defaultValue={userID} disabled/>
             </SimpleForm>
         </Create>
     );

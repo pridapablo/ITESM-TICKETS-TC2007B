@@ -102,5 +102,8 @@ export const authUser = async (req: Request, res: Response) => {
     }
 
     const token: string = jwt.sign({ _id: u._id }, SECRET, { expiresIn: 86400 });
-    return res.header("auth-token", token).status(200).json({ message: "¡Bienvenido, " + u.username + "!", user: u });
+    return res.header("Authorization", token).status(200).json({
+        userID: u._id,
+        message: "¡Bienvenido, " + u.username + "!",
+    });
 };

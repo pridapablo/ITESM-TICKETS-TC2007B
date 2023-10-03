@@ -52,6 +52,7 @@ export const getTicket = async (req: Request, res: Response) => {
 export const createTicket = async (req: Request, res: Response) => {
     const { classification, subclassification, priority, description, userID } = req.body;
 
+
     if (!classification || !subclassification || !priority || !description || !mongoose.Types.ObjectId.isValid(userID)) {
         res.status(400).json({ message: 'Faltan datos' });
         return;  
@@ -73,7 +74,8 @@ export const createTicket = async (req: Request, res: Response) => {
         userResult = await ticketUser.create({
             userID,
             ticketID: ticketResult._id,
-            interactionDate: [new Date()],
+            interactionDate: new Date(),
+            interactionType: 'create',
         });
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
