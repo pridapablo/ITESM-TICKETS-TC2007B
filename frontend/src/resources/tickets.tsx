@@ -76,7 +76,7 @@ export const TicketEdit = () => {
 
 export const TicketCreate = () => {
     const [typeChoices, setTypeChoices] = useState([]);
-    const onSuccess = useSuccessHandler("Ticket created", "/tickets");
+    const onSuccess = useSuccessHandler("Ticket created", "/ticket");
 
     const handleClassificationChange = (event) => {
         const selectedClassification = event.target.value;
