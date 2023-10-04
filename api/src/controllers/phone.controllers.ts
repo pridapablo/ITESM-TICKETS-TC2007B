@@ -57,12 +57,12 @@ export const handleTicket = async (req, res) => {
                 message: `User with phone number ${WaId} not found`,
             });
         } else {
-            switch (u.chat_state) {
+            switch (u.chat.state) {
                 case 0:
                 case undefined:
                     // Ask for ticket description
                     await printMessage(WaId, "Por favor, ingresa la descripción de tu ticket.");
-                    u.chat_state = 1;
+                    u.chat.state = 1;
                     await u.save();
                     return res.status(200).json({
                         success: true,
@@ -71,13 +71,13 @@ export const handleTicket = async (req, res) => {
 
                 case 1:
                     //Store ticket description directly
-                    u.chat_ticket_description = Body;
+                    u.chat.ticket_description = Body;
                     await u.save();
 
                      // Send categories menu
                     let categoriesMenuText = menu.map((item, index) => `${index + 1}. ${item}`).join('\n');
                     await printMessage(WaId, `Por favor, selecciona una categoría: \n\n ${categoriesMenuText}`);
-                    u.chat_state = 2;
+                    u.chat.state = 2;
                     await u.save();
                     return res.status(200).json({
                         success: true,
@@ -89,7 +89,7 @@ export const handleTicket = async (req, res) => {
                     const index = parseInt(Body) - 1; // Subtract 1 because array indices start at 0
                     if (index >= 0 && index < menu.length) {
                         const processedBody = menu[index];
-                        u.chat_ticket_category = processedBody;
+                        u.chat.ticket_category = processedBody;
                         await u.save();
                     }
                     else {
@@ -102,10 +102,10 @@ export const handleTicket = async (req, res) => {
                     }
 
                    // Send subcategories menu based on category
-                    if (u.chat_ticket_category && u.chat_ticket_category in subMenu) {
-                        let subcategoriesMenuText = subMenu[u.chat_ticket_category as keyof typeof subMenu].map((item, index) => `${index + 1}. ${item}`).join('\n');
+                    if (u.chat.ticket_category && u.chat.ticket_category in subMenu) {
+                        let subcategoriesMenuText = subMenu[u.chat.ticket_category as keyof typeof subMenu].map((item, index) => `${index + 1}. ${item}`).join('\n');
                         await printMessage(WaId, `Por favor, selecciona una subcategoría. Aquí están las opciones: \n\n${subcategoriesMenuText}`);
-                        u.chat_state = 3;
+                        u.chat.state = 3;
                         await u.save();
                     } else {
                         // Handle the case where the category is not in the subMenu
@@ -126,11 +126,11 @@ export const handleTicket = async (req, res) => {
                     const index2 = parseInt(Body) - 1; // Subtract 1 because array indices start at 0
 
                     // Check if the index is within the array bounds
-                    if (u.chat_ticket_category && u.chat_ticket_category in subMenu) {
-                        const subcategories = subMenu[u.chat_ticket_category as keyof typeof subMenu];
+                    if (u.chat.ticket_category && u.chat.ticket_category in subMenu) {
+                        const subcategories = subMenu[u.chat.ticket_category as keyof typeof subMenu];
                         if (index2 >= 0 && index2 < subcategories.length) {
                             const processedBody2 = subcategories[index2];
-                            u.chat_ticket_subcategory = processedBody2;
+                            u.chat.ticket_subcategory = processedBody2;
                             await u.save();
                         } else {
                             // Handle the case where the index is out of bounds
@@ -151,7 +151,7 @@ export const handleTicket = async (req, res) => {
 
                     // Send priorities menu
                     await printMessage(WaId, `Por favor, ingresa la prioridad de tu ticket. Las opciones son del 1 al 5.\n\n1. Muy baja\n2. Baja\n3. Media\n4. Alta\n5. Muy alta`);
-                    u.chat_state = 4;
+                    u.chat.state = 4;
                     await u.save();
                     return res.status(200).json({
                         success: true,
@@ -170,13 +170,13 @@ export const handleTicket = async (req, res) => {
                         });
                     } else {
                         const processedBody3 = priority;
-                        u.chat_ticket_priority = processedBody3;
+                        u.chat.ticket_priority = processedBody3;
                         await u.save();
                     }
 
                      // Ask for ticket confirmation
-                    await printMessage(WaId, `Aquí están los detalles de tu ticket:\n\nDescripción: ${u.chat_ticket_description}\nCategoría: ${u.chat_ticket_category}\nSubcategoría: ${u.chat_ticket_subcategory}\nPrioridad: ${u.chat_ticket_priority}\n\nPor favor confirma si los detalles son correctos. Responde con "si" o "no".`);
-                    u.chat_state = 5;
+                    await printMessage(WaId, `Aquí están los detalles de tu ticket:\n\nDescripción: ${u.chat.ticket_description}\nCategoría: ${u.chat.ticket_category}\nSubcategoría: ${u.chat.ticket_subcategory}\nPrioridad: ${u.chat.ticket_priority}\n\nPor favor confirma si los detalles son correctos. Responde con "si" o "no".`);
+                    u.chat.state = 5;
                     await u.save();
                     return res.status(200).json({
                         success: true,
@@ -189,15 +189,15 @@ export const handleTicket = async (req, res) => {
 
                     if (processedBody4 === 'Si' || processedBody4 === 'Sí' || processedBody4 === 'si' || processedBody4 === 'sí' || processedBody4 === 's') {
                         const t = new ticket({
-                        description: u.chat_ticket_description,
-                        classification: u.chat_ticket_category,
-                        subclassification: u.chat_ticket_subcategory,
-                        priority: u.chat_ticket_priority,
+                        description: u.chat.ticket_description,
+                        classification: u.chat.ticket_category,
+                        subclassification: u.chat.ticket_subcategory,
+                        priority: u.chat.ticket_priority,
                         user: u._id,
                         });
                         await t.save();
                         await printMessage(WaId, "Ticket creado con éxito.");
-                        u.chat_state = 0;
+                        u.chat.state = 0;
                         await u.save();
                         return res.status(200).json({
                             success: true,
@@ -205,7 +205,7 @@ export const handleTicket = async (req, res) => {
                         });
                     } else if (processedBody4 === 'No' || processedBody4 === 'no' || processedBody4 === 'n') {
                         await printMessage(WaId, "Ticket cancelado, vuelve a comenzar enviando un mensaje con la palabra 'ticket'.");
-                        u.chat_state = 0;
+                        u.chat.state = 0;
                         await u.save();
                         return res.status(200).json({
                             success: true,
@@ -241,15 +241,22 @@ export const handleTicket = async (req, res) => {
 };
 
 //@ts-ignore
-export const sendConfirmation = async (req, res) => {
-    const { name, phone } = req.body;
-    if (!name || !phone) {
-        res.status(400).json({ message: 'Faltan datos' });
+export const phoneConfirmation = async (req, res) => {
+    const { name, phone, userID } = req.body;
+    if (!name || !phone || !userID) {
+        return res.status(400).json({ message: 'Faltan datos' });
     }
-try {
-    await printMessage(phone, `Felicidades, ${name}. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
-    res.status(200).json({ message: "Message sent" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error sending message" });
-}}
+    let u;
+    try {
+        u = await user.findByIdAndUpdate(userID, { phone });
+          if (!u) {
+            res.status(500).json({ message: 'Error al actualizar usuario' });
+        }
+        await printMessage(phone, `Felicidades, ${name}. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
+        res.status(200).json({ message: "Message sent and user updated" });
+      
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error sending message" });
+    }
+}
