@@ -7,6 +7,7 @@ const TicketSchema = new Schema({
     description: String,
     resolutionID: { type: Schema.Types.ObjectId, ref: 'Resolution' },
     closureTime: Date,
+    isDeleted: Boolean,
 });
 
 export default model('Ticket', TicketSchema);

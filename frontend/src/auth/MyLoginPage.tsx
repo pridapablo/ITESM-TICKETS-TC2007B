@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, FC, useCallback } from 'react';
 import { useLogin, useNotify, SimpleForm, TextInput, Button, ToggleThemeButton, useTranslate } from 'react-admin';
 import { useTheme } from "@mui/material/styles";
+import logo from '../assets/logo.png';
 
 interface LoginState {
     username: string;
@@ -28,7 +29,7 @@ const MyLoginPage: FC = () => {
             notify(error.message);
         }
     }, [login, loginState, notify]);
-    
+
     const containerStyle: React.CSSProperties = {
         display: 'flex',
         flexDirection: 'column',
@@ -46,9 +47,36 @@ const MyLoginPage: FC = () => {
         justifyContent: 'center'
     };
 
+    const topRightStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: '1rem',
+        right: '1rem',
+    };
+
+    const logoStyle: React.CSSProperties = theme.palette.mode === "light" ? {
+        maxWidth: '100%',
+        maxHeight: '100%',
+        display: 'block',
+        filter: 'brightness(0.0)'
+    } : {
+        maxWidth: '100%',
+        maxHeight: '100%',
+        display: 'block'
+    };
+
+    const logoContainerStyle: React.CSSProperties = {
+        position: 'relative',
+        width: '150px',
+        height: '150px', // Asegúrate de que este valor sea el mismo que el alto de tu logo.
+        marginBottom: '2rem',
+        overflow: 'hidden' // Esto es para asegurarte de que el pseudo-elemento no se desborde.
+    };
+
     return (
         <div style={containerStyle}>
-            <ToggleThemeButton />
+            <div style={logoContainerStyle}>
+                <img src={logo} alt="logo" style={logoStyle} />
+            </div>
             <SimpleForm onSubmit={handleSubmit} toolbar={false}>
                 <TextInput
                     label={translate('login.username')}
