@@ -5,14 +5,10 @@ import { i18nProvider } from "./locale/i18nProvider";
 import MyLoginPage from "./auth/MyLoginPage";
 import { authProvider } from "./auth/authProvider";
 import NoteIcon from "@mui/icons-material/Note";
-import { Admin, ListGuesser, Resource } from "react-admin";
+import { Admin, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
-import { CssBaseline } from '@mui/material';
 import { useTheme } from "@mui/material/styles";
-import { GlobalStyles } from '@mui/system';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-
 
 const lightTheme = createTheme({
   palette: {
@@ -32,12 +28,6 @@ export const App = () => {
 
   return (
     <ThemeProvider theme={currentTheme === 'light' ? lightTheme : darkTheme}>
-      <CssBaseline />
-      <GlobalStyles styles={{
-        '.ra-layout .ra-content': {
-          paddingTop: `${theme.spacing(8)}px`,
-        },
-      }} />
       <Admin
         dataProvider={dataProvider}
         layout={CustomLayout}
@@ -49,8 +39,7 @@ export const App = () => {
         <Resource
           name="ticket"
           options={{ label: 'resources.tickets' }}
-          // list={TicketList}
-          list={ListGuesser}
+          list={TicketList}
           edit={TicketEdit}
           create={TicketCreate}
           icon={NoteIcon}
