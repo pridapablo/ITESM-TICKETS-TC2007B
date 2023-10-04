@@ -6,7 +6,7 @@ import {SECRET} from '../const'
 export const getUsers = async (_req:Request, res:Response) => {
     let u;
     try {
-        u = await User.find().select("-username -pwdHash -_id -_v ");
+        u = await User.find().select("-username -pwdHash -_v "); 
     } catch (error: any) {
         res.status(500).json({message: error.message});
     }
@@ -19,7 +19,7 @@ export const getUsers = async (_req:Request, res:Response) => {
 export const getUser = async (req:Request, res:Response) => {
     let u;
     try {
-        u =await User.findById(req.params.id).select("-username -pwdHash -_id -_v ");
+        u =await User.findById(req.params.id).select("-username -pwdHash -_v ");
     }
     catch (error: any) {
         res.status(500).json({message: error.message});

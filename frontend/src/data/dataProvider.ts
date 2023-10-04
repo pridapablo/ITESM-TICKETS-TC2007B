@@ -1,41 +1,44 @@
 import jsonServerProvider from "ra-data-json-server";
+// import { fetchUtils } from 'react-admin';
+
+// interface FetchOptions {
+//   // eslint-disable-next-line no-undef
+//   headers?: HeadersInit;
+// }
+
+// const fetchJsonUtil = (url: string, options: FetchOptions = {}) => {
+//   options.headers = {
+//     ...options.headers,
+//     "Authentication": localStorage.getItem("auth") || "",
+//   };
+//   return fetchUtils.fetchJson(url, options);
+// };
 import { GetListParams } from "react-admin";
 
 const originalDataProvider = jsonServerProvider(
-  import.meta.env.VITE_JSON_SERVER_URL
+  import.meta.env.VITE_JSON_SERVER_URL,
+  // fetchJsonUtil
 );
 
 const customDataProvider = {
-  ...originalDataProvider,  // Extiende el data provider original para mantener las otras funciones
+  ...originalDataProvider,  
 
-  // Modifica solo la función getList
   getList: async (resource: string, params: GetListParams) => {
     if (params.filter && params.filter.showDeleted) {
-      // Si el filtro "showDeleted" está presente, modifica params para agregar tu filtro personalizado
-      params.filter = { ...params.filter, filter: true };
+      params.filter = { ...params.filter, filter: true }; // add filter=true to the params when showDeleted is true
     }
 
-    // Llama al getList original con los params modificados
-    return originalDataProvider.getList(resource, params);
+    return originalDataProvider.getList(resource, params); // call the original getList method with correct params
   },
 
-  update: async (resource: string, params: any) => {
-    const response = await originalDataProvider.update(resource, params); // Puedes llamar al update original si lo necesitas
-    if (response.data._id && !response.data.id) {
-      response.data.id = response.data._id;
-      delete response.data._id;
-    }
-    console.log(response);
-    return { data: response.data };
-  },
-  delete: async (resource: string, params: any) => {
+  delete: async (resource: string, params: any) => { // TODO: this can be done at provider level instead of crud level
     const userID = localStorage.getItem('userID');
 
     const url = `${import.meta.env.VITE_JSON_SERVER_URL}/${resource}/${params.id}`;
 
     const options = {
       method: 'DELETE',
-      body: JSON.stringify({ userID: userID }),  // Enviar userID en el cuerpo de la solicitud DELETE
+      body: JSON.stringify({ userID: userID }), // Add userID to the body of the request
       headers: new Headers({
         'Content-Type': 'application/json'
       })
@@ -56,7 +59,8 @@ const customDataProvider = {
 
     return { data: responseData };
   },
-  deleteMany: async (resource: string, params: any) => {
+
+  deleteMany: async (resource: string, params: any) => { // TODO: this can be done at provider level instead of crud level
     const userID = localStorage.getItem('userID');
 
     const results = await Promise.all(params.ids.map(async (id: string) => {
