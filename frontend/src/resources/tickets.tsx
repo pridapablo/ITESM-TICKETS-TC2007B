@@ -1,7 +1,6 @@
 import {
     Datagrid,
     List,
-    ReferenceField,
     TextField,
     EditButton,
     Edit,
@@ -12,10 +11,12 @@ import {
     DateInput,
     SelectInput,
     BooleanInput,
-    maxValue
+    maxValue,
+    Filter,
+    ListProps,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
-import {  useState } from "react";
+import React, {  useState } from "react";
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
@@ -32,10 +33,17 @@ const subMenu = {
 
 const menuChoices = menu.map(item => ({ id: item, name: item }));
 
-export const TicketList = () => (
-    <List>
+export const TicketList: React.FC<ListProps> = (props) => (
+    <List {...props}
+        filterDefaultValues={{ isDeleted: true }}
+        filters={
+            <Filter>
+                <BooleanInput label="Ocultar eliminados" source="isDeleted" alwaysOn />
+            </Filter>
+        }
+    >
         <Datagrid>
-            <ReferenceField source="id" reference="tickets" />
+            <TextField source="id" />
             <TextField source="classification" />
             <TextField source="subclassification" />
             <TextField source="priority" />
@@ -112,7 +120,7 @@ export const TicketCreate = () => {
     const userID = localStorage.getItem('userID');
 
     return (
-        <Create mutationOptions={{onSuccess}}>
+        <Create mutationOptions={{ onSuccess }}>
             <SimpleForm warnWhenUnsavedChanges>
                 <SelectInput
                     source="classification"
@@ -133,7 +141,7 @@ export const TicketCreate = () => {
                     { id: '4', name: 'Alta' },
                     { id: '5', name: 'Muy alta' },
                 ]} />
-                <TextInput source="userID" label="User ID" defaultValue={userID} disabled/>
+                <TextInput source="userID" label="User ID" defaultValue={userID} disabled />
             </SimpleForm>
         </Create>
     );

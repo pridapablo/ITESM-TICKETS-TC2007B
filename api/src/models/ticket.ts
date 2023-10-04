@@ -11,7 +11,7 @@ const TicketSchema = new Schema({
         whyWasDone: String,
         closureTime: Date, // will be null if ticket is not closed
     },
-    isDeleted: { type: Boolean, default: false }
+    isDeleted: { type: Boolean, default: false },
 });
 
 export default model('Ticket', TicketSchema);
