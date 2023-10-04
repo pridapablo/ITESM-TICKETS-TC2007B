@@ -55,6 +55,7 @@ export const TicketList: React.FC<ListProps> = (props) => (
 );
 
 export const TicketEdit = () => {
+    // TODO: not working
     const [typeChoices, setTypeChoices] = useState<{ id: string, name: string }[]>([]);
     const [isSolved, setIsSolved] = useState(false);
     const onSuccess = useSuccessHandler("Ticket actualizado", "/ticket");
