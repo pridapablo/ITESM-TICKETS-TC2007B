@@ -11,13 +11,11 @@ import {
     DateField,
     DateInput,
     SelectInput,
-    BooleanInput
+    BooleanInput,
+    maxValue
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
-import { useEffect, useState } from "react";
-import { useRecordContext } from 'react-admin';
-
-
+import {  useState } from "react";
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
@@ -48,11 +46,10 @@ export const TicketList = () => (
     </List>
 );
 
-
 export const TicketEdit = () => {
     const [typeChoices, setTypeChoices] = useState<{ id: string, name: string }[]>([]);
     const [isSolved, setIsSolved] = useState(false);
-    const onSuccess = useSuccessHandler("Ticket updated", "/tickets");
+    const onSuccess = useSuccessHandler("Ticket actualizado", "/ticket");
 
     const handleClassificationChange = (event: any) => {
         const selectedClassification = event.target.value as keyof typeof subMenu;
@@ -86,7 +83,12 @@ export const TicketEdit = () => {
                 <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} />
                 {isSolved &&
                     <>
-                        <DateInput source="resolution.closureTime" label="Closure Time" defaultValue={new Date().toISOString().slice(0, 10)} />
+                        <DateInput 
+                            source="resolution.closureTime" 
+                            label="Closure Time" 
+                            defaultValue={new Date().toISOString()}
+                            validate={maxValue(new Date().toISOString(), "El ticket no puede cerrarse en el futuro")}
+                        />
                         <TextInput source="resolution.whatWasDone" label="What Was Done" />
                         <TextInput source="resolution.howWasDone" label="How Was Done" />
                         <TextInput source="resolution.whyWasDone" label="Why Was Done" />
@@ -101,7 +103,7 @@ export const TicketEdit = () => {
 
 export const TicketCreate = () => {
     const [typeChoices, setTypeChoices] = useState<{ id: string, name: string }[]>([]);
-    const onSuccess = useSuccessHandler("Ticket created", "/ticket");
+    const onSuccess = useSuccessHandler("Ticket creado", "/ticket");
 
     const handleClassificationChange = (event: any) => {
         const selectedClassification = event.target.value as keyof typeof subMenu;
