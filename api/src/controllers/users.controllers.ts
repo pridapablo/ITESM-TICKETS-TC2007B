@@ -69,21 +69,19 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const updateUser = async (req:Request, res:Response) => {
-    if (!req.params.id) {
-        res.status(400).json({ message: 'Faltan datos' });
-    }
-    let u;
+
+    const filter  = req.params.id;
+
     try {
-        u = await User.findByIdAndUpdate(req.params.id, req.body);
-    
-    } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        const u = await User.findByIdAndUpdate(filter,req.body,{
+            headers:{
+                'Content-type': "application/json"
+            }
+        });
+        return res.status(200).json(u);
+    } catch (error:any) {
+        return res.status(500).json({message:error.message});
     }
-    if (!u) {
-        res.status(500).json({ message: 'Error al actualizar usuario' });
-    }
-    
-    res.status(200).json(u);
 }
 
 export const deleteUser = async (req:Request, res:Response) => {
