@@ -45,6 +45,36 @@ const customDataProvider = {
     return originalDataProvider.getList(resource, params); // call the original getList method with correct params
   },
 
+  update: async (resource: string, params: any) => {
+    const userID = localStorage.getItem('userID');
+    
+    const url = `${import.meta.env.VITE_JSON_SERVER_URL}/${resource}/${params.id}`;
+  
+    const options = {
+      method: 'PUT',
+      body: JSON.stringify({ userID: userID }),
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      })
+    };
+  
+    const response = await fetch(url, options);
+  
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    
+    const responseData = await response.json();
+  
+    if (responseData._id && !responseData.id) {
+      responseData.id = responseData._id;
+      delete responseData._id;
+    }
+  
+    return { data: responseData };
+  },
+  
+
   delete: async (resource: string, params: any) => { // TODO: this can be done at provider level instead of crud level
     const userID = localStorage.getItem('userID');
 
