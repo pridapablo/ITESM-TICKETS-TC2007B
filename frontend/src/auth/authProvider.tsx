@@ -26,9 +26,11 @@ export const authProvider: AuthProvider = {
             localStorage.setItem('auth', token);
 
             const data = await response.json();
-            const {userID, role} = data;
-
-            console.log(userID);
+            const { userID, role } = data;
+            
+            if (!role) {
+                throw new Error('Role not found, please contact the administrator');
+            }
 
             localStorage.setItem('userID', userID); // TODO: This should NOT be done in the frontend
             localStorage.setItem('role', role); 
