@@ -241,22 +241,23 @@ export const handleTicket = async (req, res) => {
 };
 
 //@ts-ignore
-export const phoneConfirmation = async (req, res) => {
-    const { name, phone, userID } = req.body;
-    if (!name || !phone || !userID) {
-        return res.status(400).json({ message: 'Faltan datos' });
-    }
-    let u;
-    try {
-        u = await user.findByIdAndUpdate(userID, { phone });
-          if (!u) {
-            res.status(500).json({ message: 'Error al actualizar usuario' });
-        }
-        await printMessage(phone, `Felicidades, ${name}. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
-        res.status(200).json({ message: "Message sent and user updated" });
+// export const phoneConfirmation = async (req, res) => {
+//     // TODO extract userID from JWT with middleware
+//     const { name, phone } = req.body;
+//     if (!name || !phone ) {
+//         return res.status(400).json({ message: 'Faltan datos' });
+//     }
+//     let u;
+//     try {
+//         u = await user.findByIdAndUpdate(userID, { phone });
+//           if (!u) {
+//             res.status(500).json({ message: 'Error al actualizar usuario' });
+//         }
+//         await printMessage(phone, `Felicidades, ${name}. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
+//         res.status(200).json({ message: "Message sent and user updated" });
       
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error sending message" });
-    }
-}
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message: "Error sending message" });
+//     }
+// }
