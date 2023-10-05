@@ -5,7 +5,7 @@ export const authProvider: AuthProvider = {
     // called when the user attempts to log in
     login: async ({ username, password }) => {
         try {
-            const response = await fetch(`${import.meta.env.API}/user/auth`, {
+            const response = await fetch(`${import.meta.env.VITE_JSON_SERVER_URL}/user/auth`, {
                 method: 'POST',
                 headers: new Headers({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
@@ -25,14 +25,13 @@ export const authProvider: AuthProvider = {
 
             localStorage.setItem('auth', token);
 
-
             const data = await response.json();
-
-            const userID = data.userID;
+            const {userID, role} = data;
 
             console.log(userID);
 
-            localStorage.setItem('userID', userID);
+            localStorage.setItem('userID', userID); // TODO: This should NOT be done in the frontend
+            localStorage.setItem('role', role); 
           
             return data.message;  // Devolvemos el mensaje "bien"
 
