@@ -7,7 +7,7 @@ export interface IUser extends Document {
     username: string;
     pwdHash: string;
     type: string;
-    role: string[];
+    role: "user" | "admin" | "agent";
     phone: string;
     chat_state: number;
     chat_ticket_description: string;
@@ -20,7 +20,7 @@ const UserSchema = new Schema({
     username: String,
     pwdHash: String,
     type: { type: String, default: 'user' },
-    role: { type: [String], default: ['user'] },
+    role: { type: String, default: 'user' },
     phone: String,
     // The following fields are used for the chatbot and are used to construct a ticket object (once the user has finished the chatbot flow)
     chat_state: Number,
