@@ -20,7 +20,6 @@ import MyUrlField from "../components/MyUrlField";
 import { useSuccessHandler } from '../hooks/successHandlers';
 
 
-
 export const UserList = () => {
   const isSmall = useMediaQuery<Theme>((theme) => theme.breakpoints.down("sm"));
   return (
@@ -43,16 +42,21 @@ export const UserList = () => {
   );
 };
 
+
+
 export const UserEdit = () => (
+
+  // TODO: works on backend, no frontend
   <Edit>
     <SimpleForm warnWhenUnsavedChanges>
       <TextInput source="id" disabled />
       <TextInput source="username" />
-      <PasswordInput source='pwdHash'/>
+      <PasswordInput source='pwdHash' label="Password"/>
       <TextInput source="phone" />
     </SimpleForm>
   </Edit>
 );
+
 
 export const UserCreate = () => {
   const [selectedRol, setSelectedRol] = useState('');
@@ -70,7 +74,7 @@ export const UserCreate = () => {
         <SelectInput 
           source="role"
           label="Rol"
-          choices={roles.map(role => ({id:role, name: role }))}
+          choices={roles.map(role => ({id:role,name: role }))}
           onChange={handleRolChange}
           value={selectedRol}
         />
