@@ -55,11 +55,11 @@ export const RoleAuth = async (req:Request, res:Response, next:NextFunction)=>{
 
         const u = await User.findById(userId).select("-username -pwdHash");
 
-        if(u?.role.includes("admin") || u?.role.includes("Coordinador")){
+        if(u?.role.includes("admin") || u?.role.includes("Agent")){
             next();
         }
         else{
-            return res.status(403).json("Requer Admin or Coordinator Role");
+            return res.status(403).json("Require Admin or Coordinator Role");
         }
     }
     catch(error){

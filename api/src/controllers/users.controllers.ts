@@ -27,7 +27,7 @@ export const getUsers = async (_req:Request, res:Response) => {
 
 export const getUser = async (req:Request, res:Response) => {
     try {
-        const u = await User.findById(req.params.id);
+        const u = await User.findById(req.params.id).select("-pwdHash -_v");
         if(!u){
             return res.status(404).json({message: "Error al obtener el usuario"})
         }
@@ -117,7 +117,8 @@ export const authUser = async (req: Request, res: Response) => {
 
     const token: string = jwt.sign({ _id: u._id }, SECRET, { expiresIn: 86400 });
     return res.header("Authorization", token).status(200).json({
-        userID: u._id,
+        userID: u._id, // TODO: remove once front-end is updated
+        role: u.role,
         message: "¡Bienvenido, " + u.username + "!",
     });
 };

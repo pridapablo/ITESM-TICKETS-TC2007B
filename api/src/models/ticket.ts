@@ -5,8 +5,13 @@ const TicketSchema = new Schema({
     subclassification: String,
     priority: Number,
     description: String,
-    resolutionID: { type: Schema.Types.ObjectId, ref: 'Resolution' },
-    closureTime: Date,
+    resolution: { 
+        whatWasDone: String,
+        howWasDone: String,
+        whyWasDone: String,
+        closureTime: Date, // will be null if ticket is not closed
+    },
+    isDeleted: { type: Boolean, default: false },
 });
 
 export default model('Ticket', TicketSchema);
