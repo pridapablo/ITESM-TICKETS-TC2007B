@@ -31,9 +31,10 @@ export const AdminAuth = async (req: Request, res: Response, next: NextFunction)
             return res.status(401).json("Invalid token");
         }
 
-        const u = await User.findById(userId).select("-username -pwdHash");
+        const u = await User.findById(userId).select("-username -pwdHash -_v");
 
         if (u?.role.includes("admin")) {
+            return userId;
             next();
         } else {
             return res.status(403).json("Requer Admin Role");

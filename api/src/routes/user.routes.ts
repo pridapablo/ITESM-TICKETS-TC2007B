@@ -1,14 +1,14 @@
 import { Router } from "express";
 import * as UserCtrl  from '../controllers/users.controllers'
 
-import { TokenValidation } from '../middlewares/authJwt'
-import { AdminAuth } from '../middlewares/RolesAuth'
+//import { TokenValidation } from '../middlewares/authJwt'
+//import { AdminAuth } from '../middlewares/RolesAuth'
 
 const router = Router();
 
-router.get('/',TokenValidation,UserCtrl.getUsers);
+router.get('/',UserCtrl.getUsers);
 
-router.get('/:id',TokenValidation, UserCtrl.getUser)
+router.get('/:id', UserCtrl.getUser)
 
 //Sign in route
 
@@ -16,8 +16,8 @@ router.post('/auth',UserCtrl.authUser);
 
 router.post('/', UserCtrl.createUser);
 
-router.put('/:id',TokenValidation,AdminAuth ,UserCtrl.updateUser);
+router.put('/:id',UserCtrl.updateUser);
 
-router.delete('/:id', TokenValidation,AdminAuth,UserCtrl.deleteUser);
+router.delete('/:id',UserCtrl.deleteUser);
 
 export default router;

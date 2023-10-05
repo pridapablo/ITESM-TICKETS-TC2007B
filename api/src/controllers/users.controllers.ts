@@ -4,30 +4,44 @@ import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
 
 export const getUsers = async (_req:Request, res:Response) => {
-    let u;
     try {
-        u = await User.find().select("-username -pwdHash -_v "); 
+        const u = await User.find().select("-pwdHash -_v");
+        if(!u){
+            return res.status(404).json({message: "Error al obtener los usuarios"});
+        }
+
+                // Convert _id to id
+        const modifiedUsers = u.map((user: any) => {
+            const { _id, ...otherProps } = user.toObject(); // Convert the ticket to a plain object and destructure to get _id and other properties
+            return { id: _id, ...otherProps }; // Return the modified object
+            });
+
+            res.setHeader('X-Total-Count', modifiedUsers.length);
+
+            return res.status(200).json(modifiedUsers);
+
     } catch (error: any) {
-        res.status(500).json({message: error.message});
+        return res.status(500).json({message:error.message});
     }
-    if(!u) {
-        res.status(500).json({message: 'Error al obtener usuarios'});
-    }
-    res.status(200).json(u);
 };
 
 export const getUser = async (req:Request, res:Response) => {
-    let u;
     try {
-        u =await User.findById(req.params.id).select("-username -pwdHash -_v ");
+        const u = await User.findById(req.params.id).select("-pwdHash -_v");
+        if(!u){
+            return res.status(404).json({message: "Error al obtener el usuario"})
+        }
+
+        const responseObj = {
+            id:u._id,
+            ...u.toObject()
+        }
+
+        return res.status(200).json(responseObj);
+
+    } catch (error:any) {
+        return res.status(500).json({message:error.message})
     }
-    catch (error: any) {
-        res.status(500).json({message: error.message});
-    }
-    if(!u) {
-        res.status(500).json({message: 'Error al obtener usuario'});
-    }
-    res.status(200).json(u);
 }
 
 export const createUser = async (req: Request, res: Response) => {
