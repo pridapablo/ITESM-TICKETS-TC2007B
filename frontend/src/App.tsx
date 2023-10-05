@@ -1,10 +1,16 @@
 import { dataProvider } from "./data/dataProvider";
+
 import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
+import {UserList,UserEdit,UserCreate} from './resources/users'
+
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
 import MyLoginPage from "./auth/MyLoginPage";
 import { authProvider } from "./auth/authProvider";
+
 import NoteIcon from "@mui/icons-material/Note";
+import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
+
 import { Admin, ListGuesser, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
@@ -54,6 +60,13 @@ export const App = () => {
           edit={TicketEdit}
           create={TicketCreate}
           icon={NoteIcon}
+        />
+        <Resource
+          name="user"
+          list={ListGuesser}
+          edit={UserEdit}
+          create={UserCreate}
+          icon={PersonOutlineRoundedIcon}
         />
       </Admin>
     </ThemeProvider>

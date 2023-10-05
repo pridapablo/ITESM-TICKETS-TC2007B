@@ -49,7 +49,7 @@ export const TicketEdit = () => {
     const [typeChoices, setTypeChoices] = useState([]);
     const onSuccess = useSuccessHandler("Ticket updated", "/tickets");
 
-    const handleClassificationChange = (event) => {
+    const handleClassificationChange = (event:any) => {
         const selectedClassification = event.target.value;
         setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
     };

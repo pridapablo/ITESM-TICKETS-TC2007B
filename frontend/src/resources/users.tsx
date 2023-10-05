@@ -1,4 +1,5 @@
 // src/users.tsx
+import {useState,useEffect} from 'react'
 import { useMediaQuery, Theme } from "@mui/material";
 import {
   List,
@@ -10,9 +11,15 @@ import {
   Edit,
   SimpleForm,
   TextInput,
+  PasswordInput,
   Create,
+  SelectInput,
 } from "react-admin";
+
 import MyUrlField from "../components/MyUrlField";
+import { useSuccessHandler } from '../hooks/successHandlers';
+
+const rol = ["Admin", "Coordinador"]
 
 export const UserList = () => {
   const isSmall = useMediaQuery<Theme>((theme) => theme.breakpoints.down("sm"));
@@ -42,29 +49,36 @@ export const UserList = () => {
 export const UserEdit = () => (
   <Edit>
     <SimpleForm warnWhenUnsavedChanges>
-      <TextInput source="id" />
-      <TextInput source="name" />
+      <TextInput source="id" disabled />
       <TextInput source="username" />
-      <TextInput source="email" />
-      <TextInput source="address.street" />
       <TextInput source="phone" />
-      <TextInput source="website" />
-      <TextInput source="company.name" />
     </SimpleForm>
   </Edit>
 );
 
-export const UserCreate = () => (
-  <Create>
-    <SimpleForm warnWhenUnsavedChanges>
-      <TextInput source="id" />
-      <TextInput source="name" />
-      <TextInput source="username" />
-      <TextInput source="email" />
-      <TextInput source="address.street" />
-      <TextInput source="phone" />
-      <TextInput source="website" />
-      <TextInput source="company.name" />
-    </SimpleForm>
-  </Create>
-);
+export const UserCreate = () => {
+  const [selectedRol, setSelectedRol] = useState([]);
+  const onSuccess = useSuccessHandler("User Created", '/user/create')
+  const roles = ["Admin", "Coordinador"];
+
+  const handleRolChange = (event:any) => {
+    setSelectedRol(event.target.value);
+  }
+
+  return (
+    <Create mutationOptions={{onSuccess}}>
+      <SimpleForm warnWhenUnsavedChanges>
+        <TextInput source="username"  autoComplete='off'/>
+        <SelectInput 
+          source="role"
+          label="Rol"
+          choices={roles.map(role => ({name: role }))}
+          onChange={handleRolChange}
+          value={selectedRol}
+        />
+        <TextInput source="phone" autoComplete='off' />
+        <PasswordInput source="pwdHash" label="Password"/>
+      </SimpleForm>
+    </Create>
+  );
+};

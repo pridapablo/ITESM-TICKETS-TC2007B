@@ -45,7 +45,7 @@ export const getTicket = async (req: Request, res: Response) => {
         id: t._id,
         ...t.toObject(),
     };
-   return res.status(200).json(responseObj);
+    return res.status(200).json(responseObj);
 };
 
 
