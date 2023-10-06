@@ -1,12 +1,31 @@
 import express from "express";
 import morgan from 'morgan';
 import cors from 'cors';
-
+import helmet from 'helmet';
 const app = express();
 
 const corsOptions = {
     exposedHeaders: ['X-Total-Count', 'Authorization'],
 };
+
+//helmet config
+app.use(helmet({
+    hidePoweredBy: true,
+    xssFilter: true,
+    noSniff: true,
+    ieNoOpen: true,  // solo para usuarios que usen Internet Explorer
+}));
+
+// TODO https SSL/TSL from frontend
+
+// app.use(
+//     helmet({
+//     hsts: {
+//         maxAge: 7776000,
+//         preload:true
+//     },
+//     })
+// );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
