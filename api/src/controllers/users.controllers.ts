@@ -2,6 +2,7 @@ import User, { IUser } from "../models/user";
 import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
+import mongoose from "mongoose";
 
 export const getUsers = async (_req:Request, res:Response) => {
     try {
@@ -71,14 +72,28 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req:Request, res:Response) => {
 
     const filter  = req.params.id;
+    const userID = req.body;
+
+    console.log(userID)
+    if (!filter || !mongoose.Types.ObjectId.isValid(userID)) {
+        return res.status(400).json({ message: 'Faltan datos' });
+    }
 
     try {
-        const u = await User.findByIdAndUpdate(filter,req.body,{
-            headers:{
-                'Content-type': "application/json"
-            }
-        });
-        return res.status(200).json(u);
+        const userUpdatedResult = await User.findByIdAndUpdate(filter,req.body,{new:true});
+
+
+        if(!userUpdatedResult){
+            return res.status(404).json({message:"User Not Found"});
+        }
+
+        const responseObj = {
+            id: userUpdatedResult._id,
+            ...userUpdatedResult.toObject()
+        }
+
+        return res.status(203).json(responseObj);
+
     } catch (error:any) {
         return res.status(500).json({message:error.message});
     }
