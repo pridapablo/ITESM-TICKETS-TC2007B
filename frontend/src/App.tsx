@@ -13,6 +13,7 @@ import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import { Admin, ListGuesser, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
+import './index.css';
 
 const lightTheme = createTheme({
   palette: {
