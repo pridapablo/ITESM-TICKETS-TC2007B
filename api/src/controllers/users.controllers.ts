@@ -1,7 +1,7 @@
 import User, { IUser } from "../models/user";
 import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
-import { SECRET, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from '../const'
+import { SECRET } from '../const'
 // import { printMessage } from "../helpers/phoneHelpers";
 
 
