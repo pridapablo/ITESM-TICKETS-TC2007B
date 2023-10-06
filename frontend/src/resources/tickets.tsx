@@ -15,10 +15,11 @@ import {
     Filter,
     ListProps,
     WithListContext,
+    useRecordContext,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
-import React, {  useState } from "react";
+import React, {  useEffect, useState } from "react";
 import ToggleButtons from "../components/toggleButton";
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
