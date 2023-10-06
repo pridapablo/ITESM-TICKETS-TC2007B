@@ -14,9 +14,13 @@ import {
     maxValue,
     Filter,
     ListProps,
+    WithListContext,
+    useRecordContext,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
-import React, {  useState } from "react";
+import TicketCards from "../components/card";
+import React, {  useEffect, useState } from "react";
+import ToggleButtons from "../components/toggleButton";
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
@@ -33,54 +37,113 @@ const subMenu = {
 
 const menuChoices = menu.map(item => ({ id: item, name: item }));
 
-export const TicketList: React.FC<ListProps> = (props) => (
-    <List {...props}
-        filterDefaultValues={{ isDeleted: true }}
+export const TicketList: React.FC<ListProps> = (props) => {
+    const [isList, setIsList] = useState(true); // Initialize isList state as true
+  
+    const toggleListView = () => {
+      setIsList(true); // Toggle the isList state when the button is clicked
+    };
+
+    const toggleCardView = () => {
+        setIsList(false); // Toggle the isList state when the button is clicked
+      };
+
+    
+  
+    return (
+      <List
+        {...props}
+        filterDefaultValues={{ isDeleted: true}}
         filters={
-            <Filter>
-                <BooleanInput label="Ocultar eliminados" source="isDeleted" alwaysOn />
-            </Filter>
+          <Filter>
+            <BooleanInput
+              label="Ocultar eliminados"
+              source="isDeleted"
+              alwaysOn
+            />
+          </Filter>
         }
-    >
-        <Datagrid>
+      >
+        
+        <ToggleButtons handleClick1={toggleListView} handleClick2={toggleCardView} />
+        {isList ? (
+          <WithListContext
+            render={({ data }) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ">
+                {data?.map((val) => (
+                  <TicketCards key={val.id} {...val} />
+                ))}
+              </div>
+            )}
+          />
+        ) : (
+          <Datagrid>
             <TextField source="id" />
             <TextField source="classification" />
             <TextField source="subclassification" />
+            <TextField source="description" />
             <TextField source="priority" />
-            <TextField source="resolutionID" />
             <DateField source="closureTime" />
             <EditButton />
-        </Datagrid>
-    </List>
-);
+          </Datagrid>
+        )}
+      </List>
+    
+    );
+  };
 
 export const TicketEdit = () => {
-    // TODO: not working
-    const [typeChoices, setTypeChoices] = useState<{ id: string, name: string }[]>([]);
     const [isSolved, setIsSolved] = useState(false);
-    const onSuccess = useSuccessHandler("Ticket actualizado", "/ticket");
-
-    const handleClassificationChange = (event: any) => {
-        const selectedClassification = event.target.value as keyof typeof subMenu;
-        setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
-    };
+    const role = localStorage.getItem('role');
 
     const handleIsSolvedChange = (event: any) => {
         setIsSolved(event.target.checked);
     };
 
-    return (
-        <Edit mutationOptions={{ onSuccess }}>
-            <SimpleForm warnWhenUnsavedChanges>
+     {/* TODO: Remove once backend does this */}
+    const userID = localStorage.getItem('userID');
+    
+    const ContextDropdown = ({ view }: { view?: boolean }) => {
+        // Todo: create ticket record interface
+        const [subChoices, setSubChoices] = useState<{ id: string, name: string }[]>([]);
+        const record = useRecordContext();
+
+        const handleClassificationChange = (event: any) => {
+            const selectedClassification = event.target.value as keyof typeof subMenu;
+            setSubChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+        };
+
+        useEffect(() => {
+            if (record && record.classification) {
+                const selectedClassification = record.classification as keyof typeof subMenu;
+                if (subMenu[selectedClassification]) {
+                    setSubChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+                }
+            }
+        }, [record]);
+
+        
+        return (
+            <>
                 <SelectInput
-                    source="classification"
+                source="classification"
                     choices={menuChoices}
-                    onChange={handleClassificationChange}
-                />
+                    disabled={view}
+                    onChange={handleClassificationChange} />
                 <SelectInput
                     source="subclassification"
-                    choices={typeChoices}
+                    choices={subChoices}
+                    disabled={view}
                 />
+            </>
+        );
+    }
+
+    return (
+        <Edit>
+            <SimpleForm warnWhenUnsavedChanges>
+                <TextInput source="userID" label="User ID" defaultValue={userID} disabled /> 
+                <ContextDropdown view={role !== 'user'} />
                 <TextInput source="description" multiline />
                 <SelectInput source="priority" choices={[
                     { id: '1', name: 'Muy baja' },
@@ -89,7 +152,7 @@ export const TicketEdit = () => {
                     { id: '4', name: 'Alta' },
                     { id: '5', name: 'Muy alta' },
                 ]} />
-                <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} />
+                <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} disabled={role === 'user'} />
                 {isSolved &&
                     <>
                         <DateInput 

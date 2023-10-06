@@ -24,7 +24,7 @@ const TopBar = (props: AppBarProps) => {
     <StyledAppBar {...props} userMenu={<CustomUserMenu />}>
       <LogoContainer>
         <Link to="/">
-          <img src={logo} alt="Logo" height="60" />
+          <img src={logo} alt="Logo" className="h-16" />
         </Link>
       </LogoContainer>
     </StyledAppBar>
