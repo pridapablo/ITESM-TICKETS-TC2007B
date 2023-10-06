@@ -1,7 +1,9 @@
 import User, { IUser } from "../models/user";
 import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
-import {SECRET} from '../const'
+import { SECRET, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from '../const'
+// import { printMessage } from "../helpers/phoneHelpers";
+
 
 export const getUsers = async (_req:Request, res:Response) => {
     try {
@@ -75,7 +77,10 @@ export const updateUser = async (req:Request, res:Response) => {
     let u;
     try {
         u = await User.findByIdAndUpdate(req.params.id, req.body);
-    
+
+        if (req.body.phone) {
+        //    printMessage(req.body.phone, "Un administrador ha actualizado tu número de teléfono.");
+        }
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
