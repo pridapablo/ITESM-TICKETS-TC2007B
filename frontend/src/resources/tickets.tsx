@@ -14,9 +14,12 @@ import {
     maxValue,
     Filter,
     ListProps,
+    WithListContext,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
+import TicketCards from "../components/card";
 import React, {  useState } from "react";
+import ToggleButtons from "../components/toggleButton";
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
@@ -33,26 +36,60 @@ const subMenu = {
 
 const menuChoices = menu.map(item => ({ id: item, name: item }));
 
-export const TicketList: React.FC<ListProps> = (props) => (
-    <List {...props}
-        filterDefaultValues={{ isDeleted: true }}
+export const TicketList: React.FC<ListProps> = (props) => {
+    const [isList, setIsList] = useState(true); // Initialize isList state as true
+  
+    const toggleListView = () => {
+      setIsList(true); // Toggle the isList state when the button is clicked
+    };
+
+    const toggleCardView = () => {
+        setIsList(false); // Toggle the isList state when the button is clicked
+      };
+
+    
+  
+    return (
+      <List
+        {...props}
+        filterDefaultValues={{ isDeleted: true}}
         filters={
-            <Filter>
-                <BooleanInput label="Ocultar eliminados" source="isDeleted" alwaysOn />
-            </Filter>
+          <Filter>
+            <BooleanInput
+              label="Ocultar eliminados"
+              source="isDeleted"
+              alwaysOn
+            />
+          </Filter>
         }
-    >
-        <Datagrid>
+      >
+        
+        <ToggleButtons handleClick1={toggleListView} handleClick2={toggleCardView} />
+        {isList ? (
+          <WithListContext
+            render={({ data }) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ">
+                {data?.map((val) => (
+                  <TicketCards key={val.id} {...val} />
+                ))}
+              </div>
+            )}
+          />
+        ) : (
+          <Datagrid>
             <TextField source="id" />
             <TextField source="classification" />
             <TextField source="subclassification" />
+            <TextField source="description" />
             <TextField source="priority" />
-            <TextField source="resolutionID" />
             <DateField source="closureTime" />
             <EditButton />
-        </Datagrid>
-    </List>
-);
+          </Datagrid>
+        )}
+      </List>
+    
+    );
+  };
 
 export const TicketEdit = () => {
     // TODO: not working
