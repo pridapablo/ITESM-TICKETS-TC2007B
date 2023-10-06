@@ -92,32 +92,57 @@ export const TicketList: React.FC<ListProps> = (props) => {
   };
 
 export const TicketEdit = () => {
-    // TODO: not working
-    const [typeChoices, setTypeChoices] = useState<{ id: string, name: string }[]>([]);
     const [isSolved, setIsSolved] = useState(false);
-    const onSuccess = useSuccessHandler("Ticket actualizado", "/ticket");
-
-    const handleClassificationChange = (event: any) => {
-        const selectedClassification = event.target.value as keyof typeof subMenu;
-        setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
-    };
+    const role = localStorage.getItem('role');
 
     const handleIsSolvedChange = (event: any) => {
         setIsSolved(event.target.checked);
     };
 
-    return (
-        <Edit mutationOptions={{ onSuccess }}>
-            <SimpleForm warnWhenUnsavedChanges>
+     {/* TODO: Remove once backend does this */}
+    const userID = localStorage.getItem('userID');
+    
+    const ContextDropdown = ({ view }: { view?: boolean }) => {
+        // Todo: create ticket record interface
+        const [subChoices, setSubChoices] = useState<{ id: string, name: string }[]>([]);
+        const record = useRecordContext();
+
+        const handleClassificationChange = (event: any) => {
+            const selectedClassification = event.target.value as keyof typeof subMenu;
+            setSubChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+        };
+
+        useEffect(() => {
+            if (record && record.classification) {
+                const selectedClassification = record.classification as keyof typeof subMenu;
+                if (subMenu[selectedClassification]) {
+                    setSubChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+                }
+            }
+        }, [record]);
+
+        
+        return (
+            <>
                 <SelectInput
-                    source="classification"
+                source="classification"
                     choices={menuChoices}
-                    onChange={handleClassificationChange}
-                />
+                    disabled={view}
+                    onChange={handleClassificationChange} />
                 <SelectInput
                     source="subclassification"
-                    choices={typeChoices}
+                    choices={subChoices}
+                    disabled={view}
                 />
+            </>
+        );
+    }
+
+    return (
+        <Edit>
+            <SimpleForm warnWhenUnsavedChanges>
+                <TextInput source="userID" label="User ID" defaultValue={userID} disabled /> 
+                <ContextDropdown view={role !== 'user'} />
                 <TextInput source="description" multiline />
                 <SelectInput source="priority" choices={[
                     { id: '1', name: 'Muy baja' },
@@ -126,7 +151,7 @@ export const TicketEdit = () => {
                     { id: '4', name: 'Alta' },
                     { id: '5', name: 'Muy alta' },
                 ]} />
-                <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} />
+                <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} disabled={role === 'user'} />
                 {isSolved &&
                     <>
                         <DateInput 
@@ -155,6 +180,8 @@ export const TicketCreate = () => {
         const selectedClassification = event.target.value as keyof typeof subMenu;
         setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
     };
+    
+    {/* TODO: Remove once backend does this */}
     const userID = localStorage.getItem('userID');
 
     return (
@@ -179,7 +206,8 @@ export const TicketCreate = () => {
                     { id: '4', name: 'Alta' },
                     { id: '5', name: 'Muy alta' },
                 ]} />
-                <TextInput source="userID" label="User ID" defaultValue={userID} disabled />
+                {/* TODO: Remove once backend does this */}
+                <TextInput source="userID" label="User ID" defaultValue={userID} disabled /> 
             </SimpleForm>
         </Create>
     );

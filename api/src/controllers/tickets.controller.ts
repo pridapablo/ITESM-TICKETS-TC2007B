@@ -42,7 +42,7 @@ export const getTicket = async (req: Request, res: Response) => {
     }
     catch (error: any) {
         res.status(500).json({ message: error.message });
-        return;  // Don't forget to return here to exit the function
+        return; 
     }
     if (!t)
         return res.status(404).json({ message: 'Error al obtener ticket' });  // Consider using 404 for not found
@@ -91,7 +91,15 @@ export const createTicket = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error al crear ticket o usuario del ticket' });
     }
 
-    return res.status(201).json({ ticket: ticketResult, user: userResult });
+     console.log('Ticket updated', ticketResult);
+    console.log('Ticket user created', userResult);
+
+    // Create a new object with the desired structure
+    const responseObj = {
+        id: ticketResult._id,
+        ...ticketResult.toObject(),
+    };
+    return res.status(200).json(responseObj);
 }
 
 export const updateTicket = async (req: Request, res: Response) => {
@@ -123,7 +131,15 @@ export const updateTicket = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error al actualizar ticket o usuario del ticket' });
     }
 
-    return res.status(200).json({ ticket: ticketUpdateResult, ticketUser: ticketUserCreateRes });
+    console.log('Ticket updated', ticketUpdateResult);
+    console.log('Ticket user created', ticketUserCreateRes);
+
+    // Create a new object with the desired structure
+    const responseObj = {
+        id: ticketUpdateResult._id,
+        ...ticketUpdateResult.toObject(),
+    };
+    return res.status(200).json(responseObj);
 }
 
 export const deleteTicket = async (req: Request, res: Response) => {
@@ -160,6 +176,13 @@ export const deleteTicket = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Error al marcar el ticket como eliminado o registrar la interacción' });
     }
 
-    return res.status(200).json({ ticket: ticketUpdateResult, ticketUser: ticketUserCreateRes });
-}
+    console.log('Ticket updated', ticketUpdateResult);
+    console.log('Ticket user created', ticketUserCreateRes);
 
+    // Create a new object with the desired structure
+    const responseObj = {
+        id: ticketUpdateResult._id,
+        ...ticketUpdateResult.toObject(),
+    };
+    return res.status(200).json(responseObj);
+}
