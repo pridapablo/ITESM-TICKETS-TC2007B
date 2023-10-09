@@ -33,6 +33,7 @@ export const authProvider: AuthProvider = {
             }
 
             localStorage.setItem('userID', userID); // TODO: This should NOT be done in the frontend
+            localStorage.setItem('username', username);
             localStorage.setItem('role', role); 
           
             return data.message;  // Devolvemos el mensaje "bien"

@@ -1,9 +1,7 @@
-import twilio from "twilio";
-import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "../const"
 import user from "../models/user";
 import ticket from "../models/ticket";
-
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+import ticketUser from "../models/ticketUser";
+import { printMessage, restartChatbot } from "../helpers/phoneHelpers";
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
@@ -18,24 +16,6 @@ const subMenu = {
     'Fenómeno meteorológico': ['Inundaciones', 'Incendios', 'Sismos']
 };
 
-const restartChatbot = async (WaId: string, u: any) => {
-    await client.messages.create({
-        body: "Error. Vuelve a comenzar enviando un mensaje con la palabra 'ticket'.",
-        from: "whatsapp:+14155238886",
-        to: `whatsapp:+${WaId}`,
-    });
-    u.chat_state = 0;
-    await u.save();
-}
-
-const printMessage = async (WaId: string, message: string) => {
-    await client.messages.create({
-        body: message,
-        from: "whatsapp:+14155238886",
-        to: `whatsapp:+${WaId}`,
-    });
-}
-
 //@ts-ignore
 export const handleTicket = async (req, res) => {
     // @ts-ignore body unused 
@@ -46,11 +26,7 @@ export const handleTicket = async (req, res) => {
         u = await user.findOne({ phone: WaId });
         if (!u) {
             // User is not signed up
-            await client.messages.create({
-                body: "Lo sentimos, tu teléfono no está dado de alta",
-                from: "whatsapp:+14155238886",
-                to: `whatsapp:+${WaId}`,
-            });
+            await printMessage(WaId, "Lo sentimos, tu teléfono no está dado de alta");
 
             return res.status(404).json({
                 success: false,
@@ -196,6 +172,15 @@ export const handleTicket = async (req, res) => {
                         user: u._id,
                         });
                         await t.save();
+                        console.log(t);
+                        const tu = new ticketUser({
+                            userID: u._id,
+                            ticketID: t._id,
+                            interactionDate: new Date(),
+                            interactionType: 'create',
+                        });
+                        await tu.save();
+                        console.log(tu);
                         await printMessage(WaId, "Ticket creado con éxito.");
                         u.chat.state = 0;
                         await u.save();
@@ -241,23 +226,23 @@ export const handleTicket = async (req, res) => {
 };
 
 //@ts-ignore
-// export const phoneConfirmation = async (req, res) => {
-//     // TODO extract userID from JWT with middleware
-//     const { name, phone } = req.body;
-//     if (!name || !phone ) {
-//         return res.status(400).json({ message: 'Faltan datos' });
-//     }
-//     let u;
-//     try {
-//         u = await user.findByIdAndUpdate(userID, { phone });
-//           if (!u) {
-//             res.status(500).json({ message: 'Error al actualizar usuario' });
-//         }
-//         await printMessage(phone, `Felicidades, ${name}. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
-//         res.status(200).json({ message: "Message sent and user updated" });
+export const phoneConfirmation = async (req, res) => {
+    // TODO extract userID from JWT with middleware
+    const { phone, userID } = req.body;
+    if (!userID || !phone ) {
+        return res.status(400).json({ message: 'Faltan datos' });
+    }
+    let u;
+    try {
+        u = await user.findByIdAndUpdate(userID, { phone });
+          if (!u) {
+            res.status(500).json({ message: 'Error al actualizar usuario' });
+        }
+        await printMessage(phone, `Felicidades. Puedes enviar un mensaje con la palabra 'ticket' para hacer un reporte.`);
+        res.status(200).json({ message: "Message sent and user updated" });
       
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: "Error sending message" });
-//     }
-// }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error sending message" });
+    }
+}
