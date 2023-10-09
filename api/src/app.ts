@@ -16,7 +16,7 @@ app.use(helmet({
     ieNoOpen: true,  // solo para usuarios que usen Internet Explorer
 }));
 
-// TODO https SSL/TSL from frontend
+// TODO https SSL/TSL 
 
 // app.use(
 //     helmet({
