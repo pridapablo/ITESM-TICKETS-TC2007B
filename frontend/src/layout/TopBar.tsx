@@ -28,7 +28,7 @@ export const TopBar = () => {
     <StyledAppBar position="fixed">
       <div className="logoContainer">
         <Link to="/">
-          <img src={logo} alt="Logo" height="60" />
+          <img src={logo} alt="Logo" className="h-16" />
         </Link>
       </div>
     </StyledAppBar>
