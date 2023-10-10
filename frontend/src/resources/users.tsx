@@ -19,7 +19,6 @@ import {
 import MyUrlField from "../components/MyUrlField";
 import { useSuccessHandler } from '../hooks/successHandlers';
 
-const rol = ["Admin", "Coordinador"]
 
 export const UserList = () => {
   const isSmall = useMediaQuery<Theme>((theme) => theme.breakpoints.down("sm"));
@@ -35,10 +34,7 @@ export const UserList = () => {
         <Datagrid rowClick="show">
           <TextField source="id" />
           <TextField source="name" />
-          <EmailField source="email" />
           <TextField source="phone" />
-          <MyUrlField source="website" />
-          <TextField source="company.name" />
           <EditButton />
         </Datagrid>
       )}
@@ -46,20 +42,25 @@ export const UserList = () => {
   );
 };
 
+
+
 export const UserEdit = () => (
+
   <Edit>
     <SimpleForm warnWhenUnsavedChanges>
       <TextInput source="id" disabled />
       <TextInput source="username" />
+      <PasswordInput source='pwdHash' label="Password"/>
       <TextInput source="phone" />
     </SimpleForm>
   </Edit>
 );
 
+
 export const UserCreate = () => {
-  const [selectedRol, setSelectedRol] = useState([]);
+  const [selectedRol, setSelectedRol] = useState('');
   const onSuccess = useSuccessHandler("User Created", '/user/create')
-  const roles = ["Admin", "Coordinador"];
+  const roles = ["admin", "agent", "user"];
 
   const handleRolChange = (event:any) => {
     setSelectedRol(event.target.value);
@@ -72,7 +73,7 @@ export const UserCreate = () => {
         <SelectInput 
           source="role"
           label="Rol"
-          choices={roles.map(role => ({name: role }))}
+          choices={roles.map(role => ({id:role,name: role }))}
           onChange={handleRolChange}
           value={selectedRol}
         />

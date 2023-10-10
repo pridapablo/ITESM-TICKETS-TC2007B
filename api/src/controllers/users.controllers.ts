@@ -1,10 +1,9 @@
 import User, { IUser } from "../models/user";
 import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
-import { SECRET } from '../const'
+import {SECRET} from '../const'
+import mongoose from "mongoose";
 // import { printMessage } from "../helpers/phoneHelpers";
-
-
 export const getUsers = async (_req:Request, res:Response) => {
     try {
         const u = await User.find().select("-pwdHash -_v");
@@ -71,24 +70,36 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 export const updateUser = async (req:Request, res:Response) => {
-    if (!req.params.id) {
-        res.status(400).json({ message: 'Faltan datos' });
-    }
-    let u;
-    try {
-        u = await User.findByIdAndUpdate(req.params.id, req.body);
 
-        if (req.body.phone) {
+    const filter  = req.params.id;
+    const {userID, phone} = req.body;
+
+    console.log(userID)
+    if (!filter || !mongoose.Types.ObjectId.isValid(userID)) {
+        return res.status(400).json({ message: 'Faltan datos' });
+    }
+
+    try {
+        const userUpdatedResult = await User.findByIdAndUpdate(filter,req.body,{new:true});
+
+        if (phone) {
         //    printMessage(req.body.phone, "Un administrador ha actualizado tu número de teléfono.");
         }
-    } catch (error: any) {
-        res.status(500).json({ message: error.message });
+        
+        if(!userUpdatedResult){
+            return res.status(404).json({message:"User Not Found"});
+        }
+
+        const responseObj = {
+            id: userUpdatedResult._id,
+            ...userUpdatedResult.toObject()
+        }
+
+        return res.status(203).json(responseObj);
+
+    } catch (error:any) {
+        return res.status(500).json({message:error.message});
     }
-    if (!u) {
-        res.status(500).json({ message: 'Error al actualizar usuario' });
-    }
-    
-    res.status(200).json(u);
 }
 
 export const deleteUser = async (req:Request, res:Response) => {
