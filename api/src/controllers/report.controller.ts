@@ -95,14 +95,41 @@ const calculateTicketCounts = async () => {
 };
 
 //@ts-ignore
+const calculateInventoryByClassification = async () => {
+    return await ticket.aggregate([
+        {
+            $match: {
+                classification: { $in: ["Mobiliario", "Materiales"] }
+            }
+        },
+        {
+            $group: {
+                _id: "$subclassification",
+                count: { $sum: 1 }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                subclassification: "$_id",
+                count: 1
+            }
+        }
+    ]);
+}
+
+
+//@ts-ignore
 export const getReport = async (_req, res) => {
     try {
-        
+
         const ticketCounts = await calculateTicketCounts();
         const avgResolutionTime = await calculateAvgResolutionTime();
-        res.json({ ticketCounts, avgResolutionTime});
+        const inventoryByClassification = await calculateInventoryByClassification();
+        res.json({ ticketCounts, avgResolutionTime, inventoryByClassification });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
     }
 };
+
