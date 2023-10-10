@@ -2,6 +2,7 @@ import express from "express";
 import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
+import limitter from 'express-rate-limit'
 const app = express();
 
 const corsOptions = {
@@ -26,6 +27,21 @@ app.use(helmet({
 //     },
 //     })
 // );
+
+
+//Deny of services
+
+app.use(limitter({
+    windowMs:3600,
+    limit:750,
+    message:{
+        code:429,
+        message:"Toomany request"
+    }
+    
+}
+
+))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
