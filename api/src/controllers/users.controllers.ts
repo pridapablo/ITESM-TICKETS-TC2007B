@@ -3,7 +3,7 @@ import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
 import mongoose from "mongoose";
-
+// import { printMessage } from "../helpers/phoneHelpers";
 export const getUsers = async (_req:Request, res:Response) => {
     try {
         const u = await User.find().select("-pwdHash -_v");
@@ -72,7 +72,7 @@ export const createUser = async (req: Request, res: Response) => {
 export const updateUser = async (req:Request, res:Response) => {
 
     const filter  = req.params.id;
-    const userID = req.body;
+    const {userID, phone} = req.body;
 
     console.log(userID)
     if (!filter || !mongoose.Types.ObjectId.isValid(userID)) {
@@ -82,7 +82,10 @@ export const updateUser = async (req:Request, res:Response) => {
     try {
         const userUpdatedResult = await User.findByIdAndUpdate(filter,req.body,{new:true});
 
-
+        if (phone) {
+        //    printMessage(req.body.phone, "Un administrador ha actualizado tu número de teléfono.");
+        }
+        
         if(!userUpdatedResult){
             return res.status(404).json({message:"User Not Found"});
         }
