@@ -213,10 +213,10 @@ export const getReport = async (_req, res) => {
 
         const ticketCounts = await calculateTicketCounts();
         const avgResolutionTime = await calculateAvgResolutionTime();
-        const inventoryByClassification = await calculateInventoryByClassification();
         const mostReportedCategories = await calculateMostReportedCategories();
         const ticketStats = await calculateTicketStats();
-
+        const inventoryByClassification = await calculateInventoryByClassification();
+        
         res.json({ ticketCounts, avgResolutionTime, mostReportedCategories, ticketStats, inventoryByClassification});
     } catch (error) {
         console.error(error);
