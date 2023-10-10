@@ -46,7 +46,6 @@ export const UserList = () => {
 
 export const UserEdit = () => (
 
-  // TODO: works on backend, no frontend
   <Edit>
     <SimpleForm warnWhenUnsavedChanges>
       <TextInput source="id" disabled />
