@@ -9,6 +9,97 @@ const formatDuration = (milliseconds: number): { days: number, hours: number, mi
     return { days, hours, minutes, seconds };
 };
 
+const calculateAllResolutionTimes = async () => {
+    try {
+        const aggregationPipeline = [
+            {
+                $lookup: {
+                    from: "ticketusers",
+                    localField: "_id",
+                    foreignField: "ticketID",
+                    as: "ticketUsers"
+                }
+            },
+            { $unwind: "$ticketUsers" },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "ticketUsers.userID",
+                    foreignField: "_id",
+                    as: "interactingUsers"
+                }
+            },
+            { $unwind: "$interactingUsers" },
+            {
+                $group: {
+                    _id: { ticketId: "$_id", userId: "$interactingUsers._id" },
+                    username: { $first: "$interactingUsers.username" },
+                    individualCount: { $sum: 1 },
+                    classification: { $first: "$classification" },
+                    subclassification: { $first: "$subclassification" },
+                    priority: { $first: "$priority" },
+                    resolutionTime: { 
+                        $first: {
+                            $subtract: [
+                                "$resolution.closureTime",
+                                "$ticketUsers.interactionDate"
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.ticketId",
+                    classification: { $first: "$classification" },
+                    subclassification: { $first: "$subclassification" },
+                    priority: { $first: "$priority" },
+                    interactingUsers: {
+                        $push: {
+                            id: "$_id.userId",
+                            username: "$username",
+                            timesInteracted: "$individualCount"
+                        }
+                    },
+                    interactionCount: { $sum: "$individualCount" },
+                    resolutionTime: { $first: "$resolutionTime" }
+                }
+            },
+            {
+                $project: {
+                    ticketId: "$_id",
+                    classification: 1,
+                    subclassification: 1,
+                    priority: 1,
+                    interactingUsers: 1,
+                    interactionCount: 1,
+                    resolutionTime: 1
+                }
+            }
+        ];
+
+        const result = await ticket.aggregate(aggregationPipeline).exec();
+
+        const resolutionTimesWithTicketsAndUsers = result.map(item => ({
+            ticketId: item.ticketId,
+            classification: item.classification,
+            subclassification: item.subclassification,
+            priority: item.priority,
+            isResolved: item.isResolved,
+            interactingUsers: item.interactingUsers,
+            interactionCount: item.interactionCount,
+            resolutionTime: formatDuration(item.resolutionTime)
+        }));
+
+        return resolutionTimesWithTicketsAndUsers;
+
+
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error calculating resolution times');
+    }
+};
+
 const calculateAvgResolutionTime = async () => {
     try {
         const aggregationPipeline = [
@@ -58,32 +149,45 @@ const calculateAvgResolutionTime = async () => {
 const calculateTicketCounts = async () => {
     try {
         const aggregationPipeline = [
-            {
-                $lookup: {
-                    from: "ticketusers",
-                    localField: "_id",
-                    foreignField: "ticketID",
-                    as: "ticketUser"
-                }
-            },
-            { $unwind: "$ticketUser" },
-            {
-                $group: {
-                    _id: "$ticketUser.userID",
-                    ticketCount: { $sum: 1 },
-                }
-            },
-            { $sort: { ticketCount: 1 } },  // Sort in ascending order
-            {
-                $group: {
-                    _id: null,
-                    maxTicketUser: { $last: "$_id" },
-                    maxTicketCount: { $last: "$ticketCount" },
-                    minTicketUser: { $first: "$_id" },
-                    minTicketCount: { $first: "$ticketCount" },
-                }
-            },
-        ];
+    {
+        $lookup: {
+            from: "ticketusers",
+            localField: "_id",
+            foreignField: "ticketID",
+            as: "ticketUser"
+        }
+    },
+    { $unwind: "$ticketUser" },
+    {
+        $lookup: {
+            from: "users",
+            localField: "ticketUser.userID",
+            foreignField: "_id",
+            as: "interactingUsers"
+        }
+    },
+    { $unwind: "$interactingUsers" },
+    {
+        $group: {
+            _id: "$ticketUser.userID",
+            username: { $first: "$interactingUsers.username" },  // Added username here
+            ticketCount: { $sum: 1 },
+        }
+    },
+    { $sort: { ticketCount: 1 } },  // Sort in ascending order
+    {
+        $group: {
+            _id: null,
+            maxTicketUser: { $last: "$_id" },
+            maxTicketUsername: { $last: "$username" },  // Added username here
+            maxTicketCount: { $last: "$ticketCount" },
+            minTicketUser: { $first: "$_id" },
+            minTicketUsername: { $first: "$username" },  // Added username here
+            minTicketCount: { $first: "$ticketCount" },
+        }
+    },
+];
+
 
         const result = await ticket.aggregate(aggregationPipeline as any).exec();
         return result[0] || null;
@@ -96,15 +200,27 @@ const calculateTicketCounts = async () => {
 
 const calculateMostReportedCategories = async () => {
     try {
-        const aggregationPipeline = [
-            {
-                $group: {
-                    _id: "$classification",
-                    count: { $sum: 1 }
+       const aggregationPipeline = [
+    {
+        $group: {
+            _id: { classification: "$classification", subclassification: "$subclassification" },
+            subCount: { $sum: 1 },
+        }
+    },
+    {
+        $group: {
+            _id: "$_id.classification",
+            totalCount: { $sum: "$subCount" },
+            subcategories: {
+                $push: {
+                    subclassification: "$_id.subclassification",
+                    count: "$subCount"
                 }
-            },
-            { $sort: { count: -1 } }  // Sort categories in descending order of count
-        ];
+            }
+        }
+    },
+    { $sort: { totalCount: -1 } }  // Sort categories in descending order of count
+];
 
         const result = await ticket.aggregate(aggregationPipeline as any).exec();
         return result;
@@ -206,7 +322,6 @@ const calculateInventoryByClassification = async () => {
     ]);
 }
 
-
 //@ts-ignore
 export const getReport = async (_req, res) => {
     try {
@@ -216,8 +331,9 @@ export const getReport = async (_req, res) => {
         const mostReportedCategories = await calculateMostReportedCategories();
         const ticketStats = await calculateTicketStats();
         const inventoryByClassification = await calculateInventoryByClassification();
+        const allTicketQueryData = await calculateAllResolutionTimes()
         
-        res.json({ ticketCounts, avgResolutionTime, mostReportedCategories, ticketStats, inventoryByClassification});
+        res.json({ ticketCounts, avgResolutionTime, mostReportedCategories, ticketStats, inventoryByClassification, allTicketQueryData});
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
