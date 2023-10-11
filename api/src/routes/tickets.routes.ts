@@ -11,9 +11,9 @@ router.get('/:id', GeneralAuth, TicketCtrl.getTicket);
 
 router.post('/', TokenValidation, TicketCtrl.createTicket);
 
-router.put('/:id', TicketCtrl.updateTicket);
+router.put('/:id', GeneralAuth,TicketCtrl.updateTicket);
 
-router.delete('/:id', TicketCtrl.deleteTicket);
+router.delete('/:id', GeneralAuth,TicketCtrl.deleteTicket);
 
 
 export default router;

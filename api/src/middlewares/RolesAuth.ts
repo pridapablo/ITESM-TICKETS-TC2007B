@@ -44,51 +44,6 @@ export const AdminAuth = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
-// @ts-ignore
-export const RoleAuth = async (req:Request, res:Response, next:NextFunction)=>{
-    const userId = GetToken(req);
-
-    try{
-        if(!userId){
-            return res.status(401).json("Invalid token");
-        }
-
-        const u = await User.findById(userId).select("-username -pwdHash");
-
-        if(u?.role.includes("admin") || u?.role.includes("agent")){
-            next();
-        }
-        else{
-            return res.status(403).json("Require Admin or Coordinator Role");
-        }
-    }
-    catch(error){
-        return res.status(500).json("Internal server error");
-    }
-}
-
-// @ts-ignore
-export const UserAuth = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = GetToken(req);
-
-    try {
-        if (!userId) {
-            return res.status(401).json("Invalid token");
-        }
-
-        const u = await User.findById(userId).select("-username -pwdHash");
-
-        if (u?.role.includes("user")) {
-            next();
-        }
-        else {
-            return res.status(403).json("Require User Role");
-        }
-    } catch (error) {
-        return res.status(500).json("Internal server error");
-    }
-}
-
 //General Middleware (all user types) ADD 
 // @ts-ignore
 export const GeneralAuth = async (req: RequestWithRole, res: Response, next: NextFunction) => {
@@ -104,6 +59,7 @@ export const GeneralAuth = async (req: RequestWithRole, res: Response, next: Nex
         if (u?.role.includes("admin") || u?.role.includes("agent") || u?.role.includes("user")) {
             // Attach the role to the request object
             req.userRole = u.role;
+            req.userID = u._id;
             next();
         } else {
             return res.status(403).json("Require Admin, Agent or User Role");
