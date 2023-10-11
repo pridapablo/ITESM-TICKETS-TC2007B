@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import ticket from "../models/ticket";
 import ticketUser from '../models/ticketUser';
 import mongoose from 'mongoose';
+import { RequestWithRole } from '../types/ReqWithUserRole';
 
 export const getTickets = async (req: Request, res: Response) => {
     try {
@@ -35,7 +36,7 @@ export const getTickets = async (req: Request, res: Response) => {
     }
 };
 
-export const getTicket = async (req: Request, res: Response) => {
+export const getTicket = async (req: RequestWithRole, res: Response) => {
     let t;
     try {
         t = await ticket.findById(req.params.id);
