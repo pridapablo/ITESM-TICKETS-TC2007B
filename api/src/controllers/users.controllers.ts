@@ -3,6 +3,7 @@ import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
 import mongoose from "mongoose";
+import { RequestWithRole } from "../types/ReqWithUserRole";
 // import { printMessage } from "../helpers/phoneHelpers";
 export const getUsers = async (_req:Request, res:Response) => {
     try {
@@ -69,10 +70,14 @@ export const createUser = async (req: Request, res: Response) => {
     }
 };
 
-export const updateUser = async (req:Request, res:Response) => {
-
+export const updateUser = async (req:RequestWithRole, res:Response) => {
     const filter  = req.params.id;
-    const {userID, phone} = req.body;
+    const { phone,userID } = req.body;
+    const userToLog = req.userID;
+
+    if (!userToLog) {
+        return res.status(400).json({ message: 'Faltan datos' });
+    } // TODO log the update user interaction
 
     console.log(userID)
     if (!filter || !mongoose.Types.ObjectId.isValid(userID)) {
@@ -102,20 +107,27 @@ export const updateUser = async (req:Request, res:Response) => {
     }
 }
 
-export const deleteUser = async (req:Request, res:Response) => {
+export const deleteUser = async (req: RequestWithRole, res: Response) => {
+    const userID = req.userID; // TODO use this to LOG the delete user interaction
+    
+    if (!userID) {
+        return res.status(400).json({ message: 'Faltan datos' });
+    } 
+
     let u;
-try {
+    try {
         u = await User.findByIdAndDelete(req.params.id);
-    
-} catch (error: any) {
-    res.status(500).json({message: error.message});
-    
-}
-    if (!u) {
-        res.status(500).json({message: 'Error al eliminar usuario'});
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
     }
-    res.status(200).json(u);
-}
+    
+    if (!u) {
+        return res.status(500).json({ message: 'Error al eliminar usuario' });
+    }
+    
+    return res.status(200).json(u);
+};
+
 
 export const authUser = async (req: Request, res: Response) => {
     const { username, pwdHash } = req.body;

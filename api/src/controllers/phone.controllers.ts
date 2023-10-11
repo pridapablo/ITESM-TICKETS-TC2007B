@@ -227,8 +227,8 @@ export const handleTicket = async (req, res) => {
 
 //@ts-ignore
 export const phoneConfirmation = async (req, res) => {
-    // TODO extract userID from JWT with middleware
-    const { phone, userID } = req.body;
+    const userID = req.userID;
+    const { phone } = req.body;
     if (!userID || !phone ) {
         return res.status(400).json({ message: 'Faltan datos' });
     }

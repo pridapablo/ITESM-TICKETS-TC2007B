@@ -1,14 +1,15 @@
 import { Router } from "express";
 import * as TicketCtrl from '../controllers/tickets.controller'
 import { GeneralAuth } from "../middlewares/RolesAuth";
+import { TokenValidation } from "../middlewares/authJwt";
 
 const router = Router();
 
 router.get('/', GeneralAuth, TicketCtrl.getTickets);
 
-router.get('/:id', TicketCtrl.getTicket);
+router.get('/:id', GeneralAuth, TicketCtrl.getTicket);
 
-router.post('/', TicketCtrl.createTicket);
+router.post('/', TokenValidation, TicketCtrl.createTicket);
 
 router.put('/:id', TicketCtrl.updateTicket);
 

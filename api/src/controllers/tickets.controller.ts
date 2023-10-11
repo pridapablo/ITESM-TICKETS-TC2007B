@@ -113,9 +113,12 @@ export const createTicket = async (req: Request, res: Response) => {
     return res.status(200).json(responseObj);
 }
 
-export const updateTicket = async (req: Request, res: Response) => {
+export const updateTicket = async (req: RequestWithRole, res: Response) => {
     const { id } = req.params;
-    const { userID } = req.body;  // assuming userID is provided in the request body
+    const userID = req.userID;
+    if (!userID) {
+        return res.status(400).json({ message: 'Token no válido' });
+    }
 
     if (!id || !mongoose.Types.ObjectId.isValid(userID)) {
         return res.status(400).json({ message: 'Faltan datos' });
@@ -153,12 +156,16 @@ export const updateTicket = async (req: Request, res: Response) => {
     return res.status(200).json(responseObj);
 }
 
-export const deleteTicket = async (req: Request, res: Response) => {
+export const deleteTicket = async (req: RequestWithRole, res: Response) => {
     const { id } = req.params;
-    const { userID } = req.body; // Aquí recibes el userID del cuerpo
+    const userID = req.userID;
 
     console.log('Deleting ticket with id', id);
     console.log('User ID', userID);
+
+    if (!userID) {
+        return res.status(400).json({ message: 'Token no válido' });
+    }
     
     if (!id || !mongoose.Types.ObjectId.isValid(userID)) {
         return res.status(400).json({ message: 'Faltan datos' });
