@@ -177,6 +177,8 @@ export const createTicket = async (req: Request, res: Response) => {
 export const updateTicket = async (req: RequestWithRole, res: Response) => {
     const { id } = req.params;
     const userID = req.userID;
+    const { classification, subclassification, priority, description, resolution } = req.body;
+
     if (!userID) {
         return res.status(400).json({ message: 'Token no válido' });
     }
@@ -184,12 +186,43 @@ export const updateTicket = async (req: RequestWithRole, res: Response) => {
     if (!id || !mongoose.Types.ObjectId.isValid(userID)) {
         return res.status(400).json({ message: 'Faltan datos' });
     }
-  
+
+    // Check if the role is 'user' and if the user created this ticket
+    let userCreatedThisTicket = false;
+    const userTickets = await ticketUser.find({ userID: userID, interactionType: 'create' }).select('ticketID');
+    const ticketIds = userTickets.map(t => t?.ticketID?.toString());
+
+    if (ticketIds.includes(id.toString())) {
+        userCreatedThisTicket = true;
+    }
+
+    if (req.userRole?.includes('user') && !userCreatedThisTicket) {
+        return res.status(403).json({ message: 'Forbidden: You did not create this ticket.' });
+    }
+
+    let allowedUpdates = {};
+
+    // Check roles to determine allowed fields to update
+    if (req.userRole?.includes('user')) {
+        // User can't mark ticket as resolved
+        allowedUpdates = { classification, subclassification, priority, description };
+    } else if (req.userRole?.includes('admin') || req.userRole?.includes('agent')) {
+        if (userCreatedThisTicket) {
+            // If admin or agent created this ticket, they can update everything except 'isDeleted'
+            allowedUpdates = { classification, subclassification, priority, description, resolution };
+        } else {
+            // If admin or agent did not create this ticket, they can only update 'resolution'
+            allowedUpdates = { resolution };
+        }
+    } else {
+        return res.status(403).json({ message: 'Forbidden: You are not authorized to update this ticket.' });
+    }
+
     let ticketUpdateResult;
     let ticketUserCreateRes;
 
     try {
-        ticketUpdateResult = await ticket.findByIdAndUpdate(id, req.body, { new: true });  // { new: true } to return the updated document
+        ticketUpdateResult = await ticket.findByIdAndUpdate(id, allowedUpdates, { new: true });
 
         ticketUserCreateRes = await ticketUser.create({
             userID,
@@ -205,9 +238,6 @@ export const updateTicket = async (req: RequestWithRole, res: Response) => {
     if (!ticketUpdateResult || !ticketUserCreateRes) {
         return res.status(500).json({ message: 'Error al actualizar ticket o usuario del ticket' });
     }
-
-    console.log('Ticket updated', ticketUpdateResult);
-    console.log('Ticket user created', ticketUserCreateRes);
 
     // Create a new object with the desired structure
     const responseObj = {
