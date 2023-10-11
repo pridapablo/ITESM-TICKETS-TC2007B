@@ -14,6 +14,7 @@ import { Admin, ListGuesser, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
 import './index.css';
+import { useState, useEffect } from "react"; // Import useState and useEffect
 
 const lightTheme = createTheme({
   palette: {
@@ -27,9 +28,21 @@ const darkTheme = createTheme({
   }
 });
 
+
+
+
 export const App = () => {
+  
+  const [role, setRole] = useState(''); // Declare state for role
   const [currentTheme, setCurrentTheme] = usePersistentState<'light' | 'dark'>('theme', 'light');
 
+  useEffect(() => {
+    const roleFromLocalStorage = localStorage.getItem('role');
+    if (roleFromLocalStorage) {
+      setRole(roleFromLocalStorage); 
+    }
+  }, []); 
+  
   return (
     <ThemeProvider theme={currentTheme === 'light' ? lightTheme : darkTheme}>
       <Admin
@@ -48,13 +61,14 @@ export const App = () => {
           create={TicketCreate}
           icon={NoteIcon}
         />
-        <Resource
+        {role == 'user'? null: 
+          <Resource
           name="user"
           list={ListGuesser}
           edit={UserEdit}
           create={UserCreate}
           icon={PersonOutlineRoundedIcon}
-        />
+        />}
       </Admin>
     </ThemeProvider>
   );
