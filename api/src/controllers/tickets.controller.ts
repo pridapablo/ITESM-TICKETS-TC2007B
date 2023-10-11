@@ -6,25 +6,34 @@ import ticketUser from '../models/ticketUser';
 import mongoose from 'mongoose';
 import { RequestWithRole } from '../types/ReqWithUserRole';
 
-export const getTickets = async (req: Request, res: Response) => {
+export const getTickets = async (req: RequestWithRole, res: Response) => {
     try {
-        let query = {};
+        let query: any = {};
 
-        // Verificar si el parámetro 'filter' está presente y es 'true'
         if (req.query.isDeleted === 'true') {
             console.log('Filtering tickets');
-            query = { isDeleted: { $ne: true } };  // Tickets donde isDeleted no es true o no existe
+            query.isDeleted = { $ne: true };  // Tickets where isDeleted is not true or doesn't exist
         }
 
-        const tickets = await ticket.find(query); // Utiliza la consulta aquí
+        // Check if the role is 'user'
+        if (req.userRole?.includes('user')) {
+            // Find the tickets created by this user
+            const userTickets = await ticketUser.find({ userID: req.userId, interactionType: 'create' }).select('ticketID');
+            const ticketIds = userTickets.map(t => t.ticketID);
+
+            // Add to query
+            query._id = { $in: ticketIds };
+        }
+
+        const tickets = await ticket.find(query); // Use the query here
         if (!tickets) {
-            return res.status(500).json({ message: 'Error al obtener tickets' });
+            return res.status(500).json({ message: 'Error fetching tickets' });
         }
 
         // Convert _id to id
         const modifiedTickets = tickets.map((ticket: any) => {
-            const { _id, ...otherProps } = ticket.toObject(); // Convert the ticket to a plain object and destructure to get _id and other properties
-            return { id: _id.toString(), ...otherProps };  // Convert _id to string and return a new object with id and otherProps
+            const { _id, ...otherProps } = ticket.toObject();
+            return { id: _id.toString(), ...otherProps };
         });
 
         // Set the X-Total-Count header
@@ -35,6 +44,7 @@ export const getTickets = async (req: Request, res: Response) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
 
 export const getTicket = async (req: RequestWithRole, res: Response) => {
     let t;
