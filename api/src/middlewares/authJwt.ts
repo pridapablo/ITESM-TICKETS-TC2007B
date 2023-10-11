@@ -10,7 +10,7 @@ interface IVerifyToken{
 
 // @ts-ignore
 export const TokenValidation = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.header('Authorization');
+    const token = req.header('Authentication');
 
     if (!token) {
         return res.status(401).json("Access-denied");

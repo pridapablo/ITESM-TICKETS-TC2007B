@@ -1,10 +1,10 @@
 import { Router } from "express";
 import * as TicketCtrl from '../controllers/tickets.controller'
-
+import { GeneralAuth } from "../middlewares/RolesAuth";
 
 const router = Router();
 
-router.get('/', TicketCtrl.getTickets);
+router.get('/', GeneralAuth, TicketCtrl.getTickets);
 
 router.get('/:id', TicketCtrl.getTicket);
 

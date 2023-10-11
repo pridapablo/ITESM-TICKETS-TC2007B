@@ -10,7 +10,7 @@ interface IVerifyToken {
 }
 
 export const GetToken = (req: Request): string | null => {
-    const token = req.header("Authorization");
+    const token = req.header("Authentication");
 
     if (!token) {
         return null; 
@@ -35,7 +35,6 @@ export const AdminAuth = async (req: Request, res: Response, next: NextFunction)
         const u = await User.findById(userId).select("-username -pwdHash -_v");
 
         if (u?.role.includes("admin")) {
-            // return userId;
             next();
         } else {
             return res.status(403).json("Requer Admin Role");
@@ -92,8 +91,7 @@ export const UserAuth = async (req: Request, res: Response, next: NextFunction) 
 
 //General Middleware (all user types) ADD 
 // @ts-ignore
-export const GeneralAuth = async (req: RequestWithRole
-    , res: Response, next: NextFunction) => {
+export const GeneralAuth = async (req: RequestWithRole, res: Response, next: NextFunction) => {
     const userId = GetToken(req);
 
     try {
