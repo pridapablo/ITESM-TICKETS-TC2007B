@@ -112,7 +112,6 @@ const MyLoginPage: FC = () => {
     React.useEffect(() => {
         const rand = Math.floor(Math.random() * imageArr.length);
         setRandImage(imageArr[rand])
-        console.log(imageArr[rand])
     }
     , [])
 
