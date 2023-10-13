@@ -8,11 +8,16 @@ import { RequestWithRole } from '../types/ReqWithUserRole';
 
 export const getTickets = async (req: RequestWithRole, res: Response) => {
     try {
-        let query: any = {};
+        let query: any = {
+            interactionType: 'create',
+        };
 
+        let sortKey = 'interactionDate';
+
+        // Verificar si el parámetro 'filter' está presente y es 'true'
         if (req.query.isDeleted === 'true') {
             console.log('Filtering tickets');
-            query.isDeleted = { $ne: true };  // Tickets where isDeleted is not true or doesn't exist
+            query["ticketID.isDeleted"] = { $ne: true }; // Tickets where isDeleted is not true or doesn't exist
         }
 
         // Check if the role is 'user'
@@ -20,25 +25,48 @@ export const getTickets = async (req: RequestWithRole, res: Response) => {
             // Find the tickets created by this user
             const userTickets = await ticketUser.find({ userID: req.userID, interactionType: 'create' }).select('ticketID');
             const ticketIds = userTickets.map(t => t.ticketID);
-
             // Add to query
-            query._id = { $in: ticketIds };
+            query.ticketID = { $in: ticketIds };
         }
 
-        const tickets = await ticket.find(query); // Use the query here
-        if (!tickets) {
-            return res.status(500).json({ message: 'Error fetching tickets' });
+        // Buscar los TicketUser y poblar los datos del Ticket
+        const ticketUsers = await ticketUser.find(query)
+            .populate([
+                {
+                    path: 'ticketID',
+                },
+                {
+                    path: 'userID',
+                    select: 'username _id',
+                }
+            ])
+            .sort({ [sortKey]: -1 });
+
+        let validTicketUsers = ticketUsers.filter((tu: any) => tu.ticketID !== null);
+
+        // Si req.query.sortByPriority es true, ordenar por priority después de recuperar los datos
+        if (req.query.sortByPriority === 'true') {
+            console.log('Sorting by priority');
+            validTicketUsers.sort((a: any, b: any) => b.ticketID.priority - a.ticketID.priority);
         }
 
         // Convert _id to id
-        const modifiedTickets = tickets.map((ticket: any) => {
-            const { _id, ...otherProps } = ticket.toObject();
-            return { id: _id.toString(), ...otherProps };
+        const modifiedTickets = validTicketUsers.map((ticketUser: any) => {
+            const { _id, ...otherProps } = ticketUser.ticketID.toObject();
+            const userData = ticketUser.userID ? ticketUser.userID.toObject() : {};
+
+            return {
+                id: _id.toString(),
+                ...otherProps,
+                createdOn: ticketUser.interactionDate,
+                creator: userData
+            };
         });
 
         // Set the X-Total-Count header
         res.setHeader('X-Total-Count', modifiedTickets.length);
 
+        console.log('Tickets', modifiedTickets);
         return res.status(200).json(modifiedTickets);
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
@@ -52,28 +80,50 @@ export const getTicket = async (req: RequestWithRole, res: Response) => {
         if (req.userRole?.includes('user')) {
             // Find the tickets created by this user
             const userTickets = await ticketUser.find({ userID: req.userID, interactionType: 'create' }).select('ticketID');
-            const ticketIds = userTickets.map(t => t?.ticketID?.toString());  // Convert to string for comparison
+            const ticketIds = userTickets.map(t => t?.ticketID?.toString());
 
             // Check if the requested ticket ID was created by the user
-            if (!ticketIds.includes(req.params.id.toString())) {  // Convert to string for comparison
+            if (!ticketIds.includes(req.params.id.toString())) {
                 return res.status(403).json({ message: 'Forbidden: You did not create this ticket.' });
             }
         }
 
         t = await ticket.findById(req.params.id);
-    }
-    catch (error: any) {
+
+        if (!t) {
+            return res.status(404).json({ message: 'Ticket not found' });
+        }
+
+        // Find the corresponding entry in TicketUser to get the creation date and the creator
+        const tUser = await ticketUser.findOne({ ticketID: t._id })
+            .populate({
+                path: 'userID',
+                select: 'username _id',
+            });
+
+        if (!tUser) {
+            return res.status(404).json({ message: 'TicketUser not found' });
+        }
+
+        const { _id, ...otherProps } = t.toObject();
+        const userData = tUser.userID
+            ? { _id: (tUser.userID as any)._id, username: (tUser.userID as any).username }
+            : {};
+
+        // Build the response object
+        const responseObj = {
+            id: _id.toString(),
+            ...otherProps,
+            createdOn: tUser.interactionDate,
+            creator: userData,
+            
+        };
+
+        console.log('Ticket', responseObj);
+        return res.status(200).json(responseObj);
+    } catch (error: any) {
         return res.status(500).json({ message: error.message });
     }
-    if (!t)
-        return res.status(404).json({ message: 'Error al obtener ticket' });  // Consider using 404 for not found
-
-    // Create a new object with the desired structure
-    const responseObj = {
-        id: t._id.toString(),  // Convert to string for consistency
-        ...t.toObject(),
-    };
-    return res.status(200).json(responseObj);
 };
 
 export const deleteTicket = async (req: RequestWithRole, res: Response) => {
