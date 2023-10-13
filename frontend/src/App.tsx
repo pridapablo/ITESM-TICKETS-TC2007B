@@ -41,7 +41,7 @@ export const App = () => {
     if (roleFromLocalStorage) {
       setRole(roleFromLocalStorage); 
     } else {
-      window.location.reload();
+      // window.location.reload(); Ni modo
     }
   }, [role]); 
   
