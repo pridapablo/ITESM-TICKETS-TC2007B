@@ -124,7 +124,7 @@ const MyLoginPage: FC = () => {
                         <div className="leading-loose">
                             <div className={`max-w-sm m-4 p-10 ${theme.palette.mode == 'dark'? 'bg-black': 'bg-white'} bg-opacity-80 rounded shadow-xl`}>
                                 <img src={logo} alt="logo" className="h-24 mx-auto mb-4"/>
-                                <p className="text-white text-center text-lg font-bold">Iniciar Sesion</p>
+                                <p className="text-white text-center text-lg font-bold mb-2">Iniciar Sesion</p>
                                 <div className="">
                                     <TextInput
                                         label={translate('login.username')}
