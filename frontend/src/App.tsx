@@ -40,8 +40,10 @@ export const App = () => {
     const roleFromLocalStorage = localStorage.getItem('role');
     if (roleFromLocalStorage) {
       setRole(roleFromLocalStorage); 
+    } else {
+      window.location.reload();
     }
-  }, []); 
+  }, [role]); 
   
   return (
     <ThemeProvider theme={currentTheme === 'light' ? lightTheme : darkTheme}>

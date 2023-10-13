@@ -78,7 +78,7 @@ export const getTicket = async (req: RequestWithRole, res: Response) => {
 
 export const deleteTicket = async (req: RequestWithRole, res: Response) => {
     const { id } = req.params;
-    const userID = req.userId;  // Make sure to use the correct user ID from the request
+    const userID = req.userID;  
 
     // Check if the role is 'user'
     if (req.userRole?.includes('user')) {
