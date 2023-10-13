@@ -72,28 +72,6 @@ export const Dashboard = () => {
        fetchData();
     }   
     , []);
-
-   useEffect(() => {
-    const transformedData: TransformedCategory[] = data.mostReportedCategories.map((category: Category)=> ({
-      name: category._id,
-      color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`, // Generate a random color
-      children: category.subcategories.map((subcategory : any) => ({
-        name: subcategory.subclassification,
-        color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`, // Generate a random color
-        loc: subcategory.count
-      }))
-      }));
-
-
-      const dataWrapper: TransformedDataWrapper = {
-        name: "admin",
-        color: "hsl(275, 70%, 50%)",
-        children: transformedData,
-      };
-      setTransformedData(dataWrapper);
-
-  
-    }, [data]);
       
   return (
     <Grid container spacing={2}>
@@ -135,7 +113,7 @@ export const Dashboard = () => {
               {isMySuburstVisible && (
                 <div className={`${isMySuburstExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}>
                   <h2 className='text-xl text-center'> Categorias más utilizadas</h2>
-                  <MyResponsiveSunburst data={transformedData} />
+                  <MyResponsiveSunburst data={data.mostReportedCategories} />
                   <Button
                     variant="contained"
                     onClick={() => setMySuburstExpanded(!isMySuburstExpanded)}

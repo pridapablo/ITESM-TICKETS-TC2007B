@@ -55,7 +55,7 @@ export const MyResponsiveScatterPlot = ({ data, average}: any) => {
           ]}
         axisBottom={{
             format: '%b %d',
-            tickValues: 'every 3 days',
+            tickValues: 'every 2 days',
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,

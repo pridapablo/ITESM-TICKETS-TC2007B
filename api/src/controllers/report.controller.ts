@@ -1,107 +1,12 @@
 import ticket from '../models/ticket';
 
-// const formatDuration = (milliseconds: number): { days: number, hours: number, minutes: number, seconds: number } => {
-//     const seconds = Math.floor((milliseconds / 1000) % 60);
-//     const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
-//     const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
-//     const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
-
-//     return { days, hours, minutes, seconds };
-// };
-
-// const calculateAllResolutionTimes = async () => {
-//     try {
-//         const aggregationPipeline = [
-//             {
-//                 $lookup: {
-//                     from: "ticketusers",
-//                     localField: "_id",
-//                     foreignField: "ticketID",
-//                     as: "ticketUsers"
-//                 }
-//             },
-//             { $unwind: "$ticketUsers" },
-//             {
-//                 $lookup: {
-//                     from: "users",
-//                     localField: "ticketUsers.userID",
-//                     foreignField: "_id",
-//                     as: "interactingUsers"
-//                 }
-//             },
-//             { $unwind: "$interactingUsers" },
-//             {
-//                 $group: {
-//                     _id: { ticketId: "$_id", userId: "$interactingUsers._id" },
-//                     username: { $first: "$interactingUsers.username" },
-//                     individualCount: { $sum: 1 },
-//                     classification: { $first: "$classification" },
-//                     subclassification: { $first: "$subclassification" },
-//                     priority: { $first: "$priority" },
-//                     resolutionTime: { 
-//                         $first: {
-//                             $subtract: [
-//                                 "$resolution.closureTime",
-//                                 "$ticketUsers.interactionDate"
-//                             ]
-//                         }
-//                     }
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: "$_id.ticketId",
-//                     classification: { $first: "$classification" },
-//                     subclassification: { $first: "$subclassification" },
-//                     priority: { $first: "$priority" },
-//                     interactingUsers: {
-//                         $push: {
-//                             id: "$_id.userId",
-//                             username: "$username",
-//                             timesInteracted: "$individualCount"
-//                         }
-//                     },
-//                     interactionCount: { $sum: "$individualCount" },
-//                     resolutionTime: { $first: "$resolutionTime" }
-//                 }
-//             },
-//             {
-//                 $project: {
-//                     ticketId: "$_id",
-//                     classification: 1,
-//                     subclassification: 1,
-//                     priority: 1,
-//                     interactingUsers: 1,
-//                     interactionCount: 1,
-//                     resolutionTime: 1
-//                 }
-//             }
-//         ];
-
-//         const result = await ticket.aggregate(aggregationPipeline).exec();
-
-//         const resolutionTimesWithTicketsAndUsers = result.map(item => ({
-//             ticketId: item.ticketId,
-//             classification: item.classification,
-//             subclassification: item.subclassification,
-//             priority: item.priority,
-//             isResolved: item.isResolved,
-//             interactingUsers: item.interactingUsers,
-//             interactionCount: item.interactionCount,
-//             resolutionTime: formatDuration(item.resolutionTime)
-//         }));
-
-//         return resolutionTimesWithTicketsAndUsers;
-
-
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Error calculating resolution times');
-//     }
-// };
-
+//7 days
 const calculateAvgResolutionTime = async () => {
     try {
+        // Calculate the date 7 days ago from the current date
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
         const aggregationPipeline = [
             {
                 $lookup: {
@@ -116,7 +21,8 @@ const calculateAvgResolutionTime = async () => {
                 $match: {
                     "ticketUser.interactionType": "create",  // only consider 'create' interactions
                     "resolution.closureTime": { $ne: null }, // Only consider tickets with non-null closureTime
-                    $expr: { $gt: [{ $subtract: ["$resolution.closureTime", "$ticketUser.interactionDate"] }, 0] } // Only consider resolution times > 0
+                    $expr: { $gt: [{ $subtract: ["$resolution.closureTime", "$ticketUser.interactionDate"] }, 0] }, // Only consider resolution times > 0
+                    "ticketUser.interactionDate": { $gte: sevenDaysAgo } // Filter for the last 7 days
                 }
             },
             {
@@ -149,10 +55,11 @@ const calculateAvgResolutionTime = async () => {
 };
 
 
-
-
 const calculateTicketCounts = async () => {
     try {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
         const aggregationPipeline = [
             {
                 $lookup: {
@@ -173,11 +80,27 @@ const calculateTicketCounts = async () => {
             },
             { $unwind: "$interactingUsers" },
             {
+                $match: {
+                    "ticketUser.interactionDate": { $gte: sevenDaysAgo }
+                }
+            },
+            {
                 $group: {
                     _id: {
                         userId: "$ticketUser.userID",
                         username: "$interactingUsers.username",
-                        priority: "$priority"
+                        priority: "$priority",
+                        ticketId: "$_id"
+                    },
+                    firstInteractionDate: { $min: "$ticketUser.interactionDate" },
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        userId: "$_id.userId",
+                        username: "$_id.username",
+                        priority: "$_id.priority",
                     },
                     ticketCount: { $sum: 1 },
                 }
@@ -187,7 +110,6 @@ const calculateTicketCounts = async () => {
 
         const result = await ticket.aggregate(aggregationPipeline as any).exec();
 
-        // Define the type for the usersData object
         const usersData: Record<string, Record<string, any>> = {};
 
         const priorityLabel: Record<number, string> = {
@@ -234,39 +156,101 @@ const calculateTicketCounts = async () => {
     }
 };
 
+
+//7 days
 const calculateMostReportedCategories = async () => {
-    try {
-       const aggregationPipeline = [
-    {
-        $group: {
-            _id: { classification: "$classification", subclassification: "$subclassification" },
-            subCount: { $sum: 1 },
-        }
-    },
-    {
-        $group: {
-            _id: "$_id.classification",
-            totalCount: { $sum: "$subCount" },
-            subcategories: {
-                $push: {
-                    subclassification: "$_id.subclassification",
-                    count: "$subCount"
+        try {
+        // Calculate the date 7 days ago from the current date
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        // Sample MongoDB aggregation pipeline (customize as per your data model)
+        const aggregationPipeline = [
+            {
+                $lookup: {
+                    from: "ticketusers",
+                    localField: "_id",
+                    foreignField: "ticketID",
+                    as: "ticketUser"
+                }
+            },
+            {
+                $unwind: "$ticketUser"
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "ticketUser.userID",
+                    foreignField: "_id",
+                    as: "interactingUsers"
+                }
+            },
+            {
+                $unwind: "$interactingUsers"
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    firstInteractionDate: { $min: "$ticketUser.interactionDate" }
+                }
+            },
+            {
+                $match: {
+                    firstInteractionDate: { $gte: sevenDaysAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: { classification: "$classification", subclassification: "$subclassification" },
+                    subCount: { $sum: 1 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.classification",
+                    subcategories: {
+                        $push: {
+                            subclassification: "$_id.subclassification",
+                            count: "$subCount"
+                        }
+                    }
                 }
             }
-        }
-    },
-    { $sort: { totalCount: -1 } }  // Sort categories in descending order of count
-];
+        ];
 
-        const result = await ticket.aggregate(aggregationPipeline as any).exec();
-        return result;
+        // Execute the aggregation query
+        const result = await ticket.aggregate(aggregationPipeline).exec();
 
+        // Transform the data
+        const transformedData = result.map((category) => ({
+            name: category._id,
+            color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
+            children: category.subcategories.map((subcategory:any) => ({
+                name: subcategory.subclassification,
+                color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`,
+                loc: subcategory.count
+            }))
+        }));
+
+        // Create the final data structure
+        const dataWrapper = {
+            name: "admin",
+            color: "hsl(275, 70%, 50%)",
+            children: transformedData,
+        };
+
+        return dataWrapper;
     } catch (error) {
         console.error(error);
         throw new Error('Error calculating most reported categories');
     }
 };
 
+
+
+
+
+//7 days
 const calculateTicketStats = async () => {
     try {
         // Current date and start of the week (7 days ago)
@@ -358,11 +342,13 @@ const calculateTicketStats = async () => {
     }
 };
 
-
-
-//@ts-ignore
+//7 days
 const calculateInventoryByClassification = async () => {
     try {
+        // Calculate the date 7 days ago from the current date
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
         const aggregationPipeline = [
             {
                 $lookup: {
@@ -382,6 +368,12 @@ const calculateInventoryByClassification = async () => {
                 }
             },
             { $unwind: "$interactingUsers" },
+            {
+                $match: {
+                    "ticketUser.interactionType": "create",  // only consider 'create' interactions
+                    "ticketUser.interactionDate": { $gte: sevenDaysAgo } // Filter for the last 7 days
+                }
+            },
             {
                 $group: {
                     _id: {
@@ -436,8 +428,14 @@ const calculateInventoryByClassification = async () => {
     }
 };
 
+
+//7 days
 const fetchTicketsWithResolutionTime = async () => {
     try {
+        // Calculate the date 7 days ago from the current date
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
         const aggregationPipeline = [
             {
                 $lookup: {
@@ -449,6 +447,12 @@ const fetchTicketsWithResolutionTime = async () => {
             },
             {
                 $unwind: "$ticketUser"
+            },
+            {
+                $match: {
+                    // Filter tickets created in the last 7 days
+                    "ticketUser.interactionDate": { $gte: sevenDaysAgo }
+                }
             },
             {
                 $group: {
@@ -482,6 +486,7 @@ const fetchTicketsWithResolutionTime = async () => {
         ];
 
         const results = await ticket.aggregate(aggregationPipeline).exec();
+
 
         // Define the priority mapping
         const priorityMapping: Record<number, string> = {
