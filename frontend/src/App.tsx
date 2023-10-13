@@ -1,7 +1,7 @@
 import { dataProvider } from "./data/dataProvider";
 
 import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
-import {UserEdit,UserCreate} from './resources/users'
+import {UserList,UserEdit,UserCreate} from './resources/users'
 
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
@@ -66,7 +66,7 @@ export const App = () => {
         {role == 'user'? null: 
           <Resource
           name="user"
-          list={ListGuesser}
+          list={UserList}
           edit={UserEdit}
           create={UserCreate}
           icon={PersonOutlineRoundedIcon}

@@ -6,7 +6,7 @@ import {
   SimpleList,
   Datagrid,
   TextField,
-  EmailField,
+  FunctionField,
   EditButton,
   Edit,
   SimpleForm,
@@ -22,6 +22,15 @@ import { useSuccessHandler } from '../hooks/successHandlers';
 
 export const UserList = () => {
   const isSmall = useMediaQuery<Theme>((theme) => theme.breakpoints.down("sm"));
+  const renderRoleField = (record: any) => {
+    let roleText = record.role;
+    if (record.role === 'agent') {
+      roleText = 'coordinador nacional';
+    } else if (record.role === 'user') {
+      roleText = 'coordinador de aula';
+    }
+    return roleText;
+  };
   return (
     <List>
       {isSmall ? (
@@ -32,8 +41,8 @@ export const UserList = () => {
         />
       ) : (
         <Datagrid rowClick="show">
-          <TextField source="id" />
-          <TextField source="name" />
+          <TextField source="username" />
+          <FunctionField render={renderRoleField} source='role'/>
           <TextField source="phone" />
           <EditButton />
         </Datagrid>
