@@ -12,12 +12,24 @@ import { MyResponsiveTreeMap } from '../components/boxGraph';
 import { MyResponsiveScatterPlot } from '../components/dotGraph';
 import { Button } from 'react-admin';
 import { useTheme } from '@mui/material/styles';
+import ToggleButtonDashboard from '../components/toggleDashboard';
 
 type ThemeType = 'light' | 'dark';
 
 export const Dashboard = () => {
+  const [weekView , setWeekView] = useState(true); // Initialize isList state as true
+  
+  const toggleWeekView = () => {
+    setWeekView(true); // Toggle the isList state when the button is clicked
+  };
+
+  const toggleAllTimeView = () => {
+    setWeekView(false); // Toggle the isList state when the button is clicked
+    };
+
   const theme = useTheme();
   const colorThemeBG = theme.palette.mode === 'dark' ? 'bg-neutral-600' : 'bg-white';
+  const colorThemeHover = theme.palette.mode === 'dark' ? 'hover:bg-neutral-500' : 'hover:bg-neutral-300';
   const [isCheckboxVisible, setCheckboxVisible] = useState(false); 
 
   const [isMySuburstExpanded, setMySuburstExpanded] = useState(false);
@@ -36,25 +48,46 @@ export const Dashboard = () => {
   const [isMyDotVisible, setMyDotVisible] = useState(true);
 
   interface DataTypes {
-    allTicketQueryData: [];
-    avgResolutionTime: [];
-    allResoultionTime: [];
-    inventoryByClassification: [];
-    mostReportedCategories: [];
-    ticketCounts: [];
-    ticketStats: [];
+    dataWeek: {
+      allTicketQueryData: [];
+      avgResolutionTime: [];
+      allResoultionTime: [];
+      inventoryByClassification: [];
+      mostReportedCategories: [];
+      ticketCounts: [];
+      ticketStats: [];
+    },
+    allData: {
+      allTicketQueryDataAllTime: [];
+      avgResolutionTimeAllTime: [];
+      allResoultionTimeAllTime: [];
+      inventoryByClassificationAllTime: [];
+      mostReportedCategoriesAllTime: [];
+      ticketCountsAllTime: [];
+      ticketStatsAllTime: [];
+    }
   }
 
   const [data, setData] = useState<DataTypes>({
-    allTicketQueryData: [],
-    avgResolutionTime: [],
-    allResoultionTime: [],  
-    inventoryByClassification: [],
-    mostReportedCategories: [],
-    ticketCounts: [],
-    ticketStats: [],
+    dataWeek: {
+      allTicketQueryData: [],
+      avgResolutionTime: [],
+      allResoultionTime: [],  
+      inventoryByClassification: [],
+      mostReportedCategories: [],
+      ticketCounts: [],
+      ticketStats: [],},
+    allData:
+      {
+        allTicketQueryDataAllTime: [],
+        avgResolutionTimeAllTime: [],
+        allResoultionTimeAllTime: [],
+        inventoryByClassificationAllTime: [],
+        mostReportedCategoriesAllTime: [],
+        ticketCountsAllTime: [],
+        ticketStatsAllTime: [],
+      }
   });
-    const [transformedData, setTransformedData] = useState<TransformedDataWrapper>();
     useEffect(() => {
         async function fetchData(){
             const res = await fetch(`${import.meta.env.VITE_JSON_SERVER_URL}/report`, {
@@ -78,8 +111,9 @@ export const Dashboard = () => {
       <Grid item xs={12}>
         <Card>
           <CardHeader title="Reporte de tickets" />
+          <ToggleButtonDashboard handleClick1={toggleWeekView} handleClick2={toggleAllTimeView} />
           <button
-                  className="absolute right-2 top-24 bg-neutral-100 hover:bg-neutral-300 shadow-md shadow-slate-500 text-white font-bold py-2 px-4 mr-2 rounded-lg"
+                  className={`absolute right-2 top-24 ${colorThemeBG} ${colorThemeHover} shadow-md shadow-neutral-600 font-bold py-2 px-4 mr-2 rounded-lg`}
                   onClick={() => setCheckboxVisible(!isCheckboxVisible)}
                 >
                   <AppsIcon style={{ color: 'black' }} />
@@ -88,7 +122,7 @@ export const Dashboard = () => {
           { isCheckboxVisible ?
           ( 
             <motion.div 
-            className='absolute right-2 top-35 bg-white'
+            className='absolute right-2 top-36'
             initial={{ x: '100%' }}
             animate={isCheckboxVisible ? { x: 0 } : { x: '100%'}}
             exit={{ x: '-100%' }}
@@ -113,7 +147,7 @@ export const Dashboard = () => {
               {isMySuburstVisible && (
                 <div className={`${isMySuburstExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}>
                   <h2 className='text-xl text-center'> Categorias más utilizadas</h2>
-                  <MyResponsiveSunburst data={data.mostReportedCategories} />
+                  <MyResponsiveSunburst data={weekView? data.dataWeek.mostReportedCategories : data.allData.mostReportedCategoriesAllTime} />
                   <Button
                     variant="contained"
                     onClick={() => setMySuburstExpanded(!isMySuburstExpanded)}
@@ -126,7 +160,7 @@ export const Dashboard = () => {
               {isMyPieVisible && (
               <div className={`${isMyPieExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}>
                 <h2 className='text-xl text-center'> Tickets creados</h2>
-                <MyResponsivePie data={data.ticketStats} />
+                <MyResponsivePie data={weekView? data.dataWeek.ticketStats : data.allData.ticketStatsAllTime} />
                 <Button
                   variant="contained"
                   onClick={() => setMyPieExpanded(!isMyPieExpanded)}
@@ -139,7 +173,7 @@ export const Dashboard = () => {
               {isMyBarVisible && (
               <div className={`${isMyBarExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}>
                 <h2 className='text-xl text-center'> Tickets por aula</h2>
-                <MyResponsiveBar data={data.ticketCounts} />
+                <MyResponsiveBar data={weekView? data.dataWeek.ticketCounts : data.allData.ticketCountsAllTime} />
                 <Button
                   variant="contained"
                   onClick={() => setMyBarExpanded(!isMyBarExpanded)}
@@ -152,7 +186,7 @@ export const Dashboard = () => {
                 {isMyBoxVisible && (
                 <div className={`${isMyBoxExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}>
                 <h2 className='text-xl text-center'> Inventario por aula</h2>
-                <MyResponsiveTreeMap data={data.inventoryByClassification} />
+                <MyResponsiveTreeMap data={weekView? data.dataWeek.inventoryByClassification : data.allData.inventoryByClassificationAllTime} />
                 <Button
                   variant="contained"
                   onClick={() => setMyBoxExpanded(!isMyBoxExpanded)}
@@ -165,7 +199,7 @@ export const Dashboard = () => {
               {isMyDotVisible && (
                 <div className={`${isMyDotExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}>
                 <h2 className='text-xl text-center'>Tiempo en solucionar problemas</h2>
-                <MyResponsiveScatterPlot data={data.allResoultionTime} average={data.avgResolutionTime} />
+                <MyResponsiveScatterPlot data={weekView? data.dataWeek.allResoultionTime : data.allData.allResoultionTimeAllTime} average={weekView? data.dataWeek.avgResolutionTime : data.allData.avgResolutionTimeAllTime} />
                 <Button
                   variant="contained"
                   onClick={() => setMyDotExpanded(!isMyDotExpanded)}

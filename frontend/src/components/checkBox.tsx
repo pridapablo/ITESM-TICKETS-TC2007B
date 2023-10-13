@@ -2,6 +2,9 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { useTheme } from '@mui/material/styles';
+
+type ThemeType = 'light' | 'dark';
 
 type IndeterminateCheckboxProps = {
     setVisible1: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,6 +20,10 @@ type IndeterminateCheckboxProps = {
 }
 
 export default function IndeterminateCheckbox({setVisible1, setVisible2, setVisible3, setVisible4, setVisible5, isVisible1, isVisible2, isVisible3, isVisible4, isVisible5}: IndeterminateCheckboxProps) {
+  const theme = useTheme();
+
+  const colorThemeBG = theme.palette.mode === 'dark' ? 'bg-neutral-800' : 'bg-white';
+
   const handleChange1 = () => {
     setVisible1(!isVisible1);
   };
@@ -68,13 +75,13 @@ export default function IndeterminateCheckbox({setVisible1, setVisible2, setVisi
   );
 
   return (
-    <div className='shadow-md shadow-slate-500 p-4 rounded-xl justify-end w-30'>
+    <div className={`${colorThemeBG} shadow-md shadow-neutral-600 p-4 rounded-xl justify-end w-30`}>
       <FormControlLabel
         label="Todos"
         labelPlacement="start" // Align the label to the right
         control={
           <Checkbox
-            checked={isVisible1 && isVisible2 && isVisible3}
+            checked={isVisible1 && isVisible2 && isVisible3 && isVisible4 && isVisible5}
             onChange={() => {
               setVisible1(true);
               setVisible2(true);
