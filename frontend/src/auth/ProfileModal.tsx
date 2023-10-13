@@ -56,10 +56,8 @@ const ProfileModal: FC<ProfileModalProps> = ({ open, onClose }) => {
   const notify = useNotify();
 
   const handleSave = () => {
-    const userID = localStorage.getItem('userID'); // TODO: get userID directly from token in backend
     const dataToSend = {
       phone: phoneNumber,
-      userID 
     };
 
     fetch(`${import.meta.env.VITE_JSON_SERVER_URL}/phone/confirm`, {

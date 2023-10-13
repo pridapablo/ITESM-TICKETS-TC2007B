@@ -100,11 +100,8 @@ export const TicketEdit = () => {
         setIsSolved(event.target.checked);
     };
 
-     {/* TODO: Remove once backend does this */}
-    const userID = localStorage.getItem('userID');
     
     const ContextDropdown = ({ view }: { view?: boolean }) => {
-        // Todo: create ticket record interface
         const [subChoices, setSubChoices] = useState<{ id: string, name: string }[]>([]);
         const record = useRecordContext();
 
@@ -142,7 +139,6 @@ export const TicketEdit = () => {
     return (
         <Edit>
             <SimpleForm warnWhenUnsavedChanges>
-                <TextInput source="userID" label="User ID" defaultValue={userID} disabled /> 
                 <ContextDropdown view={role !== 'user'} />
                 <TextInput source="description" multiline />
                 <SelectInput source="priority" choices={[
@@ -181,9 +177,6 @@ export const TicketCreate = () => {
         const selectedClassification = event.target.value as keyof typeof subMenu;
         setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
     };
-    
-    {/* TODO: Remove once backend does this */}
-    const userID = localStorage.getItem('userID');
 
     return (
         <Create mutationOptions={{ onSuccess }}>
@@ -207,8 +200,6 @@ export const TicketCreate = () => {
                     { id: '4', name: 'Alta' },
                     { id: '5', name: 'Muy alta' },
                 ]} />
-                {/* TODO: Remove once backend does this */}
-                <TextInput source="userID" label="User ID" defaultValue={userID} disabled /> 
             </SimpleForm>
         </Create>
     );

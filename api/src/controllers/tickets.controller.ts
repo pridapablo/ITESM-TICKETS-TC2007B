@@ -4,26 +4,36 @@ import { Request, Response } from 'express'
 import ticket from "../models/ticket";
 import ticketUser from '../models/ticketUser';
 import mongoose from 'mongoose';
+import { RequestWithRole } from '../types/ReqWithUserRole';
 
-export const getTickets = async (req: Request, res: Response) => {
+export const getTickets = async (req: RequestWithRole, res: Response) => {
     try {
-        let query = {};
+        let query: any = {};
 
-        // Verificar si el parámetro 'filter' está presente y es 'true'
         if (req.query.isDeleted === 'true') {
             console.log('Filtering tickets');
-            query = { isDeleted: { $ne: true } };  // Tickets donde isDeleted no es true o no existe
+            query.isDeleted = { $ne: true };  // Tickets where isDeleted is not true or doesn't exist
         }
 
-        const tickets = await ticket.find(query); // Utiliza la consulta aquí
+        // Check if the role is 'user'
+        if (req.userRole?.includes('user')) {
+            // Find the tickets created by this user
+            const userTickets = await ticketUser.find({ userID: req.userID, interactionType: 'create' }).select('ticketID');
+            const ticketIds = userTickets.map(t => t.ticketID);
+
+            // Add to query
+            query._id = { $in: ticketIds };
+        }
+
+        const tickets = await ticket.find(query); // Use the query here
         if (!tickets) {
-            return res.status(500).json({ message: 'Error al obtener tickets' });
+            return res.status(500).json({ message: 'Error fetching tickets' });
         }
 
         // Convert _id to id
         const modifiedTickets = tickets.map((ticket: any) => {
-            const { _id, ...otherProps } = ticket.toObject(); // Convert the ticket to a plain object and destructure to get _id and other properties
-            return { id: _id.toString(), ...otherProps };  // Convert _id to string and return a new object with id and otherProps
+            const { _id, ...otherProps } = ticket.toObject();
+            return { id: _id.toString(), ...otherProps };
         });
 
         // Set the X-Total-Count header
@@ -35,25 +45,87 @@ export const getTickets = async (req: Request, res: Response) => {
     }
 };
 
-export const getTicket = async (req: Request, res: Response) => {
+export const getTicket = async (req: RequestWithRole, res: Response) => {
     let t;
     try {
+        // Check if the role is 'user'
+        if (req.userRole?.includes('user')) {
+            // Find the tickets created by this user
+            const userTickets = await ticketUser.find({ userID: req.userID, interactionType: 'create' }).select('ticketID');
+            const ticketIds = userTickets.map(t => t?.ticketID?.toString());  // Convert to string for comparison
+
+            // Check if the requested ticket ID was created by the user
+            if (!ticketIds.includes(req.params.id.toString())) {  // Convert to string for comparison
+                return res.status(403).json({ message: 'Forbidden: You did not create this ticket.' });
+            }
+        }
+
         t = await ticket.findById(req.params.id);
     }
     catch (error: any) {
-        res.status(500).json({ message: error.message });
-        return; 
+        return res.status(500).json({ message: error.message });
     }
     if (!t)
         return res.status(404).json({ message: 'Error al obtener ticket' });  // Consider using 404 for not found
 
     // Create a new object with the desired structure
     const responseObj = {
-        id: t._id,
+        id: t._id.toString(),  // Convert to string for consistency
         ...t.toObject(),
     };
     return res.status(200).json(responseObj);
 };
+
+export const deleteTicket = async (req: RequestWithRole, res: Response) => {
+    const { id } = req.params;
+    const userID = req.userID;  
+
+    // Check if the role is 'user'
+    if (req.userRole?.includes('user')) {
+        // Find the tickets created by this user
+        const userTickets = await ticketUser.find({ userID: userID, interactionType: 'create' }).select('ticketID');
+        const ticketIds = userTickets.map(t => t?.ticketID?.toString());  // Convert to string for comparison
+
+        // Check if the requested ticket ID was created by the user
+        if (!ticketIds.includes(id.toString())) {  // Convert to string for comparison
+            return res.status(403).json({ message: 'Forbidden: You did not create this ticket.' });
+        }
+    }
+
+    if (!userID || !id) {
+        return res.status(400).json({ message: 'Missing data' });
+    }
+
+    let ticketUpdateResult;
+    let ticketUserCreateRes;
+
+    try {
+        // Mark the ticket as deleted
+        ticketUpdateResult = await ticket.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+
+        // Register the interaction in ticketUser
+        ticketUserCreateRes = await ticketUser.create({
+            userID,
+            ticketID: id,
+            interactionDate: new Date(),
+            interactionType: 'delete',
+        });
+
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
+    }
+
+    if (!ticketUpdateResult || !ticketUserCreateRes) {
+        return res.status(500).json({ message: 'Error while marking the ticket as deleted or registering the interaction' });
+    }
+
+    // Create a new object with the desired structure
+    const responseObj = {
+        id: ticketUpdateResult._id.toString(),  // Convert to string for consistency
+        ...ticketUpdateResult.toObject(),
+    };
+    return res.status(200).json(responseObj);
+}
 
 export const createTicket = async (req: Request, res: Response) => {
     const { classification, subclassification, priority, description, userID } = req.body;
@@ -102,19 +174,55 @@ export const createTicket = async (req: Request, res: Response) => {
     return res.status(200).json(responseObj);
 }
 
-export const updateTicket = async (req: Request, res: Response) => {
+export const updateTicket = async (req: RequestWithRole, res: Response) => {
     const { id } = req.params;
-    const { userID } = req.body;  // assuming userID is provided in the request body
+    const userID = req.userID;
+    const { classification, subclassification, priority, description, resolution } = req.body;
+
+    if (!userID) {
+        return res.status(400).json({ message: 'Token no válido' });
+    }
 
     if (!id || !mongoose.Types.ObjectId.isValid(userID)) {
         return res.status(400).json({ message: 'Faltan datos' });
     }
-  
+
+    // Check if the role is 'user' and if the user created this ticket
+    let userCreatedThisTicket = false;
+    const userTickets = await ticketUser.find({ userID: userID, interactionType: 'create' }).select('ticketID');
+    const ticketIds = userTickets.map(t => t?.ticketID?.toString());
+
+    if (ticketIds.includes(id.toString())) {
+        userCreatedThisTicket = true;
+    }
+
+    if (req.userRole?.includes('user') && !userCreatedThisTicket) {
+        return res.status(403).json({ message: 'Forbidden: You did not create this ticket.' });
+    }
+
+    let allowedUpdates = {};
+
+    // Check roles to determine allowed fields to update
+    if (req.userRole?.includes('user')) {
+        // User can't mark ticket as resolved
+        allowedUpdates = { classification, subclassification, priority, description };
+    } else if (req.userRole?.includes('admin') || req.userRole?.includes('agent')) {
+        if (userCreatedThisTicket) {
+            // If admin or agent created this ticket, they can update everything except 'isDeleted'
+            allowedUpdates = { classification, subclassification, priority, description, resolution };
+        } else {
+            // If admin or agent did not create this ticket, they can only update 'resolution'
+            allowedUpdates = { resolution };
+        }
+    } else {
+        return res.status(403).json({ message: 'Forbidden: You are not authorized to update this ticket.' });
+    }
+
     let ticketUpdateResult;
     let ticketUserCreateRes;
 
     try {
-        ticketUpdateResult = await ticket.findByIdAndUpdate(id, req.body, { new: true });  // { new: true } to return the updated document
+        ticketUpdateResult = await ticket.findByIdAndUpdate(id, allowedUpdates, { new: true });
 
         ticketUserCreateRes = await ticketUser.create({
             userID,
@@ -130,54 +238,6 @@ export const updateTicket = async (req: Request, res: Response) => {
     if (!ticketUpdateResult || !ticketUserCreateRes) {
         return res.status(500).json({ message: 'Error al actualizar ticket o usuario del ticket' });
     }
-
-    console.log('Ticket updated', ticketUpdateResult);
-    console.log('Ticket user created', ticketUserCreateRes);
-
-    // Create a new object with the desired structure
-    const responseObj = {
-        id: ticketUpdateResult._id,
-        ...ticketUpdateResult.toObject(),
-    };
-    return res.status(200).json(responseObj);
-}
-
-export const deleteTicket = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { userID } = req.body; // Aquí recibes el userID del cuerpo
-
-    console.log('Deleting ticket with id', id);
-    console.log('User ID', userID);
-    
-    if (!id || !mongoose.Types.ObjectId.isValid(userID)) {
-        return res.status(400).json({ message: 'Faltan datos' });
-    }
-
-    let ticketUpdateResult;
-    let ticketUserCreateRes;
-
-    try {
-        // Marcar el ticket como eliminado
-        ticketUpdateResult = await ticket.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
-
-        // Registrar la interacción en ticketUser
-        ticketUserCreateRes = await ticketUser.create({
-            userID,
-            ticketID: id,
-            interactionDate: new Date(),
-            interactionType: 'delete',
-        });
-
-    } catch (error: any) {
-        return res.status(500).json({ message: error.message });
-    }
-
-    if (!ticketUpdateResult || !ticketUserCreateRes) {
-        return res.status(500).json({ message: 'Error al marcar el ticket como eliminado o registrar la interacción' });
-    }
-
-    console.log('Ticket updated', ticketUpdateResult);
-    console.log('Ticket user created', ticketUserCreateRes);
 
     // Create a new object with the desired structure
     const responseObj = {

@@ -1,23 +1,22 @@
 import { Router } from "express";
 import * as UserCtrl  from '../controllers/users.controllers'
 
-//import { TokenValidation } from '../middlewares/authJwt'
-//import { AdminAuth } from '../middlewares/RolesAuth'
+import { AdminAuth } from '../middlewares/RolesAuth'
 
 const router = Router();
 
-router.get('/',UserCtrl.getUsers);
+router.get('/',AdminAuth,UserCtrl.getUsers);
 
-router.get('/:id', UserCtrl.getUser)
+router.get('/:id',AdminAuth, UserCtrl.getUser)
 
 //Sign in route
 
 router.post('/auth',UserCtrl.authUser);
 
-router.post('/', UserCtrl.createUser);
+router.post('/', AdminAuth,UserCtrl.createUser);
 
-router.put('/:id',UserCtrl.updateUser);
+router.put('/:id',AdminAuth,UserCtrl.updateUser);
 
-router.delete('/:id',UserCtrl.deleteUser);
+router.delete('/:id',AdminAuth,UserCtrl.deleteUser);
 
 export default router;
