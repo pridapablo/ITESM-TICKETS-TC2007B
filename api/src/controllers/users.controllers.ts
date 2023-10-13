@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
 import mongoose from "mongoose";
 import { RequestWithRole } from "../types/ReqWithUserRole";
+import { ConnectionPolicyPage } from "twilio/lib/rest/voice/v1/connectionPolicy";
 // import { printMessage } from "../helpers/phoneHelpers";
 export const getUsers = async (_req:Request, res:Response) => {
     try {
@@ -73,7 +74,7 @@ export const createUser = async (req: RequestWithRole, res: Response) => {
         modifiedUserID:result._id,
         action:"Created User"
     })
-    
+
     console.log(` result : \n ${result}`)
     console.log(` Ulog : \n ${uLog}`)
 
@@ -87,19 +88,24 @@ export const createUser = async (req: RequestWithRole, res: Response) => {
 export const updateUser = async (req:RequestWithRole, res:Response) => {
     const filter  = req.params.id;
     const { phone,userID } = req.body;
-    const userToLog = req.userID;
+    const uLogger = req.userID;
 
-    if (!userToLog) {
+    if (!uLogger) {
         return res.status(400).json({ message: 'Faltan datos' });
-    } // TODO log the update user interaction
+    } 
 
-    console.log(userID)
     if (!filter || !mongoose.Types.ObjectId.isValid(userID)) {
         return res.status(400).json({ message: 'Faltan datos' });
     }
 
     try {
         const userUpdatedResult = await User.findByIdAndUpdate(filter,req.body,{new:true});
+
+        const uLog = new LoggerUser({
+            loggedID:uLogger,
+            modifiedUserID:filter,
+            action:"Update User Information"
+        })
 
         if (phone) {
         //    printMessage(req.body.phone, "Un administrador ha actualizado tu número de teléfono.");
@@ -108,6 +114,9 @@ export const updateUser = async (req:RequestWithRole, res:Response) => {
         if(!userUpdatedResult){
             return res.status(404).json({message:"User Not Found"});
         }
+
+        console.log(` Ulog : \n ${uLog}`)
+        await uLog.save();
 
         const responseObj = {
             id: userUpdatedResult._id,
@@ -122,24 +131,33 @@ export const updateUser = async (req:RequestWithRole, res:Response) => {
 }
 
 export const deleteUser = async (req: RequestWithRole, res: Response) => {
-    const userID = req.userID; // TODO use this to LOG the delete user interaction
+    const uLogger = req.userID;
     
-    if (!userID) {
+    if (!uLogger) {
         return res.status(400).json({ message: 'Faltan datos' });
     } 
 
-    let u;
     try {
-        u = await User.findByIdAndDelete(req.params.id);
+        const uLog = new LoggerUser({
+            loggedID:uLogger,
+            modifiedUserID:req.params.id,
+            action: "Deleted User"
+        })
+        const u = await User.findByIdAndDelete(req.params.id);
+
+        if(!u){
+            return res.status(400).json({message: "User not Found"});
+        }
+        
+        console.log(uLog);
+        await uLog.save();
+
+        return res.status(200).json(u);
+
     } catch (error: any) {
         return res.status(500).json({ message: error.message });
     }
     
-    if (!u) {
-        return res.status(500).json({ message: 'Error al eliminar usuario' });
-    }
-    
-    return res.status(200).json(u);
 };
 
 
@@ -151,11 +169,19 @@ export const authUser = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Username or password incorrect" });
     }
 
+    const uLog = new LoggerUser({
+        loggedID:u._id,
+        modifiedUserID:null,
+        action:"Log in"
+    });
+
     const correctPassword: boolean = await u.validatePassword(pwdHash, u.pwdHash);
 
     if (!correctPassword) {
         return res.status(403).json({ message: "Incorrect Password" });
     }
+
+    await uLog.save();
 
     const token: string = jwt.sign({ _id: u._id }, SECRET, { expiresIn: 86400 });
     return res.header("Authorization", token).status(200).json({
