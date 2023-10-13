@@ -66,6 +66,7 @@ export const App = () => {
         {role == 'user'? null: 
           <Resource
           name="user"
+          options={{ label: 'resources.users' }}
           list={UserList}
           edit={UserEdit}
           create={UserCreate}

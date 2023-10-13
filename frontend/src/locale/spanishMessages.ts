@@ -1,13 +1,47 @@
 import { TranslationMessages } from "react-admin";
 
 export const es: TranslationMessages = {
+  profileModal: {
+    phoneNumber: "Número de teléfono",
+    editPhoneNumber: "Editar número de teléfono",
+  },
+  prioritys: {
+    noPriority: 'Sin prioridad',
+    veryLow: 'Muy baja',
+    low: 'Baja',
+    medium: 'Media',
+    high: 'Alta',
+    veryHigh: 'Muy alta',
+  },
+  notifications: {
+    successSavingPhone: "¡Número de teléfono guardado con éxito!",
+    errorSavingPhone: "Error al guardar el número de teléfono. Inténtalo de nuevo más tarde.",
+  },
   resources: {
     posts: 'Publicaciones',
     users: 'Usuarios',
     albums: 'Álbumes',
     tickets: 'Tickets',
+    profile: 'Mi Perfil',
+    ticket: {
+      fields: {
+        id: 'Id',
+        classification: 'Clasificación',
+        subclassification: 'Subclasificación',
+        description: 'Descripción',
+        priority: 'Prioridad',
+        closureTime: 'Tiempo de cierre',
+        isSolved: 'Fue resuelto',
+        whatWasDone: '¿Qué se hizo?',
+        howWasDone: '¿Cómo se hizo?',
+        whyWasDone: '¿Por qué se hizo?',
+        hideDeleted: 'Ocultar eliminados',
+        sortByPriority: 'Ordenar por prioridad',
+      }
+    }
   },
   login: {
+    title: 'Iniciar sesión',
     username: 'Nombre de usuario',
     password: 'Contraseña',
     loginButton: 'Iniciar sesión',
@@ -35,6 +69,7 @@ export const es: TranslationMessages = {
       remove_filter: "Eliminar este filtro",
       remove_all_filters: "Eliminar todos los filtros",
       remove: "Eliminar",
+      resolve: "Resolver",
       save: "Guardar",
       search: "Buscar",
       select_all: "Seleccionar todo",

@@ -1,17 +1,51 @@
 import { TranslationMessages } from "react-admin";
 
 export const en: TranslationMessages = {
+  profileModal: {
+    phoneNumber: "Phone number",
+    editPhoneNumber: "Edit phone number",
+  },
+  prioritys: {
+    noPriority: 'No priority',
+    veryLow: 'Very low',
+    low: 'Low',
+    medium: 'Medium',
+    high: 'High',
+    veryHigh: 'Very high',
+  },
+  notifications: {
+    successSavingPhone: "Phone number saved successfully!",
+    errorSavingPhone: "Error saving phone number. Please try again later.",
+  },
   resources: {
     posts: 'Posts',
     users: 'Users',
     albums: 'Albums',
     tickets: 'Tickets',
+    profile: 'My Profile',
+    ticket: {
+      fields: {
+        id: 'Id',
+        classification: 'Classification',
+        subclassification: 'Subclassification',
+        description: 'Description',
+        priority: 'Priority',
+        closureTime: 'Closure time',
+        isSolved: 'Was solved',
+        whatWasDone: 'What was done?',
+        howWasDone: 'How was it done?',
+        whyWasDone: 'Why was it done?',
+        hideDeleted: 'Hide deleted',
+        sortByPriority: 'Sort by priority',
+      }
+    }
   },
   login: {
     username: 'Username',
     password: 'Password',
     loginButton: 'Login',
     loginError: 'Error during login process',
+    title: 'Login',
   },
   ra: {
     action: {
@@ -33,6 +67,7 @@ export const en: TranslationMessages = {
       refresh: "Refresh",
       remove_filter: "Remove this filter",
       remove_all_filters: "Remove all filters",
+      resolve: "Resolve",
       remove: "Remove",
       save: "Save",
       search: "Search",

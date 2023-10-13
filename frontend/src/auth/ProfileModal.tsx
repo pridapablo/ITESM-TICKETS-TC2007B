@@ -2,7 +2,7 @@
 import { FC, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@mui/material';
 import { styled } from '@mui/system';
-import { useNotify } from 'react-admin';
+import { useNotify, useTranslate } from 'react-admin';
 
 const StyledDialog = styled(Dialog)({
   '& .MuiDialog-paper': {
@@ -70,33 +70,35 @@ const ProfileModal: FC<ProfileModalProps> = ({ open, onClose }) => {
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
-        notify('Número de teléfono guardado con éxito!', { type: 'success' });
+        notify(translate("notifications.successSavingPhone"), { type: 'success' });
         onClose();
       })
       .catch((error) => {
-        notify('Error al guardar el número de teléfono.', { type: 'error' });
+        notify(translate("notifications.errorSavingPhone"), { type: 'error' });
         console.error('Error:', error);
       });
   };
 
+  const translate = useTranslate();
+
   return (
     <StyledDialog open={open} onClose={onClose}>
-      <StyledDialogTitle>Editar número de teléfono</StyledDialogTitle>
+      <StyledDialogTitle>{translate('profileModal.editPhoneNumber')}</StyledDialogTitle>
       <StyledDialogContent>
         <StyledTextField
           fullWidth
           variant="outlined"
-          label="Número de teléfono"
+          label={translate('profileModal.phoneNumber')}
           value={phoneNumber}
           onChange={e => setPhoneNumber(e.target.value)}
         />
       </StyledDialogContent>
       <StyledDialogActions>
         <Button onClick={onClose} color="primary">
-          Cancelar
+          {translate('ra.action.cancel')}
         </Button>
         <Button onClick={handleSave} variant="contained" color="primary">
-          Guardar
+          {translate('ra.action.save')}
         </Button>
       </StyledDialogActions>
     </StyledDialog>

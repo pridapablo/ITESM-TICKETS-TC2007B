@@ -16,11 +16,14 @@ import {
   ListProps,
   WithListContext,
   useRecordContext,
+  useTranslate,
+  useListContext,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
 import React, { useEffect, useState } from "react";
 import ToggleButtons from "../components/toggleButton";
+import { Chip } from '@mui/material';
 
 const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
 const subMenu = {
@@ -37,6 +40,42 @@ const subMenu = {
 
 const menuChoices = menu.map(item => ({ id: item, name: item }));
 
+interface QuickFilterProps {
+  label: string;
+  source: string;
+  defaultValue: any;  // O un tipo más específico si sabes lo que debería ser
+}
+
+interface FilterValues {
+  [key: string]: string | number | boolean;
+}
+
+const QuickFilter: React.FC<QuickFilterProps> = ({ label, source, defaultValue }) => {
+  const translate = useTranslate();
+  const { filterValues, setFilters } = useListContext();
+
+  const handleClick = () => {
+    const newFilterValue = filterValues[source] ? false : true;
+
+    setFilters(
+      { ...filterValues, [source]: newFilterValue },
+      { ...filterValues, [source]: true }
+    );
+  };
+
+
+  const isActive = filterValues[source] === defaultValue;
+
+  return (
+    <Chip
+      sx={{ marginBottom: 1 }}
+      label={translate(label)}
+      onClick={handleClick}
+      color={isActive ? 'primary' : 'default'}
+    />
+  );
+};
+
 export const TicketList: React.FC<ListProps> = (props) => {
   const [isList, setIsList] = useState(true); // Initialize isList state as true
 
@@ -48,7 +87,7 @@ export const TicketList: React.FC<ListProps> = (props) => {
     setIsList(false); // Toggle the isList state when the button is clicked
   };
 
-
+  const translate = useTranslate();
 
   return (
     <List
@@ -56,16 +95,8 @@ export const TicketList: React.FC<ListProps> = (props) => {
       filterDefaultValues={{ isDeleted: true }}
       filters={
         <Filter>
-          <BooleanInput
-            label="Ocultar eliminados"
-            source="isDeleted"
-            alwaysOn
-          />
-          <BooleanInput
-            label="Ordenar por prioridad"
-            source="sortByPriority"
-            alwaysOn
-          />
+          <QuickFilter source="isDeleted" label={translate('resources.ticket.fields.hideDeleted')} defaultValue={true} />
+          <QuickFilter source="sortByPriority" label={translate('resources.ticket.fields.sortByPriority')} defaultValue={true} />
         </Filter>
       }
     >
@@ -83,12 +114,12 @@ export const TicketList: React.FC<ListProps> = (props) => {
         />
       ) : (
         <Datagrid>
-          <TextField source="id" />
-          <TextField source="classification" />
-          <TextField source="subclassification" />
-          <TextField source="description" />
-          <TextField source="priority" />
-          <DateField source="closureTime" />
+          <TextField source="id" label={translate('resources.ticket.fields.id')} />
+          <TextField source="classification" label={translate('resources.ticket.fields.classification')} />
+          <TextField source="subclassification" label={translate('resources.ticket.fields.subclassification')} />
+          <TextField source="description" label={translate('resources.ticket.fields.description')} />
+          <TextField source="priority" label={translate('resources.ticket.fields.priority')} />
+          <DateField source="closureTime" label={translate('resources.ticket.fields.closureTime')} />
           <EditButton />
         </Datagrid>
       )}
@@ -141,6 +172,8 @@ export const TicketEdit = () => {
     );
   }
 
+  const translate = useTranslate();
+
   return (
     <Edit>
       <SimpleForm warnWhenUnsavedChanges>
@@ -153,7 +186,7 @@ export const TicketEdit = () => {
           { id: '4', name: 'Alta' },
           { id: '5', name: 'Muy alta' },
         ]} />
-        <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} disabled={role === 'user'} />
+        <BooleanInput source="isSolved" label={translate('resources.ticket.fields.isSolved')} onChange={handleIsSolvedChange} disabled={role === 'user'} />
         {isSolved &&
           <>
             <DateInput
@@ -162,9 +195,9 @@ export const TicketEdit = () => {
               defaultValue={new Date().toISOString()}
               validate={maxValue(new Date().toISOString(), "El ticket no puede cerrarse en el futuro")}
             />
-            <TextInput source="resolution.whatWasDone" label="What Was Done" />
-            <TextInput source="resolution.howWasDone" label="How Was Done" />
-            <TextInput source="resolution.whyWasDone" label="Why Was Done" />
+            <TextInput source="resolution.whatWasDone" label={translate('resources.ticket.fields.whatWasDone')} />
+            <TextInput source="resolution.howWasDone" label={translate('resources.ticket.fields.howWasDone')} />
+            <TextInput source="resolution.whyWasDone" label={translate('resources.ticket.fields.whyWasDone')} />
           </>
         }
 
@@ -183,28 +216,37 @@ export const TicketCreate = () => {
     setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
   };
 
+  const translate = useTranslate();
+
   return (
     <Create mutationOptions={{ onSuccess }}>
       <SimpleForm warnWhenUnsavedChanges>
         <SelectInput
           source="classification"
-          label="Clasificación"
+          label={translate('resources.ticket.fields.classification')}
           choices={menuChoices}
           onChange={handleClassificationChange}
         />
         <SelectInput
           source="subclassification"
-          label="Subclasificación"
+          label={translate('resources.ticket.fields.subclassification')}
           choices={typeChoices}
         />
-        <TextInput source="description" label="Descripción" multiline />
-        <SelectInput source="priority" label="Prioridad" choices={[
-          { id: '1', name: 'Muy baja' },
-          { id: '2', name: 'Baja' },
-          { id: '3', name: 'Media' },
-          { id: '4', name: 'Alta' },
-          { id: '5', name: 'Muy alta' },
-        ]} />
+        <TextInput
+          source="description"
+          label={translate('resources.ticket.fields.description')}
+          multiline
+        />
+        <SelectInput
+          source="priority"
+          label={translate('resources.ticket.fields.priority')}
+          choices={[
+            { id: '1', name: 'Muy baja' },
+            { id: '2', name: 'Baja' },
+            { id: '3', name: 'Media' },
+            { id: '4', name: 'Alta' },
+            { id: '5', name: 'Muy alta' },
+          ]} />
       </SimpleForm>
     </Create>
   );
