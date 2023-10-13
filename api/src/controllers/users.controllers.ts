@@ -1,4 +1,5 @@
 import User, { IUser } from "../models/user";
+import LoggerUser from '../models/LoggerUser'
 import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
@@ -46,8 +47,10 @@ export const getUser = async (req:Request, res:Response) => {
     }
 }
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (req: RequestWithRole, res: Response) => {
     const { username, pwdHash, role, phone} = req.body;
+    const uLogger = req.userID;
+    console.log(uLogger); // TODO: CHANGE UNDEFINED VALUE
 
     if (!username || !pwdHash || !role) {
         return res.status(400).json({ message: 'Faltan datos' });
@@ -63,8 +66,19 @@ export const createUser = async (req: Request, res: Response) => {
 
     await u.encryptPassword(pwdHash);
 
-        const result = await u.save();
-        return res.status(201).json({ message: result });
+    const result = await u.save();
+    // User Logger
+    const uLog = new LoggerUser({
+        loggedID:uLogger,
+        modifiedUserID:result._id,
+        action:"Created User"
+    })
+    
+    console.log(` result : \n ${result}`)
+    console.log(` Ulog : \n ${uLog}`)
+
+    await uLog.save();
+    return res.status(201).json({ message: result });
     } catch (error:any) {
         return res.status(500).json({ message: error.message });
     }
