@@ -11,8 +11,13 @@ import  IndeterminateCheckbox  from '../components/checkBox';
 import { MyResponsiveTreeMap } from '../components/boxGraph';
 import { MyResponsiveScatterPlot } from '../components/dotGraph';
 import { Button } from 'react-admin';
+import { useTheme } from '@mui/material/styles';
+
+type ThemeType = 'light' | 'dark';
 
 export const Dashboard = () => {
+  const theme = useTheme();
+  const colorThemeBG = theme.palette.mode === 'dark' ? 'bg-neutral-600' : 'bg-white';
   const [isCheckboxVisible, setCheckboxVisible] = useState(false); 
 
   const [isMySuburstExpanded, setMySuburstExpanded] = useState(false);
@@ -128,7 +133,7 @@ export const Dashboard = () => {
           <CardContent>
             <div className='flex flex-wrap h-screen overflow-y-auto custom-scrollbar justify-center'>
               {isMySuburstVisible && (
-                <div className={`${isMySuburstExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} shadow-lg my-5 shadow-slate-500 p-10 mx-5 rounded-xl`}>
+                <div className={`${isMySuburstExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}>
                   <h2 className='text-xl text-center'> Categorias más utilizadas</h2>
                   <MyResponsiveSunburst data={transformedData} />
                   <Button
@@ -141,7 +146,7 @@ export const Dashboard = () => {
               )}
 
               {isMyPieVisible && (
-              <div className={`${isMyPieExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} shadow-lg my-5 shadow-slate-500 p-10 mx-5 rounded-xl`}>
+              <div className={`${isMyPieExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}>
                 <h2 className='text-xl text-center'> Tickets creados</h2>
                 <MyResponsivePie data={data.ticketStats} />
                 <Button
@@ -154,7 +159,7 @@ export const Dashboard = () => {
               )}
 
               {isMyBarVisible && (
-              <div className={`${isMyBarExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} shadow-lg my-5 shadow-slate-500 p-10 mx-5 rounded-xl `}>
+              <div className={`${isMyBarExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}>
                 <h2 className='text-xl text-center'> Tickets por aula</h2>
                 <MyResponsiveBar data={data.ticketCounts} />
                 <Button
@@ -167,7 +172,7 @@ export const Dashboard = () => {
               )}
 
                 {isMyBoxVisible && (
-                <div className={`${isMyBoxExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} shadow-lg my-5 shadow-slate-500 p-10 mx-5 rounded-xl `}>
+                <div className={`${isMyBoxExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}>
                 <h2 className='text-xl text-center'> Inventario por aula</h2>
                 <MyResponsiveTreeMap data={data.inventoryByClassification} />
                 <Button
@@ -180,7 +185,7 @@ export const Dashboard = () => {
               )}
 
               {isMyDotVisible && (
-                <div className={`${isMyDotExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} shadow-lg my-5 shadow-slate-500 p-10 mx-5 rounded-xl `}>
+                <div className={`${isMyDotExpanded? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"} ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}>
                 <h2 className='text-xl text-center'>Tiempo en solucionar problemas</h2>
                 <MyResponsiveScatterPlot data={data.allResoultionTime} average={data.avgResolutionTime} />
                 <Button

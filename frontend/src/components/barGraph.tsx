@@ -1,15 +1,35 @@
-// install (please try to align the version of installed @nivo packages)
-// yarn add @nivo/bar
 import { ResponsiveBar } from '@nivo/bar'
+import { useTheme } from '@mui/material/styles';
 
-// make sure parent container have a defined height when using
-// responsive component, otherwise height will be 0 and
-// no chart will be rendered.
-// website examples showcase many properties,
-// you'll often use just a few of them.
-export const MyResponsiveBar = ({ data}: any) => (
+type ThemeType = 'light' | 'dark';
+
+export const MyResponsiveBar = ({ data}: any) => {
+    const theme = useTheme();
+    const colorTheme = theme.palette.mode === 'dark' ? '#333' : '#fff';
+    const lineGraphSettings = {
+        tooltip: {
+            container: {
+                background: colorTheme,
+            }
+            },
+        theme: {
+        fontSize: '14px',
+        textColor: 'blue',
+        },
+        };
+
+    
+    const averageThemeText = theme.palette.mode === 'dark' ? "#fff" : "#333";
+    return(
     <ResponsiveBar
         data={data}
+        theme={{
+            tooltip: {
+            container: {
+                background: colorTheme,
+            }
+            }
+        }}
         keys={[
             'Muy baja',
             'Baja',
@@ -44,20 +64,6 @@ export const MyResponsiveBar = ({ data}: any) => (
                 spacing: 10
             }
         ]}
-        fill={[
-            {
-                match: {
-                    id: 'fries'
-                },
-                id: 'dots'
-            },
-            {
-                match: {
-                    id: 'sandwich'
-                },
-                id: 'lines'
-            }
-        ]}
         borderColor={{
             from: 'color',
             modifiers: [
@@ -74,7 +80,7 @@ export const MyResponsiveBar = ({ data}: any) => (
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'country',
+            legend: 'Aulas',
             legendPosition: 'middle',
             legendOffset: 32
         }}
@@ -82,7 +88,7 @@ export const MyResponsiveBar = ({ data}: any) => (
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            legend: 'food',
+            legend: 'Tickets',
             legendPosition: 'middle',
             legendOffset: -40
         }}
@@ -105,6 +111,8 @@ export const MyResponsiveBar = ({ data}: any) => (
                 justify: false,
                 translateX: 120,
                 translateY: 0,
+                symbolBorderColor: colorTheme,
+                itemTextColor: averageThemeText,
                 itemsSpacing: 4,
                 itemWidth: 100,
                 itemHeight: 20,
@@ -134,3 +142,4 @@ export const MyResponsiveBar = ({ data}: any) => (
         barAriaLabel={e=>e.id+": "+e.formattedValue+" in country: "+e.indexValue}
     />
 )
+    }

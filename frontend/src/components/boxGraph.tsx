@@ -1,14 +1,21 @@
-// install (please try to align the version of installed @nivo packages)
-// yarn add @nivo/treemap
 import { ResponsiveTreeMap } from '@nivo/treemap'
+import { useTheme } from '@mui/material/styles';
 
-// make sure parent container have a defined height when using
-// responsive component, otherwise height will be 0 and
-// no chart will be rendered.
-// website examples showcase many properties,
-// you'll often use just a few of them.
-export const MyResponsiveTreeMap = ({ data  }: any) => (
+type ThemeType = 'light' | 'dark';
+
+export const MyResponsiveTreeMap = ({ data  }: any) => {
+    const theme = useTheme();
+
+    const colorTheme = theme.palette.mode === 'dark' ? '#333' : '#fff';
+    return(
     <ResponsiveTreeMap
+        theme={{
+            tooltip: {
+            container: {
+                background: colorTheme,
+            }
+            }
+        }}
         data={data}
         identity="name"
         value="loc"
@@ -51,3 +58,4 @@ export const MyResponsiveTreeMap = ({ data  }: any) => (
         }}
     />
 )
+    }

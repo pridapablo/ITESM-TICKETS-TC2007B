@@ -1,13 +1,25 @@
-// yarn add @nivo/scatterplot
 import { ResponsiveScatterPlot } from '@nivo/scatterplot'
+import { useTheme } from '@mui/material/styles';
 
-// make sure parent container have a defined height when using
-// responsive component, otherwise height will be 0 and
-// no chart will be rendered.
-// website examples showcase many properties,
-// you'll often use just a few of them.
-export const MyResponsiveScatterPlot = ({ data, average}: any) => (
+type ThemeType = 'light' | 'dark';
+
+export const MyResponsiveScatterPlot = ({ data, average}: any) => {
+    const theme = useTheme();
+
+    const colorTheme = theme.palette.mode === 'dark' ? '#333' : '#fff';
+    const blendTheme = theme.palette.mode === 'dark' ? "screen" : "multiply";
+    const averageThemeText = theme.palette.mode === 'dark' ? "#fff" : "#333";
+
+
+    return(
     <ResponsiveScatterPlot
+        theme={{
+            tooltip: {
+            container: {
+                background: colorTheme,
+            }
+            }
+        }}
         data={data}
         margin={{ top: 60, right: 140, bottom: 70, left: 90 }}
         xScale={{
@@ -18,7 +30,10 @@ export const MyResponsiveScatterPlot = ({ data, average}: any) => (
         xFormat="time:%Y-%m-%d"
         yScale={{ type: 'linear', min: 0, max: 'auto' }}
         yFormat=">-.2f"
-        blendMode="multiply"
+        blendMode={blendTheme}
+        colors={{
+            scheme: 'set2'
+          }}
         nodeSize={15}
         enableGridX={false}
         axisTop={null}
@@ -29,8 +44,11 @@ export const MyResponsiveScatterPlot = ({ data, average}: any) => (
               legend: 'avg.',
               legendPosition: 'bottom-left',
               lineStyle: {
-                stroke: '#b248fe',
+                stroke: '#b0413e',
                 strokeWidth: 1
+              },
+              textStyle: {
+                fill: averageThemeText,
               },
               value: average
             }
@@ -51,7 +69,8 @@ export const MyResponsiveScatterPlot = ({ data, average}: any) => (
             tickRotation: 0,
             legend: 'Tiempo de solución (horas)',
             legendPosition: 'middle',
-            legendOffset: -60
+            legendOffset: -60,
+            
         }}
         legends={[
             {
@@ -66,6 +85,7 @@ export const MyResponsiveScatterPlot = ({ data, average}: any) => (
                 itemDirection: 'left-to-right',
                 symbolSize: 12,
                 symbolShape: 'circle',
+                itemTextColor: averageThemeText,
                 effects: [
                     {
                         on: 'hover',
@@ -77,4 +97,4 @@ export const MyResponsiveScatterPlot = ({ data, average}: any) => (
             }
         ]}
     />
-)
+)}

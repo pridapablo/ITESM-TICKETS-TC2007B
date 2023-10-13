@@ -1,104 +1,104 @@
 import ticket from '../models/ticket';
 
-const formatDuration = (milliseconds: number): { days: number, hours: number, minutes: number, seconds: number } => {
-    const seconds = Math.floor((milliseconds / 1000) % 60);
-    const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
-    const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
-    const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
+// const formatDuration = (milliseconds: number): { days: number, hours: number, minutes: number, seconds: number } => {
+//     const seconds = Math.floor((milliseconds / 1000) % 60);
+//     const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
+//     const hours = Math.floor((milliseconds / (1000 * 60 * 60)) % 24);
+//     const days = Math.floor(milliseconds / (1000 * 60 * 60 * 24));
 
-    return { days, hours, minutes, seconds };
-};
+//     return { days, hours, minutes, seconds };
+// };
 
-const calculateAllResolutionTimes = async () => {
-    try {
-        const aggregationPipeline = [
-            {
-                $lookup: {
-                    from: "ticketusers",
-                    localField: "_id",
-                    foreignField: "ticketID",
-                    as: "ticketUsers"
-                }
-            },
-            { $unwind: "$ticketUsers" },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "ticketUsers.userID",
-                    foreignField: "_id",
-                    as: "interactingUsers"
-                }
-            },
-            { $unwind: "$interactingUsers" },
-            {
-                $group: {
-                    _id: { ticketId: "$_id", userId: "$interactingUsers._id" },
-                    username: { $first: "$interactingUsers.username" },
-                    individualCount: { $sum: 1 },
-                    classification: { $first: "$classification" },
-                    subclassification: { $first: "$subclassification" },
-                    priority: { $first: "$priority" },
-                    resolutionTime: { 
-                        $first: {
-                            $subtract: [
-                                "$resolution.closureTime",
-                                "$ticketUsers.interactionDate"
-                            ]
-                        }
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: "$_id.ticketId",
-                    classification: { $first: "$classification" },
-                    subclassification: { $first: "$subclassification" },
-                    priority: { $first: "$priority" },
-                    interactingUsers: {
-                        $push: {
-                            id: "$_id.userId",
-                            username: "$username",
-                            timesInteracted: "$individualCount"
-                        }
-                    },
-                    interactionCount: { $sum: "$individualCount" },
-                    resolutionTime: { $first: "$resolutionTime" }
-                }
-            },
-            {
-                $project: {
-                    ticketId: "$_id",
-                    classification: 1,
-                    subclassification: 1,
-                    priority: 1,
-                    interactingUsers: 1,
-                    interactionCount: 1,
-                    resolutionTime: 1
-                }
-            }
-        ];
+// const calculateAllResolutionTimes = async () => {
+//     try {
+//         const aggregationPipeline = [
+//             {
+//                 $lookup: {
+//                     from: "ticketusers",
+//                     localField: "_id",
+//                     foreignField: "ticketID",
+//                     as: "ticketUsers"
+//                 }
+//             },
+//             { $unwind: "$ticketUsers" },
+//             {
+//                 $lookup: {
+//                     from: "users",
+//                     localField: "ticketUsers.userID",
+//                     foreignField: "_id",
+//                     as: "interactingUsers"
+//                 }
+//             },
+//             { $unwind: "$interactingUsers" },
+//             {
+//                 $group: {
+//                     _id: { ticketId: "$_id", userId: "$interactingUsers._id" },
+//                     username: { $first: "$interactingUsers.username" },
+//                     individualCount: { $sum: 1 },
+//                     classification: { $first: "$classification" },
+//                     subclassification: { $first: "$subclassification" },
+//                     priority: { $first: "$priority" },
+//                     resolutionTime: { 
+//                         $first: {
+//                             $subtract: [
+//                                 "$resolution.closureTime",
+//                                 "$ticketUsers.interactionDate"
+//                             ]
+//                         }
+//                     }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$_id.ticketId",
+//                     classification: { $first: "$classification" },
+//                     subclassification: { $first: "$subclassification" },
+//                     priority: { $first: "$priority" },
+//                     interactingUsers: {
+//                         $push: {
+//                             id: "$_id.userId",
+//                             username: "$username",
+//                             timesInteracted: "$individualCount"
+//                         }
+//                     },
+//                     interactionCount: { $sum: "$individualCount" },
+//                     resolutionTime: { $first: "$resolutionTime" }
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     ticketId: "$_id",
+//                     classification: 1,
+//                     subclassification: 1,
+//                     priority: 1,
+//                     interactingUsers: 1,
+//                     interactionCount: 1,
+//                     resolutionTime: 1
+//                 }
+//             }
+//         ];
 
-        const result = await ticket.aggregate(aggregationPipeline).exec();
+//         const result = await ticket.aggregate(aggregationPipeline).exec();
 
-        const resolutionTimesWithTicketsAndUsers = result.map(item => ({
-            ticketId: item.ticketId,
-            classification: item.classification,
-            subclassification: item.subclassification,
-            priority: item.priority,
-            isResolved: item.isResolved,
-            interactingUsers: item.interactingUsers,
-            interactionCount: item.interactionCount,
-            resolutionTime: formatDuration(item.resolutionTime)
-        }));
+//         const resolutionTimesWithTicketsAndUsers = result.map(item => ({
+//             ticketId: item.ticketId,
+//             classification: item.classification,
+//             subclassification: item.subclassification,
+//             priority: item.priority,
+//             isResolved: item.isResolved,
+//             interactingUsers: item.interactingUsers,
+//             interactionCount: item.interactionCount,
+//             resolutionTime: formatDuration(item.resolutionTime)
+//         }));
 
-        return resolutionTimesWithTicketsAndUsers;
+//         return resolutionTimesWithTicketsAndUsers;
 
 
-    } catch (error) {
-        console.error(error);
-        throw new Error('Error calculating resolution times');
-    }
-};
+//     } catch (error) {
+//         console.error(error);
+//         throw new Error('Error calculating resolution times');
+//     }
+// };
 
 const calculateAvgResolutionTime = async () => {
     try {
@@ -537,9 +537,8 @@ export const getReport = async (_req, res) => {
         const mostReportedCategories = await calculateMostReportedCategories();
         const ticketStats = await calculateTicketStats();
         const inventoryByClassification = await calculateInventoryByClassification();
-        const allTicketQueryData = await calculateAllResolutionTimes();
         
-        res.json({ ticketCounts, avgResolutionTime, allResoultionTime, mostReportedCategories, ticketStats, inventoryByClassification, allTicketQueryData});
+        res.json({ ticketCounts, avgResolutionTime, allResoultionTime, mostReportedCategories, ticketStats, inventoryByClassification});
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");

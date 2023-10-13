@@ -1,16 +1,21 @@
-// install (please try to align the version of installed @nivo packages)
-// yarn add @nivo/sunburst
 import { ResponsiveSunburst } from '@nivo/sunburst'
+import { useTheme } from '@mui/material/styles';
 
-// make sure parent container have a defined height when using
-// responsive component, otherwise height will be 0 and
-// no chart will be rendered.
-// website examples showcase many properties,
-// you'll often use just a few of them.
-export const MyResponsiveSunburst = ({ data /* see data tab */ }: any) => (
-    
+type ThemeType = 'light' | 'dark';
+
+export const MyResponsiveSunburst = ({ data /* see data tab */ }: any) => {
+    const theme = useTheme();
+
+    const colorTheme = theme.palette.mode === 'dark' ? '#333' : '#fff';
+return (
     <ResponsiveSunburst
-    
+        theme={{
+            tooltip: {
+              container: {
+                background: colorTheme,
+              }
+            }
+          }}
         data={data}
         margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
         id="name"
@@ -28,9 +33,11 @@ export const MyResponsiveSunburst = ({ data /* see data tab */ }: any) => (
             ]
         }}
         enableArcLabels={true}
+        
         arcLabelsSkipAngle={10}
         arcLabelsTextColor="#ffffff"
         transitionMode="startAngle"
         
     />
 )
+    }
