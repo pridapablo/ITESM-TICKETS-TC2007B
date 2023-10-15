@@ -73,7 +73,6 @@ export const getTickets = async (req: RequestWithRole, res: Response) => {
     // Set the X-Total-Count header
     res.setHeader("X-Total-Count", modifiedTickets.length);
 
-    console.log("Tickets", modifiedTickets);
     return res.status(200).json(modifiedTickets);
   } catch (error: any) {
     return res.status(500).json({ message: error.message });
@@ -291,8 +290,12 @@ export const updateTicket = async (req: RequestWithRole, res: Response) => {
     priority,
     description,
     resolution,
-    status,
   } = req.body;
+  let status = req.body.status;
+
+  if (resolution && resolution.closureTime) {
+    status = 5;
+  }
 
   if (!userID) {
     return res.status(400).json({ message: "Token no válido" });

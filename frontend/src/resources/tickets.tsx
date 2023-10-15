@@ -156,8 +156,12 @@ export const TicketEdit = () => {
 
     return (
       <>
-        <ContextDropdown view={!canEdit} />
-        <TextInput source="description" multiline disabled={!canEdit} />
+        <ContextDropdown view={!canEdit || record.status === 5} />
+        <TextInput
+          source="description"
+          multiline
+          disabled={!canEdit || record.status === 5}
+        />
         <SelectInput
           source="priority"
           choices={[
@@ -167,7 +171,7 @@ export const TicketEdit = () => {
             { id: "4", name: "Alta" },
             { id: "5", name: "Muy alta" },
           ]}
-          disabled={!canEdit}
+          disabled={!canEdit || record.status === 5}
         />
         <StatusDropdown />
       </>
@@ -186,19 +190,18 @@ export const TicketEdit = () => {
       ["admin", "agent"].includes(role) ||
       (role === "user" && userCreatedThisTicket);
 
-    return (
+    return record.status !== 5 ? (
       <SelectInput
         source="status"
         choices={[
-          { id: "1", name: "Open" },
-          { id: "2", name: "In Progress" },
-          { id: "3", name: "Pending" },
-          { id: "4", name: "Resolved" },
-          { id: "5", name: "Closed" },
+          { id: "1", name: "Nuevo" },
+          { id: "2", name: "Abierto" },
+          { id: "3", name: "Pendiente" },
+          { id: "4", name: "En Espera" },
         ]}
         disabled={!canEditStatus}
       />
-    );
+    ) : null;
   };
 
   const ContextDropdown = ({ view }: { view?: boolean }) => {
@@ -237,13 +240,13 @@ export const TicketEdit = () => {
         <SelectInput
           source="classification"
           choices={menuChoices}
-          disabled={view}
+          disabled={view || record.status === 5}
           onChange={handleClassificationChange}
         />
         <SelectInput
           source="subclassification"
           choices={subChoices}
-          disabled={view}
+          disabled={view || record.status === 5}
         />
       </>
     );
@@ -251,23 +254,44 @@ export const TicketEdit = () => {
 
   const Resolution = (props: { canEdit: boolean }) => {
     const record = useRecordContext();
-    const [isSolved, setIsSolved] = useState(false);
+    const [isSolved, setIsSolved] = useState(record.status === 5);
 
     useEffect(() => {
       setIsSolved(record.status === 5);
     }, [record]);
 
     const handleIsSolvedChange = () => {
-      setIsSolved(!isSolved);
+      const nextIsSolved = !isSolved;
+
+      // Set the state of isSolved
+      setIsSolved(nextIsSolved);
+
+      // If nextIsSolved is false and there's a resolution record, reset it.
+      if (!nextIsSolved && record.resolution) {
+        console.log("resetting resolution fields");
+
+        // Reset the fields of the resolution object
+        const resetFields = [
+          "closureTime",
+          "whatWasDone",
+          "howWasDone",
+          "whyWasDone",
+        ];
+        resetFields.forEach((field) => {
+          if (record.resolution[field]) {
+            record.resolution[field] = undefined;
+          }
+        });
+      }
     };
 
     return (
       <>
         <BooleanInput
-          defaultValue={false}
           source="isSolved"
-          label="Is Solved"
+          label="¿Está resuelto?"
           onChange={handleIsSolvedChange}
+          value={isSolved}
           // Allow editing only if canEdit prop is true and the record status is not 5.
           disabled={!props.canEdit || record.status === 5}
         />
@@ -279,21 +303,20 @@ export const TicketEdit = () => {
               label="Closure Time"
               // Allow editing only if canEdit prop is true and the record status is not 5.
               disabled={!props.canEdit || record.status === 5}
-              defaultValue={new Date().toISOString()}
             />
             <TextInput
               source="resolution.whatWasDone"
-              label="What Was Done"
+              label="Qué se hizo"
               disabled={!props.canEdit || record.status === 5}
             />
             <TextInput
               source="resolution.howWasDone"
-              label="How Was Done"
+              label="Cómo se hizo"
               disabled={!props.canEdit || record.status === 5}
             />
             <TextInput
               source="resolution.whyWasDone"
-              label="Why Was Done"
+              label="Por qué se hizo"
               disabled={!props.canEdit || record.status === 5}
             />
           </>
