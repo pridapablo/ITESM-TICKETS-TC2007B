@@ -162,6 +162,15 @@ export const TicketEdit = () => {
           multiline
           disabled={!canEdit || record.status === 5}
         />
+        {record.folio && (
+          <TextInput source="folio" label="Folio" disabled={true} />
+        )}
+        {record.responsible && (
+          <TextInput source="responsible" label="Responsable" disabled={true} />
+        )}
+        {record.topic && (
+          <TextInput source="topic" label="Asunto" disabled={true} />
+        )}
         <SelectInput
           source="priority"
           choices={[
