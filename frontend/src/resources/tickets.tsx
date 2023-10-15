@@ -11,12 +11,10 @@ import {
   DateInput,
   SelectInput,
   BooleanInput,
-  maxValue,
   Filter,
   ListProps,
   WithListContext,
   useRecordContext,
-  useDataProvider,
   required,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
@@ -24,20 +22,62 @@ import TicketCards from "../components/card";
 import React, { useEffect, useState } from "react";
 import ToggleButtons from "../components/toggleButton";
 
-const menu = ["Servicios", "Digital", "Infraestructura", "Recursos Humanos", "Beneficiarios", "Mobiliario", "Seguridad", "Materiales", "Fenómeno meteorológico"];
+const menu = [
+  "Servicios",
+  "Digital",
+  "Infraestructura",
+  "Recursos Humanos",
+  "Beneficiarios",
+  "Mobiliario",
+  "Seguridad",
+  "Materiales",
+  "Fenómeno meteorológico",
+];
 const subMenu = {
-  'Servicios': ['Agua', 'Luz', 'Teléfono', 'Basura', 'Limpeza del Aula'],
-  'Digital': ['Internet', 'Servidores y Equipos', 'Software', 'Hardware', 'Cámaras de Seguridad', 'Soporte Técnico Presencial y Remoto'],
-  'Infraestructura': ['Paredes', 'Techo', 'Ventanas', 'Puertas', 'Aulas en general'],
-  'Recursos Humanos': ['Permisos', 'Asistencias', 'Salud', 'Trámites', 'Honorarios', 'Asistencias'],
-  'Beneficiarios': ['Asistencias', 'Documentación', 'Apoyo Académico', 'Salud', 'Seguridad/Bullying'],
-  'Mobiliario': ['Sillas/Butacas', 'Escritorios', 'Pizarrones', 'Cafetería', 'Estantes/Archiveros'],
-  'Seguridad': ['Delincuencia', 'Robos', 'Bandalismo', 'Imagen Institucional'],
-  'Materiales': ['Educativos', 'Papelería', 'Limpieza'],
-  'Fenómeno meteorológico': ['Inundaciones', 'Incendios', 'Sismos']
+  Servicios: ["Agua", "Luz", "Teléfono", "Basura", "Limpeza del Aula"],
+  Digital: [
+    "Internet",
+    "Servidores y Equipos",
+    "Software",
+    "Hardware",
+    "Cámaras de Seguridad",
+    "Soporte Técnico Presencial y Remoto",
+  ],
+  Infraestructura: [
+    "Paredes",
+    "Techo",
+    "Ventanas",
+    "Puertas",
+    "Aulas en general",
+  ],
+  "Recursos Humanos": [
+    "Permisos",
+    "Asistencias",
+    "Salud",
+    "Trámites",
+    "Honorarios",
+    "Asistencias",
+  ],
+  Beneficiarios: [
+    "Asistencias",
+    "Documentación",
+    "Apoyo Académico",
+    "Salud",
+    "Seguridad/Bullying",
+  ],
+  Mobiliario: [
+    "Sillas/Butacas",
+    "Escritorios",
+    "Pizarrones",
+    "Cafetería",
+    "Estantes/Archiveros",
+  ],
+  Seguridad: ["Delincuencia", "Robos", "Bandalismo", "Imagen Institucional"],
+  Materiales: ["Educativos", "Papelería", "Limpieza"],
+  "Fenómeno meteorológico": ["Inundaciones", "Incendios", "Sismos"],
 };
 
-const menuChoices = menu.map(item => ({ id: item, name: item }));
+const menuChoices = menu.map((item) => ({ id: item, name: item }));
 
 export const TicketList: React.FC<ListProps> = (props) => {
   const [isList, setIsList] = useState(true); // Initialize isList state as true
@@ -49,8 +89,6 @@ export const TicketList: React.FC<ListProps> = (props) => {
   const toggleCardView = () => {
     setIsList(false); // Toggle the isList state when the button is clicked
   };
-
-
 
   return (
     <List
@@ -71,8 +109,10 @@ export const TicketList: React.FC<ListProps> = (props) => {
         </Filter>
       }
     >
-
-      <ToggleButtons handleClick1={toggleListView} handleClick2={toggleCardView} />
+      <ToggleButtons
+        handleClick1={toggleListView}
+        handleClick2={toggleCardView}
+      />
       {isList ? (
         <WithListContext
           render={({ data }) => (
@@ -95,31 +135,102 @@ export const TicketList: React.FC<ListProps> = (props) => {
         </Datagrid>
       )}
     </List>
-
   );
 };
 
 export const TicketEdit = () => {
-  const role = localStorage.getItem('role');
+  const role = localStorage.getItem("role") || "";
+  const canEditResolution = ["admin", "agent"].includes(role);
+
+  const MainFields = () => {
+    const role = localStorage.getItem("role") || "";
+    const userID = localStorage.getItem("userID") || "";
+    const record = useRecordContext();
+
+    const userCreatedThisTicket =
+      record.creator && record.creator._id === userID;
+
+    const canEdit =
+      role === "user" ||
+      (["admin", "agent"].includes(role) && userCreatedThisTicket);
+
+    return (
+      <>
+        <ContextDropdown view={!canEdit} />
+        <TextInput source="description" multiline disabled={!canEdit} />
+        <SelectInput
+          source="priority"
+          choices={[
+            { id: "1", name: "Muy baja" },
+            { id: "2", name: "Baja" },
+            { id: "3", name: "Media" },
+            { id: "4", name: "Alta" },
+            { id: "5", name: "Muy alta" },
+          ]}
+          disabled={!canEdit}
+        />
+        <StatusDropdown />
+      </>
+    );
+  };
+
+  const StatusDropdown = () => {
+    const role = localStorage.getItem("role") || "";
+    const userID = localStorage.getItem("userID") || "";
+    const record = useRecordContext();
+
+    const userCreatedThisTicket =
+      record.creator && record.creator._id === userID;
+
+    const canEditStatus =
+      ["admin", "agent"].includes(role) ||
+      (role === "user" && userCreatedThisTicket);
+
+    return (
+      <SelectInput
+        source="status"
+        choices={[
+          { id: "1", name: "Open" },
+          { id: "2", name: "In Progress" },
+          { id: "3", name: "Pending" },
+          { id: "4", name: "Resolved" },
+          { id: "5", name: "Closed" },
+        ]}
+        disabled={!canEditStatus}
+      />
+    );
+  };
 
   const ContextDropdown = ({ view }: { view?: boolean }) => {
-    const [subChoices, setSubChoices] = useState<{ id: string, name: string }[]>([]);
+    const [subChoices, setSubChoices] = useState<
+      { id: string; name: string }[]
+    >([]);
     const record = useRecordContext();
 
     const handleClassificationChange = (event: any) => {
       const selectedClassification = event.target.value as keyof typeof subMenu;
-      setSubChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+      setSubChoices(
+        subMenu[selectedClassification].map((item) => ({
+          id: item,
+          name: item,
+        }))
+      );
     };
 
     useEffect(() => {
       if (record && record.classification) {
-        const selectedClassification = record.classification as keyof typeof subMenu;
+        const selectedClassification =
+          record.classification as keyof typeof subMenu;
         if (subMenu[selectedClassification]) {
-          setSubChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+          setSubChoices(
+            subMenu[selectedClassification].map((item) => ({
+              id: item,
+              name: item,
+            }))
+          );
         }
       }
     }, [record]);
-
 
     return (
       <>
@@ -127,7 +238,8 @@ export const TicketEdit = () => {
           source="classification"
           choices={menuChoices}
           disabled={view}
-          onChange={handleClassificationChange} />
+          onChange={handleClassificationChange}
+        />
         <SelectInput
           source="subclassification"
           choices={subChoices}
@@ -135,9 +247,9 @@ export const TicketEdit = () => {
         />
       </>
     );
-  }
+  };
 
-  const Resolution = () => {
+  const Resolution = (props: { canEdit: boolean }) => {
     const record = useRecordContext();
     const [isSolved, setIsSolved] = useState(false);
 
@@ -145,79 +257,72 @@ export const TicketEdit = () => {
       setIsSolved(record.status === 5);
     }, [record]);
 
-
-   const handleIsSolvedChange = () => {
-    setIsSolved(!isSolved);
-};
-
+    const handleIsSolvedChange = () => {
+      setIsSolved(!isSolved);
+    };
 
     return (
-        <>
-           <BooleanInput 
+      <>
+        <BooleanInput
           defaultValue={false}
-    source="isSolved"
-    label="Is Solved"
-    onChange={handleIsSolvedChange}
-    disabled={record.status === 5}
-/>
-       
-            {isSolved &&
+          source="isSolved"
+          label="Is Solved"
+          onChange={handleIsSolvedChange}
+          // Allow editing only if canEdit prop is true and the record status is not 5.
+          disabled={!props.canEdit || record.status === 5}
+        />
+
+        {isSolved && (
           <>
-         
-                    <DateInput
-                        source="resolution.closureTime"
-                        label="Closure Time"
-                        disabled={record.status === 5}
-                        defaultValue={new Date().toISOString()}
-                    />
-                    <TextInput 
-                        source="resolution.whatWasDone" 
-                        label="What Was Done"
-                        disabled={record.status === 5}
-                    />
-                    <TextInput 
-                        source="resolution.howWasDone" 
-                        label="How Was Done"
-                        disabled={record.status === 5}
-                    />
-                    <TextInput 
-                        source="resolution.whyWasDone" 
-                        label="Why Was Done"
-                        disabled={record.status === 5}
-                    />
-                </>
-            }
-        </>
+            <DateInput
+              source="resolution.closureTime"
+              label="Closure Time"
+              // Allow editing only if canEdit prop is true and the record status is not 5.
+              disabled={!props.canEdit || record.status === 5}
+              defaultValue={new Date().toISOString()}
+            />
+            <TextInput
+              source="resolution.whatWasDone"
+              label="What Was Done"
+              disabled={!props.canEdit || record.status === 5}
+            />
+            <TextInput
+              source="resolution.howWasDone"
+              label="How Was Done"
+              disabled={!props.canEdit || record.status === 5}
+            />
+            <TextInput
+              source="resolution.whyWasDone"
+              label="Why Was Done"
+              disabled={!props.canEdit || record.status === 5}
+            />
+          </>
+        )}
+      </>
     );
-};
+  };
 
   return (
     <Edit>
       <SimpleForm warnWhenUnsavedChanges>
-        <ContextDropdown view={role !== 'user'} />
-        <TextInput source="description" multiline />
-        <SelectInput source="priority" choices={[
-          { id: '1', name: 'Muy baja' },
-          { id: '2', name: 'Baja' },
-          { id: '3', name: 'Media' },
-          { id: '4', name: 'Alta' },
-          { id: '5', name: 'Muy alta' },
-        ]} />
-        {/* <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} disabled={role === 'user'} /> */}
-        <Resolution />
+        <MainFields />
+        <Resolution canEdit={canEditResolution} />
       </SimpleForm>
     </Edit>
   );
 };
 
-
 export const TicketCreate = () => {
-  const [typeChoices, setTypeChoices] = useState<{ id: string, name: string }[]>([]);
+  const [typeChoices, setTypeChoices] = useState<
+    { id: string; name: string }[]
+  >([]);
   const onSuccess = useSuccessHandler("Ticket creado", "/ticket");
 
   const handleClassificationChange = (event: any) => {
     const selectedClassification = event.target.value as keyof typeof subMenu;
-    setTypeChoices(subMenu[selectedClassification].map(item => ({ id: item, name: item })));
+    setTypeChoices(
+      subMenu[selectedClassification].map((item) => ({ id: item, name: item }))
+    );
   };
 
   return (
@@ -236,52 +341,104 @@ export const TicketCreate = () => {
           choices={typeChoices}
           validate={required()}
         />
-      
-        <TextInput source="description" label="Descripción" multiline validate={required()} />
-        <SelectInput source="priority"
+
+        <TextInput
+          source="description"
+          label="Descripción"
+          multiline
           validate={required()}
-          label="Prioridad" choices={[
-            { id: '1', name: 'Muy baja' },
-            { id: '2', name: 'Baja' },
-            { id: '3', name: 'Media' },
-            { id: '4', name: 'Alta' },
-            { id: '5', name: 'Muy alta' },
-          ]} />
-        
-          <TextInput source="folio" label="Folio" />
-        <SelectInput source="responsible" label="Responsable" choices={[
-        { id: 'Presidenta', name: 'Presidenta' },
-        { id: 'Coordinacion General de Aulas', name: 'Coordinacion General de Aulas' },
-        { id: 'Coordinacion de Aula Ecatepec', name: 'Coordinacion de Aula Ecatepec' },
-        { id: 'Coordinacion de Aula Cuautitlan', name: 'Coordinacion de Aula Cuautitlan' },
-        { id: 'Coordinacion de Aula Mazatlan', name: 'Coordinacion de Aula Mazatlan' },
-        { id: 'Coordinacion de Aula Guasave', name: 'Coordinacion de Aula Guasave' },
-        { id: 'Coordinacion de Aula Digital', name: 'Coordinacion de Aula Digital' },
-        { id: 'Coordinacion de Administracion', name: 'Coordinacion de Administracion' },
-        { id: 'Coordinacion de Educacion', name: 'Coordinacion de Educacion' },
-        { id: 'Coordinacion de Alianzas', name: 'Coordinacion de Alianzas' },
-        { id: 'Coordinacion de comunicacion', name: 'Coordinacion de comunicacion' },
-        { id: 'Coordinacion de proyectos y procuracion de fondos', name: 'Coordinacion de proyectos y procuracion de fondos' },
-        ]} />
-         <SelectInput source="topic" label="Asunto" choices={[
-        { id: 'Mobiliario', name: 'Mobiliario' },
-        { id: 'Digital', name: 'Digital' },
-        { id: 'Bitácora de registro', name: 'Bitácora de registro' },
-        { id: 'Seguimiento a beneficiarios', name: 'Seguimiento a beneficiarios' },
-        { id: 'Mantenimiento', name: 'Mantenimiento' },
-        { id: 'Incidencias de personal', name: 'Incidencias de personal' },
-        { id: 'Trámites a gobierno', name: 'Trámites a gobierno' },
-        { id: 'Trámites a empresas', name: 'Trámites a empresas' },
-        { id: 'Profesores INEA', name: 'Profesores INEA' },
-        { id: 'Profesores Conalep', name: 'Profesores Conalep' },
-        { id: 'Conocer', name: 'Conocer' },
-        { id: 'Microsoft', name: 'Microsoft' },
-        { id: 'Insumos', name: 'Insumos' },
-        { id: 'Alianzas', name: 'Alianzas' },
-        { id: 'Infraestructura', name: 'Infraestructura' },
-        { id: 'Seguridad', name: 'Seguridad' },
-        { id: 'Reporte meteorológico', name: 'Reporte meteorológico' },
-      ]}  />
+        />
+        <SelectInput
+          source="priority"
+          validate={required()}
+          label="Prioridad"
+          choices={[
+            { id: "1", name: "Muy baja" },
+            { id: "2", name: "Baja" },
+            { id: "3", name: "Media" },
+            { id: "4", name: "Alta" },
+            { id: "5", name: "Muy alta" },
+          ]}
+        />
+
+        <TextInput source="folio" label="Folio" />
+        <SelectInput
+          source="responsible"
+          label="Responsable"
+          choices={[
+            { id: "Presidenta", name: "Presidenta" },
+            {
+              id: "Coordinacion General de Aulas",
+              name: "Coordinacion General de Aulas",
+            },
+            {
+              id: "Coordinacion de Aula Ecatepec",
+              name: "Coordinacion de Aula Ecatepec",
+            },
+            {
+              id: "Coordinacion de Aula Cuautitlan",
+              name: "Coordinacion de Aula Cuautitlan",
+            },
+            {
+              id: "Coordinacion de Aula Mazatlan",
+              name: "Coordinacion de Aula Mazatlan",
+            },
+            {
+              id: "Coordinacion de Aula Guasave",
+              name: "Coordinacion de Aula Guasave",
+            },
+            {
+              id: "Coordinacion de Aula Digital",
+              name: "Coordinacion de Aula Digital",
+            },
+            {
+              id: "Coordinacion de Administracion",
+              name: "Coordinacion de Administracion",
+            },
+            {
+              id: "Coordinacion de Educacion",
+              name: "Coordinacion de Educacion",
+            },
+            {
+              id: "Coordinacion de Alianzas",
+              name: "Coordinacion de Alianzas",
+            },
+            {
+              id: "Coordinacion de comunicacion",
+              name: "Coordinacion de comunicacion",
+            },
+            {
+              id: "Coordinacion de proyectos y procuracion de fondos",
+              name: "Coordinacion de proyectos y procuracion de fondos",
+            },
+          ]}
+        />
+        <SelectInput
+          source="topic"
+          label="Asunto"
+          choices={[
+            { id: "Mobiliario", name: "Mobiliario" },
+            { id: "Digital", name: "Digital" },
+            { id: "Bitácora de registro", name: "Bitácora de registro" },
+            {
+              id: "Seguimiento a beneficiarios",
+              name: "Seguimiento a beneficiarios",
+            },
+            { id: "Mantenimiento", name: "Mantenimiento" },
+            { id: "Incidencias de personal", name: "Incidencias de personal" },
+            { id: "Trámites a gobierno", name: "Trámites a gobierno" },
+            { id: "Trámites a empresas", name: "Trámites a empresas" },
+            { id: "Profesores INEA", name: "Profesores INEA" },
+            { id: "Profesores Conalep", name: "Profesores Conalep" },
+            { id: "Conocer", name: "Conocer" },
+            { id: "Microsoft", name: "Microsoft" },
+            { id: "Insumos", name: "Insumos" },
+            { id: "Alianzas", name: "Alianzas" },
+            { id: "Infraestructura", name: "Infraestructura" },
+            { id: "Seguridad", name: "Seguridad" },
+            { id: "Reporte meteorológico", name: "Reporte meteorológico" },
+          ]}
+        />
       </SimpleForm>
     </Create>
   );
