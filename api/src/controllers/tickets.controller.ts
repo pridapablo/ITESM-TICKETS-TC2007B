@@ -178,7 +178,7 @@ export const deleteTicket = async (req: RequestWithRole, res: Response) => {
 }
 
 export const createTicket = async (req: Request, res: Response) => {
-    const { classification, subclassification, priority, description, userID } = req.body;
+    const { classification, subclassification, priority, description, userID, folio, topic, responsible } = req.body;
 
 
     if (!classification || !subclassification || !priority || !description || !mongoose.Types.ObjectId.isValid(userID)) {
@@ -191,6 +191,10 @@ export const createTicket = async (req: Request, res: Response) => {
         subclassification,
         priority,
         description,
+        topic,
+        folio,
+        responsible,
+        status: 1,
     });
 
     let ticketResult;
@@ -227,7 +231,8 @@ export const createTicket = async (req: Request, res: Response) => {
 export const updateTicket = async (req: RequestWithRole, res: Response) => {
     const { id } = req.params;
     const userID = req.userID;
-    const { classification, subclassification, priority, description, resolution } = req.body;
+    console.log('body', req.body);
+    const { classification, subclassification, priority, description, resolution, status } = req.body;
 
     if (!userID) {
         return res.status(400).json({ message: 'Token no válido' });
@@ -259,10 +264,10 @@ export const updateTicket = async (req: RequestWithRole, res: Response) => {
     } else if (req.userRole?.includes('admin') || req.userRole?.includes('agent')) {
         if (userCreatedThisTicket) {
             // If admin or agent created this ticket, they can update everything except 'isDeleted'
-            allowedUpdates = { classification, subclassification, priority, description, resolution };
+            allowedUpdates = { classification, subclassification, priority, description, resolution, status };
         } else {
             // If admin or agent did not create this ticket, they can only update 'resolution'
-            allowedUpdates = { resolution };
+            allowedUpdates = { resolution, status };
         }
     } else {
         return res.status(403).json({ message: 'Forbidden: You are not authorized to update this ticket.' });

@@ -16,6 +16,8 @@ import {
   ListProps,
   WithListContext,
   useRecordContext,
+  useDataProvider,
+  required,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
@@ -98,13 +100,7 @@ export const TicketList: React.FC<ListProps> = (props) => {
 };
 
 export const TicketEdit = () => {
-  const [isSolved, setIsSolved] = useState(false);
   const role = localStorage.getItem('role');
-
-  const handleIsSolvedChange = (event: any) => {
-    setIsSolved(event.target.checked);
-  };
-
 
   const ContextDropdown = ({ view }: { view?: boolean }) => {
     const [subChoices, setSubChoices] = useState<{ id: string, name: string }[]>([]);
@@ -141,6 +137,60 @@ export const TicketEdit = () => {
     );
   }
 
+  const Resolution = () => {
+    const record = useRecordContext();
+    const [isSolved, setIsSolved] = useState(false);
+
+    useEffect(() => {
+      setIsSolved(record.status === 5);
+    }, [record]);
+
+
+   const handleIsSolvedChange = () => {
+    setIsSolved(!isSolved);
+};
+
+
+    return (
+        <>
+           <BooleanInput 
+          defaultValue={false}
+    source="isSolved"
+    label="Is Solved"
+    onChange={handleIsSolvedChange}
+    disabled={record.status === 5}
+/>
+       
+            {isSolved &&
+          <>
+         
+                    <DateInput
+                        source="resolution.closureTime"
+                        label="Closure Time"
+                        disabled={record.status === 5}
+                        defaultValue={new Date().toISOString()}
+                    />
+                    <TextInput 
+                        source="resolution.whatWasDone" 
+                        label="What Was Done"
+                        disabled={record.status === 5}
+                    />
+                    <TextInput 
+                        source="resolution.howWasDone" 
+                        label="How Was Done"
+                        disabled={record.status === 5}
+                    />
+                    <TextInput 
+                        source="resolution.whyWasDone" 
+                        label="Why Was Done"
+                        disabled={record.status === 5}
+                    />
+                </>
+            }
+        </>
+    );
+};
+
   return (
     <Edit>
       <SimpleForm warnWhenUnsavedChanges>
@@ -153,21 +203,8 @@ export const TicketEdit = () => {
           { id: '4', name: 'Alta' },
           { id: '5', name: 'Muy alta' },
         ]} />
-        <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} disabled={role === 'user'} />
-        {isSolved &&
-          <>
-            <DateInput
-              source="resolution.closureTime"
-              label="Closure Time"
-              defaultValue={new Date().toISOString()}
-              validate={maxValue(new Date().toISOString(), "El ticket no puede cerrarse en el futuro")}
-            />
-            <TextInput source="resolution.whatWasDone" label="What Was Done" />
-            <TextInput source="resolution.howWasDone" label="How Was Done" />
-            <TextInput source="resolution.whyWasDone" label="Why Was Done" />
-          </>
-        }
-
+        {/* <BooleanInput source="isSolved" label="Is Solved" onChange={handleIsSolvedChange} disabled={role === 'user'} /> */}
+        <Resolution />
       </SimpleForm>
     </Edit>
   );
@@ -191,20 +228,60 @@ export const TicketCreate = () => {
           label="Clasificación"
           choices={menuChoices}
           onChange={handleClassificationChange}
+          validate={required()}
         />
         <SelectInput
           source="subclassification"
           label="Subclasificación"
           choices={typeChoices}
+          validate={required()}
         />
-        <TextInput source="description" label="Descripción" multiline />
-        <SelectInput source="priority" label="Prioridad" choices={[
-          { id: '1', name: 'Muy baja' },
-          { id: '2', name: 'Baja' },
-          { id: '3', name: 'Media' },
-          { id: '4', name: 'Alta' },
-          { id: '5', name: 'Muy alta' },
+      
+        <TextInput source="description" label="Descripción" multiline validate={required()} />
+        <SelectInput source="priority"
+          validate={required()}
+          label="Prioridad" choices={[
+            { id: '1', name: 'Muy baja' },
+            { id: '2', name: 'Baja' },
+            { id: '3', name: 'Media' },
+            { id: '4', name: 'Alta' },
+            { id: '5', name: 'Muy alta' },
+          ]} />
+        
+          <TextInput source="folio" label="Folio" />
+        <SelectInput source="responsible" label="Responsable" choices={[
+        { id: 'Presidenta', name: 'Presidenta' },
+        { id: 'Coordinacion General de Aulas', name: 'Coordinacion General de Aulas' },
+        { id: 'Coordinacion de Aula Ecatepec', name: 'Coordinacion de Aula Ecatepec' },
+        { id: 'Coordinacion de Aula Cuautitlan', name: 'Coordinacion de Aula Cuautitlan' },
+        { id: 'Coordinacion de Aula Mazatlan', name: 'Coordinacion de Aula Mazatlan' },
+        { id: 'Coordinacion de Aula Guasave', name: 'Coordinacion de Aula Guasave' },
+        { id: 'Coordinacion de Aula Digital', name: 'Coordinacion de Aula Digital' },
+        { id: 'Coordinacion de Administracion', name: 'Coordinacion de Administracion' },
+        { id: 'Coordinacion de Educacion', name: 'Coordinacion de Educacion' },
+        { id: 'Coordinacion de Alianzas', name: 'Coordinacion de Alianzas' },
+        { id: 'Coordinacion de comunicacion', name: 'Coordinacion de comunicacion' },
+        { id: 'Coordinacion de proyectos y procuracion de fondos', name: 'Coordinacion de proyectos y procuracion de fondos' },
         ]} />
+         <SelectInput source="topic" label="Asunto" choices={[
+        { id: 'Mobiliario', name: 'Mobiliario' },
+        { id: 'Digital', name: 'Digital' },
+        { id: 'Bitácora de registro', name: 'Bitácora de registro' },
+        { id: 'Seguimiento a beneficiarios', name: 'Seguimiento a beneficiarios' },
+        { id: 'Mantenimiento', name: 'Mantenimiento' },
+        { id: 'Incidencias de personal', name: 'Incidencias de personal' },
+        { id: 'Trámites a gobierno', name: 'Trámites a gobierno' },
+        { id: 'Trámites a empresas', name: 'Trámites a empresas' },
+        { id: 'Profesores INEA', name: 'Profesores INEA' },
+        { id: 'Profesores Conalep', name: 'Profesores Conalep' },
+        { id: 'Conocer', name: 'Conocer' },
+        { id: 'Microsoft', name: 'Microsoft' },
+        { id: 'Insumos', name: 'Insumos' },
+        { id: 'Alianzas', name: 'Alianzas' },
+        { id: 'Infraestructura', name: 'Infraestructura' },
+        { id: 'Seguridad', name: 'Seguridad' },
+        { id: 'Reporte meteorológico', name: 'Reporte meteorológico' },
+      ]}  />
       </SimpleForm>
     </Create>
   );

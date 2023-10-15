@@ -5,6 +5,10 @@ const TicketSchema = new Schema({
     subclassification: String,
     priority: Number,
     description: String,
+    status: Number, // nuevo, abierto, pendiente, en espera, resuelto
+    topic: String,
+    folio: String, // opcional
+    responsible: String,
     resolution: { 
         whatWasDone: String,
         howWasDone: String,
