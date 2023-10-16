@@ -117,7 +117,6 @@ export const Dashboard = () => {
 
       const data = await res.json();
       setData(data);
-      console.log(data);
     }
 
     fetchData();
