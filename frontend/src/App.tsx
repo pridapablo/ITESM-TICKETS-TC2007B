@@ -1,7 +1,7 @@
 import { dataProvider } from "./data/dataProvider";
 
 import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
-import {UserList,UserEdit,UserCreate} from './resources/users'
+import { UserList, UserEdit, UserCreate } from "./resources/users";
 
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
@@ -9,44 +9,44 @@ import MyLoginPage from "./auth/MyLoginPage";
 import { authProvider } from "./auth/authProvider";
 
 import NoteIcon from "@mui/icons-material/Note";
-import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
-import { Admin, ListGuesser, Resource } from "react-admin";
+import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
+import { Admin, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
-import './index.css';
+
+import "./index.css";
 import { useState, useEffect } from "react"; // Import useState and useEffect
 
 const lightTheme = createTheme({
   palette: {
-    mode: "light"
-  }
+    mode: "light",
+  },
 });
 
 const darkTheme = createTheme({
   palette: {
-    mode: "dark"
-  }
+    mode: "dark",
+  },
 });
 
-
-
-
 export const App = () => {
-  
-  const [role, setRole] = useState(''); // Declare state for role
-  const [currentTheme, setCurrentTheme] = usePersistentState<'light' | 'dark'>('theme', 'light');
+  const [role, setRole] = useState(""); // Declare state for role
+  const [currentTheme, setCurrentTheme] = usePersistentState<"light" | "dark">(
+    "theme",
+    "light"
+  );
 
   useEffect(() => {
-    const roleFromLocalStorage = localStorage.getItem('role');
+    const roleFromLocalStorage = localStorage.getItem("role");
     if (roleFromLocalStorage) {
-      setRole(roleFromLocalStorage); 
+      setRole(roleFromLocalStorage);
     } else {
       // window.location.reload(); Ni modo
     }
-  }, [role]); 
-  
+  }, [role]);
+
   return (
-    <ThemeProvider theme={currentTheme === 'light' ? lightTheme : darkTheme}>
+    <ThemeProvider theme={currentTheme === "light" ? lightTheme : darkTheme}>
       <Admin
         dataProvider={dataProvider}
         layout={CustomLayout}
@@ -57,13 +57,13 @@ export const App = () => {
       >
         <Resource
           name="ticket"
-          options={{ label: 'resources.tickets' }}
+          options={{ label: "resources.tickets" }}
           list={TicketList}
           edit={TicketEdit}
           create={TicketCreate}
           icon={NoteIcon}
         />
-        {role == 'user'? null: 
+        {role == "user" ? null : (
           <Resource
           name="user"
           options={{ label: 'resources.users' }}
@@ -71,7 +71,7 @@ export const App = () => {
           edit={UserEdit}
           create={UserCreate}
           icon={PersonOutlineRoundedIcon}
-        />}
+        />)}
       </Admin>
     </ThemeProvider>
   );
