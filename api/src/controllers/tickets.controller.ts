@@ -293,6 +293,17 @@ export const updateTicket = async (req: RequestWithRole, res: Response) => {
   } = req.body;
   let status = req.body.status;
 
+  // Check if the ticket is deleted
+  const ticketData = await ticket.findById(id);
+  if (ticketData && ticketData.isDeleted) {
+    return res
+      .status(400)
+      .json({
+        message:
+          "Este ticket ha sido eliminado permanentemente y no puede ser modificado",
+      });
+  }
+
   if (resolution && resolution.closureTime) {
     status = 5;
   }
