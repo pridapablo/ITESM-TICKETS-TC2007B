@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import { Identifier } from "react-admin";
 
 interface TicketCardsProps {
+  id: Identifier;
   classification?: string;
   subclassification?: string;
   priority?: number;
@@ -14,9 +16,8 @@ interface TicketCardsProps {
     closureTime: Date | null; // Use Date | null if it can be null
   };
   isDeleted?: boolean;
+  isView?: boolean;
 }
-
-type ThemeType = "light" | "dark";
 
 export default function TicketCards(props: TicketCardsProps) {
   const role = localStorage.getItem("role");
@@ -46,13 +47,13 @@ export default function TicketCards(props: TicketCardsProps) {
   //@ts-ignore
   const propsId = props.id;
 
-  const firstSeven = propsId.substring(0, 7);
-  const lastSeven = propsId.substring(propsId.length - 7);
+  const propsIdStr = propsId.toString();
+  const firstSeven = propsIdStr.substring(0, 7);
+  const lastSeven = propsIdStr.substring(propsIdStr.length - 7);
 
   // Combine the first seven, a hyphen, and the last seven
   const ticketID = `${firstSeven}-${lastSeven}`;
 
-  const [isEditing, setIsEditing] = useState(false); // Define state for editing
   const [showMore, setShowMore] = useState(false); // State to track whether to show full description
 
   const handleCardClick = () => {
@@ -103,25 +104,30 @@ export default function TicketCards(props: TicketCardsProps) {
               {props.subclassification}
             </h3>
 
-            <p className={`text-xs font-semibold text-gray-400 text-left`}>
-              {descriptionToShow}
-              {props.description && props.description.length > 30 && (
-                <button
-                  onClick={toggleShowMore}
-                  className="text-sm mt-2 text-neutral-400 text-opacity-50 cursor-pointer outline-none mr-2"
-                >
-                  {showMore ? "Menos" : "Más"}
-                </button>
-              )}
-            </p>
+            {!props.isView && ( // Wrap the description with isView check
+              <p className={`text-xs font-semibold text-gray-400 text-left`}>
+                {descriptionToShow}
+                {props.description && props.description.length > 30 && (
+                  <button
+                    onClick={toggleShowMore}
+                    className="text-sm mt-2 text-neutral-400 text-opacity-50 cursor-pointer outline-none mr-2"
+                  >
+                    {showMore ? "Menos" : "Más"}
+                  </button>
+                )}
+              </p>
+            )}
 
-            <button
-              onClick={handleCardClick}
-              className="text-sm mt-2 px-4 py-2 bg-green-600 text-white rounded-lg tracking-wider hover:bg-green-800 outline-none"
-            >
-              {role == "user" ? "Editar" : "Resolver"}
-            </button>
+            {!props.isView && (
+              <button
+                onClick={handleCardClick}
+                className="text-sm mt-2 px-4 py-2 bg-green-600 text-white rounded-lg tracking-wider hover:bg-green-800 outline-none"
+              >
+                {role == "user" ? "Editar" : "Resolver"}
+              </button>
+            )}
           </div>
+
           <div
             className={`bg-gradient-to-tr ${priorColor}  w-32 h-32  rounded-full shadow-2xl border-white  border-dashed border-2  flex justify-center items-center `}
           >

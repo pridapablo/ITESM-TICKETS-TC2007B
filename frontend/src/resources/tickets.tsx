@@ -251,46 +251,57 @@ export const TicketEdit = () => {
       (["admin", "agent"].includes(role) && userCreatedThisTicket);
 
     return (
-      <>
-        {!canEdit || record.status === 5 || record.isDeleted ? (
-          <StatusIndicator showText />
-        ) : (
-          <div className="status-container flex flex-row items-center">
-            <StatusDropdown />
-            <StatusIndicator />
-          </div>
-        )}
-        <ContextDropdown
-          view={!canEdit || record.status === 5 || record.isDeleted}
-        />
-        <TextInput
-          source="description"
-          multiline
-          disabled={!canEdit || record.status === 5 || record.isDeleted}
-          validate={required()}
-        />
-        {record.folio && (
-          <TextInput source="folio" label="Folio" disabled={true} />
-        )}
-        {record.responsible && (
-          <TextInput source="responsible" label="Responsable" disabled={true} />
-        )}
-        {record.topic && (
-          <TextInput source="topic" label="Asunto" disabled={true} />
-        )}
-        <SelectInput
-          source="priority"
-          choices={[
-            { id: "1", name: "Muy baja" },
-            { id: "2", name: "Baja" },
-            { id: "3", name: "Media" },
-            { id: "4", name: "Alta" },
-            { id: "5", name: "Muy alta" },
-          ]}
-          validate={required()}
-          disabled={!canEdit || record.status === 5 || record.isDeleted}
-        />
-      </>
+      <div className="flex flex-row justify-between gap-6">
+        <div className="flex flex-col">
+          <ContextDropdown
+            view={!canEdit || record.status === 5 || record.isDeleted}
+          />
+          <TextInput
+            source="description"
+            multiline
+            disabled={!canEdit || record.status === 5 || record.isDeleted}
+            validate={required()}
+          />
+          {record.folio && (
+            <TextInput source="folio" label="Folio" disabled={true} />
+          )}
+          {record.responsible && (
+            <TextInput
+              source="responsible"
+              label="Responsable"
+              disabled={true}
+            />
+          )}
+          {record.topic && (
+            <TextInput source="topic" label="Asunto" disabled={true} />
+          )}
+          <SelectInput
+            source="priority"
+            choices={[
+              { id: "1", name: "Muy baja" },
+              { id: "2", name: "Baja" },
+              { id: "3", name: "Media" },
+              { id: "4", name: "Alta" },
+              { id: "5", name: "Muy alta" },
+            ]}
+            validate={required()}
+            disabled={!canEdit || record.status === 5 || record.isDeleted}
+          />
+        </div>
+        <div className="flex flex-col">
+          <TicketCards {...record} isView />
+          {!["admin", "agent"].includes(role) ||
+          record.status === 5 ||
+          record.isDeleted ? (
+            <StatusIndicator showText />
+          ) : (
+            <div className="status-container flex flex-row items-center">
+              <StatusDropdown />
+              <StatusIndicator />
+            </div>
+          )}
+        </div>
+      </div>
     );
   };
 
