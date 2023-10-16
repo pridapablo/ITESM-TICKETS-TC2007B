@@ -15,20 +15,14 @@ import {
   ListProps,
   WithListContext,
   useRecordContext,
-<<<<<<< HEAD
-  useTranslate,
-  useListContext,
-=======
   required,
   FieldProps,
   BooleanField,
->>>>>>> main
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
 import React, { useEffect, useState } from "react";
 import ToggleButtons from "../components/toggleButton";
-import { Chip } from '@mui/material';
 
 const menu = [
   "Servicios",
@@ -95,42 +89,6 @@ interface TicketRecord {
 
 const menuChoices = menu.map((item) => ({ id: item, name: item }));
 
-interface QuickFilterProps {
-  label: string;
-  source: string;
-  defaultValue: any;  // O un tipo más específico si sabes lo que debería ser
-}
-
-interface FilterValues {
-  [key: string]: string | number | boolean;
-}
-
-const QuickFilter: React.FC<QuickFilterProps> = ({ label, source, defaultValue }) => {
-  const translate = useTranslate();
-  const { filterValues, setFilters } = useListContext();
-
-  const handleClick = () => {
-    const newFilterValue = filterValues[source] ? false : true;
-
-    setFilters(
-      { ...filterValues, [source]: newFilterValue },
-      { ...filterValues, [source]: true }
-    );
-  };
-
-
-  const isActive = filterValues[source] === defaultValue;
-
-  return (
-    <Chip
-      sx={{ marginBottom: 1 }}
-      label={translate(label)}
-      onClick={handleClick}
-      color={isActive ? 'primary' : 'default'}
-    />
-  );
-};
-
 export const TicketList: React.FC<ListProps> = (props) => {
   const PriorityField: React.FC<FieldProps<TicketRecord>> = (props) => {
     const record = useRecordContext(props);
@@ -175,19 +133,22 @@ export const TicketList: React.FC<ListProps> = (props) => {
     setIsList(false); // Toggle the isList state when the button is clicked
   };
 
-<<<<<<< HEAD
-  const translate = useTranslate();
-
-=======
->>>>>>> main
   return (
     <List
       {...props}
       filterDefaultValues={{ isDeleted: true }}
       filters={
         <Filter>
-          <QuickFilter source="isDeleted" label={translate('resources.ticket.fields.hideDeleted')} defaultValue={true} />
-          <QuickFilter source="sortByPriority" label={translate('resources.ticket.fields.sortByPriority')} defaultValue={true} />
+          <BooleanInput
+            label="Ocultar eliminados"
+            source="isDeleted"
+            alwaysOn
+          />
+          <BooleanInput
+            label="Ordenar por prioridad"
+            source="sortByPriority"
+            alwaysOn
+          />
         </Filter>
       }
     >
@@ -207,14 +168,6 @@ export const TicketList: React.FC<ListProps> = (props) => {
         />
       ) : (
         <Datagrid>
-<<<<<<< HEAD
-          <TextField source="id" label={translate('resources.ticket.fields.id')} />
-          <TextField source="classification" label={translate('resources.ticket.fields.classification')} />
-          <TextField source="subclassification" label={translate('resources.ticket.fields.subclassification')} />
-          <TextField source="description" label={translate('resources.ticket.fields.description')} />
-          <TextField source="priority" label={translate('resources.ticket.fields.priority')} />
-          <DateField source="closureTime" label={translate('resources.ticket.fields.closureTime')} />
-=======
           <TextField source="id" label="ID" />
           <TextField source="classification" label="Clasificación" />
           <TextField source="subclassification" label="Subclasificación" />
@@ -225,7 +178,6 @@ export const TicketList: React.FC<ListProps> = (props) => {
             label="Fecha de cierre"
           />
           <BooleanField source="isDeleted" label="Eliminado" />
->>>>>>> main
           <EditButton />
         </Datagrid>
       )}
@@ -430,24 +382,6 @@ export const TicketEdit = () => {
     );
   };
 
-<<<<<<< HEAD
-  const translate = useTranslate();
-
-  return (
-    <Edit>
-      <SimpleForm warnWhenUnsavedChanges>
-        <ContextDropdown view={role !== 'user'} />
-        <TextInput source="description" multiline />
-        <SelectInput source="priority" choices={[
-          { id: '1', name: 'Muy baja' },
-          { id: '2', name: 'Baja' },
-          { id: '3', name: 'Media' },
-          { id: '4', name: 'Alta' },
-          { id: '5', name: 'Muy alta' },
-        ]} />
-        <BooleanInput source="isSolved" label={translate('resources.ticket.fields.isSolved')} onChange={handleIsSolvedChange} disabled={role === 'user'} />
-        {isSolved &&
-=======
   const Resolution = (props: { canEdit: boolean }) => {
     const record = useRecordContext();
     const [isSolved, setIsSolved] = useState(record.status === 5);
@@ -493,7 +427,6 @@ export const TicketEdit = () => {
         />
 
         {isSolved && (
->>>>>>> main
           <>
             <DateInput
               source="resolution.closureTime"
@@ -524,12 +457,6 @@ export const TicketEdit = () => {
                 !props.canEdit || record.status === 5 || record.isDeleted
               }
             />
-<<<<<<< HEAD
-            <TextInput source="resolution.whatWasDone" label={translate('resources.ticket.fields.whatWasDone')} />
-            <TextInput source="resolution.howWasDone" label={translate('resources.ticket.fields.howWasDone')} />
-            <TextInput source="resolution.whyWasDone" label={translate('resources.ticket.fields.whyWasDone')} />
-=======
->>>>>>> main
           </>
         )}
       </>
@@ -559,21 +486,19 @@ export const TicketCreate = () => {
     );
   };
 
-  const translate = useTranslate();
-
   return (
     <Create mutationOptions={{ onSuccess }}>
       <SimpleForm warnWhenUnsavedChanges>
         <SelectInput
           source="classification"
-          label={translate('resources.ticket.fields.classification')}
+          label="Clasificación"
           choices={menuChoices}
           onChange={handleClassificationChange}
           validate={required()}
         />
         <SelectInput
           source="subclassification"
-          label={translate('resources.ticket.fields.subclassification')}
+          label="Subclasificación"
           choices={typeChoices}
           validate={required()}
         />
@@ -675,24 +600,6 @@ export const TicketCreate = () => {
             { id: "Reporte meteorológico", name: "Reporte meteorológico" },
           ]}
         />
-<<<<<<< HEAD
-        <TextInput
-          source="description"
-          label={translate('resources.ticket.fields.description')}
-          multiline
-        />
-        <SelectInput
-          source="priority"
-          label={translate('resources.ticket.fields.priority')}
-          choices={[
-            { id: '1', name: 'Muy baja' },
-            { id: '2', name: 'Baja' },
-            { id: '3', name: 'Media' },
-            { id: '4', name: 'Alta' },
-            { id: '5', name: 'Muy alta' },
-          ]} />
-=======
->>>>>>> main
       </SimpleForm>
     </Create>
   );
