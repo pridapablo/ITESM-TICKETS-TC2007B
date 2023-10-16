@@ -189,6 +189,55 @@ export const TicketEdit = () => {
   const role = localStorage.getItem("role") || "";
   const canEditResolution = ["admin", "agent"].includes(role);
 
+  interface StatusIndicatorProps {
+    showText?: boolean;
+  }
+  const StatusIndicator: React.FC<StatusIndicatorProps> = ({
+    showText = false,
+  }) => {
+    const record = useRecordContext();
+
+    const getStatusText = (status: Number) => {
+      switch (status) {
+        case 1:
+          return "Nuevo";
+        case 2:
+          return "Abierto";
+        case 3:
+          return "Pendiente";
+        case 4:
+          return "En Espera";
+        case 5:
+          return "Resuelto";
+        default:
+          return "Desconocido"; // You might want to handle unknown statuses differently.
+      }
+    };
+
+    const statusText = record.isDeleted
+      ? `Ticket Eliminado. Último estatus: ${getStatusText(record.status)}`
+      : getStatusText(record.status);
+
+    return (
+      <div className="status-container flex flex-col items-center p-4">
+        <div
+          className={`status-indicator ${
+            record.isDeleted
+              ? "bg-red-500"
+              : record.status === 5
+              ? "bg-green-500"
+              : "bg-gray-500"
+          } p-4 rounded-full mb-4 shadow-lg transition-all duration-300`}
+        />
+        {showText && (
+          <span className="status-text text-sm font-bold mb-2">
+            {statusText}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   const MainFields = () => {
     const role = localStorage.getItem("role") || "";
     const userID = localStorage.getItem("userID") || "";
@@ -203,6 +252,14 @@ export const TicketEdit = () => {
 
     return (
       <>
+        {!canEdit || record.status === 5 || record.isDeleted ? (
+          <StatusIndicator showText />
+        ) : (
+          <div className="status-container flex flex-row items-center">
+            <StatusDropdown />
+            <StatusIndicator />
+          </div>
+        )}
         <ContextDropdown
           view={!canEdit || record.status === 5 || record.isDeleted}
         />
@@ -233,7 +290,6 @@ export const TicketEdit = () => {
           validate={required()}
           disabled={!canEdit || record.status === 5 || record.isDeleted}
         />
-        <StatusDropdown />
       </>
     );
   };
