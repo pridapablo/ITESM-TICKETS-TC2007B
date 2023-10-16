@@ -2,3 +2,18 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+/* Your custom CSS */
+.custom-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 11 */
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 0.5rem; /* Adjust this as needed to create a small "hidden" scrollbar area */
+    display: none; /* Hide the scrollbar for Webkit (Safari/Chrome) */
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: transparent; /* Set the scrollbar thumb to a transparent color */
+  }

@@ -13,6 +13,8 @@ import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
 import { Admin, ListGuesser, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
+import { Dashboard } from "./pages/Dashboard";
+
 import './index.css';
 import { useState, useEffect } from "react"; // Import useState and useEffect
 
@@ -54,6 +56,7 @@ export const App = () => {
         i18nProvider={i18nProvider}
         authProvider={authProvider}
         loginPage={MyLoginPage}
+        dashboard={Dashboard}
       >
         <Resource
           name="ticket"
