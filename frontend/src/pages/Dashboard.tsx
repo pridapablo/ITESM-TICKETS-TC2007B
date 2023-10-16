@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Grid,
-  Typography,
-  Checkbox,
-} from "@mui/material";
+import { Card, CardContent, CardHeader, Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 import AppsIcon from "@mui/icons-material/Apps";
 import { motion } from "framer-motion";
@@ -20,8 +13,6 @@ import { MyResponsiveScatterPlot } from "../components/dotGraph";
 import { Button } from "react-admin";
 import { useTheme } from "@mui/material/styles";
 import ToggleButtonDashboard from "../components/toggleDashboard";
-
-type ThemeType = "light" | "dark";
 
 export const Dashboard = () => {
   const [weekView, setWeekView] = useState(true); // Initialize isList state as true
