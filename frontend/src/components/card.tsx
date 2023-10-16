@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-import { useTranslate } from 'react-admin';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
+import { useTranslate } from "react-admin";
 import { Identifier } from "react-admin";
 
 interface TicketCardsProps {
@@ -27,12 +27,12 @@ export default function TicketCards(props: TicketCardsProps) {
   const translate = useTranslate();
 
   const prioridades: { [key: number]: string } = {
-    0: translate('prioritys.noPriority'),
-    1: translate('prioritys.veryLow'),
-    2: translate('prioritys.low'),
-    3: translate('prioritys.medium'),
-    4: translate('prioritys.high'),
-    5: translate('prioritys.veryHigh'),
+    0: translate("prioritys.noPriority"),
+    1: translate("prioritys.veryLow"),
+    2: translate("prioritys.low"),
+    3: translate("prioritys.medium"),
+    4: translate("prioritys.high"),
+    5: translate("prioritys.veryHigh"),
   };
 
   const prioridadesColor: { [key: number]: string } = {
@@ -76,7 +76,9 @@ export default function TicketCards(props: TicketCardsProps) {
       <div className="p-4 sm:w-3/3 lg:w-5/5 w-full hover:scale-105 duration-500">
         <div
           className={`flex items-center justify-between p-4 rounded-lg ${
-            theme.palette.mode == 'dark' ? 'bg-black' : 'bg-white border-2 border-gray-200'
+            theme.palette.mode == "dark"
+              ? "bg-black"
+              : "bg-white border-2 border-gray-200"
           } shadow-neutral-600 shadow-md`}
         >
           <div
@@ -125,7 +127,9 @@ export default function TicketCards(props: TicketCardsProps) {
                 onClick={handleCardClick}
                 className="text-sm mt-2 px-4 py-2 bg-green-600 text-white rounded-lg tracking-wider hover:bg-green-800 outline-none"
               >
-              {role == 'user' ? translate('ra.action.edit') : translate('ra.action.resolve')}
+                {role == "user"
+                  ? translate("ra.action.edit")
+                  : translate("ra.action.resolve")}
               </button>
             )}
           </div>

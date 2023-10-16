@@ -11,6 +11,14 @@
     "test": "jest"
   },
   "dependencies": {
+    "@nivo/bar": "^0.83.0",
+    "@nivo/circle-packing": "^0.83.0",
+    "@nivo/core": "^0.83.0",
+    "@nivo/line": "^0.83.0",
+    "@nivo/pie": "^0.83.0",
+    "@nivo/scatterplot": "^0.83.0",
+    "@nivo/sunburst": "^0.83.0",
+    "@nivo/treemap": "^0.83.0",
     "@tanstack/react-query-devtools": "^4.35.7",
     "@testing-library/user-event": "^14.5.1",
     "framer-motion": "^10.16.4",

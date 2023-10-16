@@ -1,21 +1,18 @@
 import { dataProvider } from "./data/dataProvider";
-
 import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
 import { UserList, UserEdit, UserCreate } from "./resources/users";
-
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
 import MyLoginPage from "./auth/MyLoginPage";
 import { authProvider } from "./auth/authProvider";
-
 import NoteIcon from "@mui/icons-material/Note";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import { Admin, Resource } from "react-admin";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import usePersistentState from "./hooks/usePersistentState";
-
+import { Dashboard } from "./pages/Dashboard";
 import "./index.css";
-import { useState, useEffect } from "react"; // Import useState and useEffect
+import { useState, useEffect } from "react";
 
 const lightTheme = createTheme({
   palette: {
@@ -30,7 +27,7 @@ const darkTheme = createTheme({
 });
 
 export const App = () => {
-  const [role, setRole] = useState(""); // Declare state for role
+  const [role, setRole] = useState("");
   const [currentTheme, setCurrentTheme] = usePersistentState<"light" | "dark">(
     "theme",
     "light"
@@ -54,6 +51,7 @@ export const App = () => {
         i18nProvider={i18nProvider}
         authProvider={authProvider}
         loginPage={MyLoginPage}
+        dashboard={role == "admin" ? Dashboard : undefined}
       >
         <Resource
           name="ticket"
@@ -65,13 +63,14 @@ export const App = () => {
         />
         {role == "user" ? null : (
           <Resource
-          name="user"
-          options={{ label: 'resources.users' }}
-          list={UserList}
-          edit={UserEdit}
-          create={UserCreate}
-          icon={PersonOutlineRoundedIcon}
-        />)}
+            name="user"
+            options={{ label: "resources.users" }}
+            list={UserList}
+            edit={UserEdit}
+            create={UserCreate}
+            icon={PersonOutlineRoundedIcon}
+          />
+        )}
       </Admin>
     </ThemeProvider>
   );
