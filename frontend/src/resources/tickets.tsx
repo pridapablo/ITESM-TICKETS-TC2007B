@@ -16,6 +16,7 @@ import {
   WithListContext,
   useRecordContext,
   required,
+  FieldProps,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
@@ -77,10 +78,49 @@ const subMenu = {
   "Fenómeno meteorológico": ["Inundaciones", "Incendios", "Sismos"],
 };
 
+interface TicketRecord {
+  priority: number;
+  status: number;
+  closureTime?: Date | null;
+}
+
 const menuChoices = menu.map((item) => ({ id: item, name: item }));
 
 export const TicketList: React.FC<ListProps> = (props) => {
-  const [isList, setIsList] = useState(true); // Initialize isList state as true
+  const PriorityField: React.FC<FieldProps<TicketRecord>> = (props) => {
+    const record = useRecordContext(props);
+    const priorities = ["Muy baja", "Baja", "Media", "Alta", "Muy alta"];
+    return record ? (
+      <TextField
+        {...props}
+        record={{
+          ...record,
+          priority: priorities[record.priority - 1],
+        }}
+      />
+    ) : null;
+  };
+
+  const StatusField: React.FC<FieldProps<TicketRecord>> = (props) => {
+    const record = useRecordContext(props);
+    const statuses = ["Nuevo", "Abierto", "Pendiente", "En Espera", "Resuelto"];
+    return record ? (
+      <TextField
+        {...props}
+        record={{ ...record, status: statuses[record.status - 1] }}
+      />
+    ) : null;
+  };
+
+  const ClosureTimeField: React.FC<FieldProps<TicketRecord>> = (props) => {
+    const record = useRecordContext(props);
+    return record && record.closureTime ? (
+      <DateField {...props} record={record} />
+    ) : (
+      <span>✖</span>
+    );
+  };
+  const [isList, setIsList] = useState(false); // Initialize isList state as true
 
   const toggleListView = () => {
     setIsList(true); // Toggle the isList state when the button is clicked
@@ -128,9 +168,9 @@ export const TicketList: React.FC<ListProps> = (props) => {
           <TextField source="id" />
           <TextField source="classification" />
           <TextField source="subclassification" />
-          <TextField source="description" />
-          <TextField source="priority" />
-          <DateField source="closureTime" />
+          <PriorityField source="priority" />
+          <StatusField source="status" />
+          <ClosureTimeField source="closureTime" />
           <EditButton />
         </Datagrid>
       )}
