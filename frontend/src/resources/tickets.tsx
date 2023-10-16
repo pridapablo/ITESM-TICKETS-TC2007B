@@ -123,7 +123,7 @@ export const TicketList: React.FC<ListProps> = (props) => {
       <span>✖</span>
     );
   };
-  const [isList, setIsList] = useState(false); // Initialize isList state as true
+  const [isList, setIsList] = useState(true); // Initialize isList state as true
 
   const toggleListView = () => {
     setIsList(true); // Toggle the isList state when the button is clicked
@@ -177,9 +177,7 @@ export const TicketList: React.FC<ListProps> = (props) => {
             source="resolution.closureTime"
             label="Fecha de cierre"
           />
-            {
-              // isDeleted true toggle shows the deleted tickets
-              <BooleanField source="isDeleted" label="Eliminado" />}
+          <BooleanField source="isDeleted" label="Eliminado" />
           <EditButton />
         </Datagrid>
       )}
@@ -205,11 +203,13 @@ export const TicketEdit = () => {
 
     return (
       <>
-        <ContextDropdown view={!canEdit || record.status === 5} />
+        <ContextDropdown
+          view={!canEdit || record.status === 5 || record.isDeleted}
+        />
         <TextInput
           source="description"
           multiline
-          disabled={!canEdit || record.status === 5}
+          disabled={!canEdit || record.status === 5 || record.isDeleted}
         />
         {record.folio && (
           <TextInput source="folio" label="Folio" disabled={true} />
@@ -229,7 +229,7 @@ export const TicketEdit = () => {
             { id: "4", name: "Alta" },
             { id: "5", name: "Muy alta" },
           ]}
-          disabled={!canEdit || record.status === 5}
+          disabled={!canEdit || record.status === 5 || record.isDeleted}
         />
         <StatusDropdown />
       </>
@@ -257,7 +257,7 @@ export const TicketEdit = () => {
           { id: "3", name: "Pendiente" },
           { id: "4", name: "En Espera" },
         ]}
-        disabled={!canEditStatus}
+        disabled={!canEditStatus || record.isDeleted}
       />
     ) : null;
   };
@@ -298,13 +298,13 @@ export const TicketEdit = () => {
         <SelectInput
           source="classification"
           choices={menuChoices}
-          disabled={view || record.status === 5}
+          disabled={view || record.status === 5 || record.isDeleted}
           onChange={handleClassificationChange}
         />
         <SelectInput
           source="subclassification"
           choices={subChoices}
-          disabled={view || record.status === 5}
+          disabled={view || record.status === 5 || record.isDeleted}
         />
       </>
     );
@@ -351,7 +351,7 @@ export const TicketEdit = () => {
           onChange={handleIsSolvedChange}
           value={isSolved}
           // Allow editing only if canEdit prop is true and the record status is not 5.
-          disabled={!props.canEdit || record.status === 5}
+          disabled={!props.canEdit || record.status === 5 || record.isDeleted}
         />
 
         {isSolved && (
@@ -360,22 +360,30 @@ export const TicketEdit = () => {
               source="resolution.closureTime"
               label="Closure Time"
               // Allow editing only if canEdit prop is true and the record status is not 5.
-              disabled={!props.canEdit || record.status === 5}
+              disabled={
+                !props.canEdit || record.status === 5 || record.isDeleted
+              }
             />
             <TextInput
               source="resolution.whatWasDone"
               label="Qué se hizo"
-              disabled={!props.canEdit || record.status === 5}
+              disabled={
+                !props.canEdit || record.status === 5 || record.isDeleted
+              }
             />
             <TextInput
               source="resolution.howWasDone"
               label="Cómo se hizo"
-              disabled={!props.canEdit || record.status === 5}
+              disabled={
+                !props.canEdit || record.status === 5 || record.isDeleted
+              }
             />
             <TextInput
               source="resolution.whyWasDone"
               label="Por qué se hizo"
-              disabled={!props.canEdit || record.status === 5}
+              disabled={
+                !props.canEdit || record.status === 5 || record.isDeleted
+              }
             />
           </>
         )}
