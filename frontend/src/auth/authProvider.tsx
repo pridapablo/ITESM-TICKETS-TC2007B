@@ -28,15 +28,14 @@ export const authProvider: AuthProvider = {
             const data = await response.json();
             const { userID, role } = data;
             
-            if (!role) {
-                throw new Error('Role not found, please contact the administrator');
+            if (!role || !userID) {
+                throw new Error('Role or userID not found, please contact the administrator');
             }
 
-            localStorage.setItem('userID', userID); // TODO: This should NOT be done in the frontend
-            localStorage.setItem('username', username);
+            localStorage.setItem('userID', userID);
             localStorage.setItem('role', role); 
           
-            return data.message;  // Devolvemos el mensaje "bien"
+            return data.message;  
 
         } catch (error: any) {
             throw new Error(error.message);  // Aquí arrojamos el mensaje de error
@@ -44,13 +43,17 @@ export const authProvider: AuthProvider = {
     },
     // called when the user clicks on the logout button
     logout: () => {
-        localStorage.removeItem("username");
+        localStorage.removeItem("auth");
+        localStorage.removeItem("userID");
+        localStorage.removeItem("role");
         return Promise.resolve();
     },
     // called when the API returns an error
     checkError: ({ status }: { status: number }) => {
         if (status === 401 || status === 403) {
             localStorage.removeItem("auth");
+            localStorage.removeItem("userID");
+            localStorage.removeItem("role");
             return Promise.reject();
         }
         return Promise.resolve();

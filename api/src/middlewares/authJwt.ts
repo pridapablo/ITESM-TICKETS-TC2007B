@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import {  Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { SECRET } from '../const';
+import { RequestWithRole } from '../types/ReqWithUserRole';
 
 interface IVerifyToken{
     _id:string;
@@ -9,8 +10,8 @@ interface IVerifyToken{
 }
 
 // @ts-ignore
-export const TokenValidation = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.header('auth-token');
+export const TokenValidation = (req: RequestWithRole, res: Response, next: NextFunction) => {
+    const token = req.header('Authentication');
 
     if (!token) {
         return res.status(401).json("Access-denied");
@@ -18,7 +19,7 @@ export const TokenValidation = (req: Request, res: Response, next: NextFunction)
 
     try {
         const verifyToken = jwt.verify(token, SECRET) as IVerifyToken;
-        req.userId = verifyToken._id;
+        req.userID = verifyToken._id;
 
         next();
     } catch (error) {

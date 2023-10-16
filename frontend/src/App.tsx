@@ -1,7 +1,7 @@
 import { dataProvider } from "./data/dataProvider";
 
 import { TicketCreate, TicketEdit, TicketList } from "./resources/tickets";
-import {UserEdit,UserCreate} from './resources/users'
+import {UserList,UserEdit,UserCreate} from './resources/users'
 
 import { CustomLayout } from "./layout/CustomLayout";
 import { i18nProvider } from "./locale/i18nProvider";
@@ -16,6 +16,7 @@ import usePersistentState from "./hooks/usePersistentState";
 import { Dashboard } from "./pages/Dashboard";
 
 import './index.css';
+import { useState, useEffect } from "react"; // Import useState and useEffect
 
 const lightTheme = createTheme({
   palette: {
@@ -29,9 +30,23 @@ const darkTheme = createTheme({
   }
 });
 
+
+
+
 export const App = () => {
+  
+  const [role, setRole] = useState(''); // Declare state for role
   const [currentTheme, setCurrentTheme] = usePersistentState<'light' | 'dark'>('theme', 'light');
 
+  useEffect(() => {
+    const roleFromLocalStorage = localStorage.getItem('role');
+    if (roleFromLocalStorage) {
+      setRole(roleFromLocalStorage); 
+    } else {
+      // window.location.reload(); Ni modo
+    }
+  }, [role]); 
+  
   return (
     <ThemeProvider theme={currentTheme === 'light' ? lightTheme : darkTheme}>
       <Admin
@@ -51,13 +66,14 @@ export const App = () => {
           create={TicketCreate}
           icon={NoteIcon}
         />
-        <Resource
+        {role == 'user'? null: 
+          <Resource
           name="user"
-          list={ListGuesser}
+          list={UserList}
           edit={UserEdit}
           create={UserCreate}
           icon={PersonOutlineRoundedIcon}
-        />
+        />}
       </Admin>
     </ThemeProvider>
   );
