@@ -210,6 +210,7 @@ export const TicketEdit = () => {
           source="description"
           multiline
           disabled={!canEdit || record.status === 5 || record.isDeleted}
+          validate={required()}
         />
         {record.folio && (
           <TextInput source="folio" label="Folio" disabled={true} />
@@ -229,6 +230,7 @@ export const TicketEdit = () => {
             { id: "4", name: "Alta" },
             { id: "5", name: "Muy alta" },
           ]}
+          validate={required()}
           disabled={!canEdit || record.status === 5 || record.isDeleted}
         />
         <StatusDropdown />
@@ -257,6 +259,7 @@ export const TicketEdit = () => {
           { id: "3", name: "Pendiente" },
           { id: "4", name: "En Espera" },
         ]}
+        validate={required()}
         disabled={!canEditStatus || record.isDeleted}
       />
     ) : null;
@@ -300,11 +303,13 @@ export const TicketEdit = () => {
           choices={menuChoices}
           disabled={view || record.status === 5 || record.isDeleted}
           onChange={handleClassificationChange}
+          validate={required()}
         />
         <SelectInput
           source="subclassification"
           choices={subChoices}
           disabled={view || record.status === 5 || record.isDeleted}
+          validate={required()}
         />
       </>
     );
