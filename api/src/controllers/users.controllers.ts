@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
 import mongoose from "mongoose";
 import { RequestWithRole } from "../types/ReqWithUserRole";
-import { ConnectionPolicyPage } from "twilio/lib/rest/voice/v1/connectionPolicy";
+//import { ConnectionPolicyPage } from "twilio/lib/rest/voice/v1/connectionPolicy";
 // import { printMessage } from "../helpers/phoneHelpers";
 export const getUsers = async (_req:Request, res:Response) => {
     try {
