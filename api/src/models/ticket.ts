@@ -15,7 +15,7 @@ const TicketSchema = new Schema({
         whyWasDone: String,
         closureTime: Date, // will be null if ticket is not closed (show solved time on datagrid... maybe a cross icon if ticket is not closed)
     },
-    isDeleted: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false }, // shown as a cross icon on datagrid
 });
 
 export default model('Ticket', TicketSchema);

@@ -17,6 +17,7 @@ import {
   useRecordContext,
   required,
   FieldProps,
+  BooleanField,
 } from "react-admin";
 import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
@@ -176,6 +177,9 @@ export const TicketList: React.FC<ListProps> = (props) => {
             source="resolution.closureTime"
             label="Fecha de cierre"
           />
+            {
+              // isDeleted true toggle shows the deleted tickets
+              <BooleanField source="isDeleted" label="Eliminado" />}
           <EditButton />
         </Datagrid>
       )}
