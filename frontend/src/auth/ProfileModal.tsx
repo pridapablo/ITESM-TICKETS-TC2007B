@@ -1,49 +1,56 @@
 // ProfileModal.tsx
-import { FC, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Button } from '@mui/material';
-import { styled } from '@mui/system';
-import { useNotify, useTranslate } from 'react-admin';
+import { FC, useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  DialogActions,
+  Button,
+} from "@mui/material";
+import { styled } from "@mui/system";
+import { useNotify, useTranslate } from "react-admin";
 
 const StyledDialog = styled(Dialog)({
-  '& .MuiDialog-paper': {
-    borderRadius: '10px',
-    padding: '12px',
-    boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.1)'
-  }
+  "& .MuiDialog-paper": {
+    borderRadius: "10px",
+    padding: "12px",
+    boxShadow: "0 4px 20px 0 rgba(0, 0, 0, 0.1)",
+  },
 });
 
 const StyledDialogTitle = styled(DialogTitle)({
-  textAlign: 'center',
-  '& .MuiTypography-root': {
-    fontSize: '24px',
+  textAlign: "center",
+  "& .MuiTypography-root": {
+    fontSize: "24px",
     fontWeight: 500,
-    color: '#333'
-  }
+    color: "#333",
+  },
 });
 
 const StyledDialogContent = styled(DialogContent)({
-  '& .MuiFormControl-root': {
-    marginTop: '15px',
-    width: '360px',
-  }
+  "& .MuiFormControl-root": {
+    marginTop: "15px",
+    width: "360px",
+  },
 });
 
 const StyledDialogActions = styled(DialogActions)({
-  justifyContent: 'flex-end',
-  '& .MuiButton-root': {
-    width: '120px',
-    borderRadius: '5px',
-    boxShadow: '0 2px 4px 0 rgba(0, 0, 0, 0.1)',
-    '&:first-child': {
-      marginRight: '10px'
-    }
-  }
+  justifyContent: "flex-end",
+  "& .MuiButton-root": {
+    width: "120px",
+    borderRadius: "5px",
+    boxShadow: "0 2px 4px 0 rgba(0, 0, 0, 0.1)",
+    "&:first-child": {
+      marginRight: "10px",
+    },
+  },
 });
 
 const StyledTextField = styled(TextField)({
-  '& .MuiInput-root': {
-    borderRadius: '5px',
-  }
+  "& .MuiInput-root": {
+    borderRadius: "5px",
+  },
 });
 
 interface ProfileModalProps {
@@ -52,7 +59,7 @@ interface ProfileModalProps {
 }
 
 const ProfileModal: FC<ProfileModalProps> = ({ open, onClose }) => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
   const notify = useNotify();
 
   const handleSave = () => {
@@ -60,22 +67,33 @@ const ProfileModal: FC<ProfileModalProps> = ({ open, onClose }) => {
       phone: phoneNumber,
     };
 
-    fetch(`${import.meta.env.VITE_JSON_SERVER_URL}/phone/confirm`, {
-      method: 'POST',
+    const options = {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authentication: localStorage.getItem("auth") || "",
       },
       body: JSON.stringify(dataToSend),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-        notify(translate("notifications.successSavingPhone"), { type: 'success' });
+    };
+
+    fetch(`${import.meta.env.VITE_JSON_SERVER_URL}/phone/confirm`, options)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          notify(translate("notifications.errorSavingPhone"), {
+            type: "error",
+          });
+          return;
+        }
+        console.log("Success:", data);
+        notify(translate("notifications.successSavingPhone"), {
+          type: "success",
+        });
         onClose();
       })
       .catch((error) => {
-        notify(translate("notifications.errorSavingPhone"), { type: 'error' });
-        console.error('Error:', error);
+        notify(translate("notifications.errorSavingPhone"), { type: "error" });
+        console.error("Error:", error);
       });
   };
 
@@ -83,22 +101,24 @@ const ProfileModal: FC<ProfileModalProps> = ({ open, onClose }) => {
 
   return (
     <StyledDialog open={open} onClose={onClose}>
-      <StyledDialogTitle>{translate('profileModal.editPhoneNumber')}</StyledDialogTitle>
+      <StyledDialogTitle>
+        {translate("profileModal.editPhoneNumber")}
+      </StyledDialogTitle>
       <StyledDialogContent>
         <StyledTextField
           fullWidth
           variant="outlined"
-          label={translate('profileModal.phoneNumber')}
+          label={translate("profileModal.phoneNumber")}
           value={phoneNumber}
-          onChange={e => setPhoneNumber(e.target.value)}
+          onChange={(e) => setPhoneNumber(e.target.value)}
         />
       </StyledDialogContent>
       <StyledDialogActions>
         <Button onClick={onClose} color="primary">
-          {translate('ra.action.cancel')}
+          {translate("ra.action.cancel")}
         </Button>
         <Button onClick={handleSave} variant="contained" color="primary">
-          {translate('ra.action.save')}
+          {translate("ra.action.save")}
         </Button>
       </StyledDialogActions>
     </StyledDialog>

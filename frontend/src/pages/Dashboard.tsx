@@ -99,7 +99,6 @@ export const Dashboard = () => {
           Authentication: localStorage.getItem("auth") || "",
         },
       };
-      console.log(options);
 
       const res = await fetch(
         `${import.meta.env.VITE_JSON_SERVER_URL}/report`,
@@ -159,8 +158,9 @@ export const Dashboard = () => {
             <div className="flex flex-wrap h-screen overflow-y-auto custom-scrollbar justify-center">
               {isMySuburstVisible && (
                 <div
-                  className={`${isMySuburstExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
+                  className={`${
+                    isMySuburstExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
                 >
                   <h2 className="text-xl text-center">
                     {" "}
@@ -177,19 +177,20 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMySuburstExpanded(!isMySuburstExpanded)}
                   >
-                    <span>{isMySuburstExpanded ?
-                      translate("ra.action.shrink")
-                      :
-                      translate("ra.action.expand")
-                    }</span>
+                    <span>
+                      {isMySuburstExpanded
+                        ? translate("ra.action.shrink")
+                        : translate("ra.action.expand")}
+                    </span>
                   </Button>
                 </div>
               )}
 
               {isMyPieVisible && (
                 <div
-                  className={`${isMyPieExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
+                  className={`${
+                    isMyPieExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
                 >
                   <h2 className="text-xl text-center">
                     {translate("resources.dashboard.ticketCreated")}
@@ -205,10 +206,10 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyPieExpanded(!isMyPieExpanded)}
                   >
-                    <span>{isMyPieExpanded ?
-                      translate("ra.action.shrink")
-                      :
-                      translate("ra.action.expand")}
+                    <span>
+                      {isMyPieExpanded
+                        ? translate("ra.action.shrink")
+                        : translate("ra.action.expand")}
                     </span>
                   </Button>
                 </div>
@@ -216,8 +217,9 @@ export const Dashboard = () => {
 
               {isMyBarVisible && (
                 <div
-                  className={`${isMyBarExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
+                  className={`${
+                    isMyBarExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
                 >
                   <h2 className="text-xl text-center">
                     {translate("resources.dashboard.ticketByRoom")}
@@ -233,10 +235,10 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyBarExpanded(!isMyBarExpanded)}
                   >
-                    <span>{isMyBarExpanded ?
-                      translate("ra.action.shrink")
-                      :
-                      translate("ra.action.expand")}
+                    <span>
+                      {isMyBarExpanded
+                        ? translate("ra.action.shrink")
+                        : translate("ra.action.expand")}
                     </span>
                   </Button>
                 </div>
@@ -244,10 +246,14 @@ export const Dashboard = () => {
 
               {isMyBoxVisible && (
                 <div
-                  className={`${isMyBoxExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
+                  className={`${
+                    isMyBoxExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
                 >
-                  <h2 className="text-xl text-center"> {translate("resources.dashboard.inventoryByRoom")}</h2>
+                  <h2 className="text-xl text-center">
+                    {" "}
+                    {translate("resources.dashboard.inventoryByRoom")}
+                  </h2>
                   <MyResponsiveTreeMap
                     data={
                       weekView
@@ -259,10 +265,10 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyBoxExpanded(!isMyBoxExpanded)}
                   >
-                    <span>{isMyBoxExpanded ?
-                      translate("ra.action.shrink")
-                      :
-                      translate("ra.action.expand")}
+                    <span>
+                      {isMyBoxExpanded
+                        ? translate("ra.action.shrink")
+                        : translate("ra.action.expand")}
                     </span>
                   </Button>
                 </div>
@@ -270,8 +276,9 @@ export const Dashboard = () => {
 
               {isMyDotVisible && (
                 <div
-                  className={`${isMyDotExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
+                  className={`${
+                    isMyDotExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
                 >
                   <h2 className="text-xl text-center">
                     {translate("resources.dashboard.avgResolutionTime")}
@@ -293,11 +300,9 @@ export const Dashboard = () => {
                     onClick={() => setMyDotExpanded(!isMyDotExpanded)}
                   >
                     <span>
-                      {isMyDotExpanded ?
-                        translate("ra.action.shrink")
-                        :
-                        translate("ra.action.expand")
-                      }
+                      {isMyDotExpanded
+                        ? translate("ra.action.shrink")
+                        : translate("ra.action.expand")}
                     </span>
                   </Button>
                 </div>
