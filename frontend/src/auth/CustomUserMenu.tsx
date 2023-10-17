@@ -1,17 +1,18 @@
 // CustomUserMenu.tsx
 import React, { FC, useState } from 'react';
-import { Logout, MenuItemLink, UserMenu, UserMenuProps } from 'react-admin';
+import { Logout, MenuItemLink, UserMenu, UserMenuProps, useTranslate } from 'react-admin';
 import ProfileIcon from '@mui/icons-material/Person';
 import ProfileModal from './ProfileModal';
 
 const CustomUserMenu: FC<UserMenuProps> = (props) => {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const translate = useTranslate();
 
     return (
     <UserMenu {...props}>
         <MenuItemLink
             to="#"
-            primaryText="Mi perfil"
+            primaryText={translate('resources.profile')}
             leftIcon={<ProfileIcon />}
             onClick={() => setIsProfileModalOpen(true)}
         />

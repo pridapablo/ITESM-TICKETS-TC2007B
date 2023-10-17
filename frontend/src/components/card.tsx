@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import { useTranslate } from "react-admin";
 import { Identifier } from "react-admin";
 
 interface TicketCardsProps {
@@ -23,14 +24,15 @@ export default function TicketCards(props: TicketCardsProps) {
   const role = localStorage.getItem("role");
   const navigate = useNavigate();
   const theme = useTheme();
+  const translate = useTranslate();
 
   const prioridades: { [key: number]: string } = {
-    0: "Sin prioridad",
-    1: "Muy baja",
-    2: "Baja",
-    3: "Media",
-    4: "Alta",
-    5: "Muy alta",
+    0: translate("prioritys.noPriority"),
+    1: translate("prioritys.veryLow"),
+    2: translate("prioritys.low"),
+    3: translate("prioritys.medium"),
+    4: translate("prioritys.high"),
+    5: translate("prioritys.veryHigh"),
   };
 
   const prioridadesColor: { [key: number]: string } = {
@@ -69,37 +71,42 @@ export default function TicketCards(props: TicketCardsProps) {
     ? props.description
     : props.description?.substring(0, 30) + "...";
 
+  function capitalizeWords(str: string) {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
   return (
     <div className="flex text-center">
       <div className="p-4 sm:w-3/3 lg:w-5/5 w-full hover:scale-105 duration-500">
         <div
-          className={`flex items-center justify-between p-4 rounded-lg ${
-            theme.palette.mode == "dark" ? "bg-black" : "bg-white"
-          } shadow-neutral-600 shadow-md`}
+          className={`flex items-center justify-between p-4 rounded-lg ${theme.palette.mode == "dark"
+              ? "bg-black"
+              : "bg-white border-2 border-gray-200"
+            } shadow-neutral-600 shadow-md`}
         >
           <div
-            className={`border ${
-              theme.palette.mode == "dark" ? "border-black" : "border-white"
-            } w-[65%]`}
+            className={`border ${theme.palette.mode == "dark" ? "border-black" : "border-white"
+              } w-[65%]`}
           >
             <h2
-              className={`${
-                theme.palette.mode == "dark" ? "text-white" : "text-black"
-              } text-lg font-bold`}
+              className={`${theme.palette.mode == "dark" ? "text-white" : "text-black"
+                } text-lg font-bold`}
             >
-              {ticketID}
+              {capitalizeWords(props.creator.username)}
             </h2>
             <h3
-              className={`mt-2 text-xl font-bold ${
-                theme.palette.mode == "dark" ? "text-white" : "text-black"
-              }`}
+              className={`mt-2 text-xl font-bold ${theme.palette.mode == "dark" ? "text-white" : "text-black"
+                }`}
             >
               {props.classification}
             </h3>
             <h3
-              className={`text-base font-bold ${
-                theme.palette.mode == "dark" ? "text-white" : "text-black"
-              }`}
+              className={`text-base font-bold ${theme.palette.mode == "dark" ? "text-white" : "text-black"
+                }`}
             >
               {props.subclassification}
             </h3>
@@ -123,7 +130,9 @@ export default function TicketCards(props: TicketCardsProps) {
                 onClick={handleCardClick}
                 className="text-sm mt-2 px-4 py-2 bg-green-600 text-white rounded-lg tracking-wider hover:bg-green-800 outline-none"
               >
-                {role == "user" ? "Editar" : "Resolver"}
+                {role == "user"
+                  ? translate("ra.action.edit")
+                  : translate("ra.action.resolve")}
               </button>
             )}
           </div>

@@ -1,17 +1,84 @@
 import { TranslationMessages } from "react-admin";
 
 export const en: TranslationMessages = {
+  pos: {
+    dashboard: {
+      today: "Today",
+      date_range: "Date range",
+      week: "Week",
+      all_time: "Complete record",
+    },
+  },
+  profileModal: {
+    phoneNumber: "Phone number",
+    editPhoneNumber: "Edit phone number",
+  },
+  prioritys: {
+    noPriority: 'No priority',
+    veryLow: 'Very low',
+    low: 'Low',
+    medium: 'Medium',
+    high: 'High',
+    veryHigh: 'Very high',
+  },
+  notifications: {
+    successSavingPhone: "Phone number saved successfully!",
+    errorSavingPhone: "Error saving phone number. Please try again later.",
+  },
   resources: {
     posts: 'Posts',
     users: 'Users',
     albums: 'Albums',
     tickets: 'Tickets',
+    profile: 'My Profile',
+    dashboard: {
+      name: "Tickets report",
+      mostReportedCategories: "Most reported categories",
+      ticketCreated: "Tickets created",
+      ticketByRoom: "Tickets by classroom",
+      inventoryByRoom: "Inventory by classroom",
+      avgResolutionTime: "Average resolution time",
+    },
+    ticket: {
+      fields: {
+        id: 'Id',
+        classification: 'Classification',
+        subclassification: 'Subclassification',
+        description: 'Description',
+        priority: 'Priority',
+        closureTime: 'Closure time',
+        isSolved: 'Was solved',
+        whatWasDone: 'What was done?',
+        howWasDone: 'How was it done?',
+        whyWasDone: 'Why was it done?',
+        hideDeleted: 'Hide deleted',
+        sortByPriority: 'Sort by priority',
+        status: 'Status',
+        isDeleted: 'Is deleted',
+        folio: 'Folio',
+        responsible: 'Responsible',
+        topic: 'Topic',
+        statuses: "New,Open,Pending,Waiting,Resolved,Unknowed",
+        priorities: "No priority,Very low,Low,Medium,High,Very high",
+        ticketDeleted: "Ticket deleted. Last status:",
+      },
+    },
+    user: {
+      fields: {
+        phone: 'Phone',
+        role: 'Role',
+        username: 'Username',
+        id: 'Id',
+        password: 'Password',
+      },
+    },
   },
   login: {
     username: 'Username',
     password: 'Password',
     loginButton: 'Login',
     loginError: 'Error during login process',
+    title: 'Login',
   },
   ra: {
     action: {
@@ -33,6 +100,7 @@ export const en: TranslationMessages = {
       refresh: "Refresh",
       remove_filter: "Remove this filter",
       remove_all_filters: "Remove all filters",
+      resolve: "Resolve",
       remove: "Remove",
       save: "Save",
       search: "Search",
@@ -53,6 +121,8 @@ export const en: TranslationMessages = {
       toggle_theme: "Toggle Theme",
       select_columns: "Columns",
       update_application: "Reload Application",
+      shrink: "Reduce",
+      expand_all: "Enlarge",
     },
     boolean: {
       true: "Yes",

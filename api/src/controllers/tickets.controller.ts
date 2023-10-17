@@ -8,16 +8,40 @@ import { RequestWithRole } from "../types/ReqWithUserRole";
 
 export const getTickets = async (req: RequestWithRole, res: Response) => {
   try {
-    let query: any = {
-      interactionType: "create",
-    };
-
-    let sortKey = "interactionDate";
+    let query: any[] = [
+      {
+        $match: {
+          interactionType: "create",
+        },
+      },
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "ticketID",
+          foreignField: "_id",
+          as: "ticket",
+        }
+      },
+      {
+        $unwind: "$ticket",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userID",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $unwind: "$user",
+      },
+    ];
 
     // Verificar si el parámetro 'filter' está presente y es 'true'
     if (req.query.isDeleted === "true") {
       console.log("Filtering tickets");
-      query["ticketID.isDeleted"] = { $ne: true }; // Tickets where isDeleted is not true or doesn't exist
+      query.push({ $match: { "ticket.isDeleted": { $ne: true } } });
     }
 
     // Check if the role is 'user'
@@ -28,51 +52,46 @@ export const getTickets = async (req: RequestWithRole, res: Response) => {
         .select("ticketID");
       const ticketIds = userTickets.map((t) => t.ticketID);
       // Add to query
-      query.ticketID = { $in: ticketIds };
+      query[0].$match["ticketID"] = { $in: ticketIds };
     }
 
-    // Buscar los TicketUser y poblar los datos del Ticket
-    const ticketUsers = await ticketUser
-      .find(query)
-      .populate([
-        {
-          path: "ticketID",
-        },
-        {
-          path: "userID",
-          select: "username _id",
-        },
-      ])
-      .sort({ [sortKey]: -1 });
+    // Ordenar por prioridad de ticket si se especifica en los parámetros de consulta
+    let sortCriteria: any = {};
 
-    let validTicketUsers = ticketUsers.filter(
-      (tu: any) => tu.ticketID !== null
-    );
-
-    // Si req.query.sortByPriority es true, ordenar por priority después de recuperar los datos
     if (req.query.sortByPriority === "true") {
       console.log("Sorting by priority");
-      validTicketUsers.sort(
-        (a: any, b: any) => b.ticketID.priority - a.ticketID.priority
-      );
+      sortCriteria["ticket.priority"] = -1; // -1 para orden descendente
+    } else {
+      // Si no se desea ordenar por prioridad, entonces ordenar por interactionDate
+      sortCriteria["interactionDate"] = -1;
     }
 
-    // Convert _id to id
-    const modifiedTickets = validTicketUsers.map((ticketUser: any) => {
-      const { _id, ...otherProps } = ticketUser.ticketID.toObject();
-      const userData = ticketUser.userID ? ticketUser.userID.toObject() : {};
+    query.push({ $sort: sortCriteria });
 
+    console.log("Query", query);
+
+    // Ejecutar la agregación
+    const ticketUsers = await ticketUser.aggregate(query).exec();
+
+    // Convert _id to id
+    const modifiedTickets = ticketUsers.map((ticketUser: any) => {
+      const { _id, ...otherProps } = ticketUser.ticket;
       return {
         id: _id.toString(),
         ...otherProps,
         createdOn: ticketUser.interactionDate,
-        creator: userData,
+        creator: {
+          _id: ticketUser.user._id,
+          username: ticketUser.user.username,
+        },
       };
     });
 
     // Set the X-Total-Count header
     res.setHeader("X-Total-Count", modifiedTickets.length);
 
+    console.log("Tickets", modifiedTickets);
+    console.log("Query", req.query);
     return res.status(200).json(modifiedTickets);
   } catch (error: any) {
     return res.status(500).json({ message: error.message });
@@ -147,11 +166,10 @@ export const deleteTicket = async (req: RequestWithRole, res: Response) => {
     const userTickets = await ticketUser
       .find({ userID: userID, interactionType: "create" })
       .select("ticketID");
-    const ticketIds = userTickets.map((t) => t?.ticketID?.toString()); // Convert to string for comparison
+    const ticketIds = userTickets.map((t) => t?.ticketID?.toString());
 
     // Check if the requested ticket ID was created by the user
     if (!ticketIds.includes(id.toString())) {
-      // Convert to string for comparison
       return res
         .status(403)
         .json({ message: "Forbidden: You did not create this ticket." });
@@ -193,7 +211,7 @@ export const deleteTicket = async (req: RequestWithRole, res: Response) => {
 
   // Create a new object with the desired structure
   const responseObj = {
-    id: ticketUpdateResult._id.toString(), // Convert to string for consistency
+    id: ticketUpdateResult._id.toString(),
     ...ticketUpdateResult.toObject(),
   };
   return res.status(200).json(responseObj);
@@ -283,7 +301,6 @@ export const createTicket = async (req: RequestWithRole, res: Response) => {
 export const updateTicket = async (req: RequestWithRole, res: Response) => {
   const { id } = req.params;
   const userID = req.userID;
-  console.log("body", req.body);
   const {
     classification,
     subclassification,
@@ -296,12 +313,10 @@ export const updateTicket = async (req: RequestWithRole, res: Response) => {
   // Check if the ticket is deleted
   const ticketData = await ticket.findById(id);
   if (ticketData && ticketData.isDeleted) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "Este ticket ha sido eliminado permanentemente y no puede ser modificado",
-      });
+    return res.status(400).json({
+      message:
+        "Este ticket ha sido eliminado permanentemente y no puede ser modificado",
+    });
   }
 
   if (resolution && resolution.closureTime) {

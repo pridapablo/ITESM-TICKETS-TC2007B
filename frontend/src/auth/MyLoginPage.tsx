@@ -105,25 +105,27 @@ const MyLoginPage: FC = () => {
 
     const [randImage, setRandImage] = useState('')
 
-    const imageArr = 
-    ['https://images.unsplash.com/photo-1534312663388-244b6be22824?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2874&q=80','https://images.unsplash.com/photo-1512813389649-acb9131ced20?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80','https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80','https://images.unsplash.com/photo-1521216774850-01bc1c5fe0da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80', 'https://images.unsplash.com/photo-1547995886-6dc09384c6e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2826&q=80']
+    const imageArr =
+        ['https://images.unsplash.com/photo-1534312663388-244b6be22824?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2874&q=80', 'https://images.unsplash.com/photo-1512813389649-acb9131ced20?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80', 'https://images.unsplash.com/photo-1585464231875-d9ef1f5ad396?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80', 'https://images.unsplash.com/photo-1521216774850-01bc1c5fe0da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2940&q=80', 'https://images.unsplash.com/photo-1547995886-6dc09384c6e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2826&q=80']
 
-    
+
     React.useEffect(() => {
         const rand = Math.floor(Math.random() * imageArr.length);
         setRandImage(imageArr[rand])
     }
-    , [])
+        , [])
 
     return (
         <div className={`h-screen font-sans bg-cover`} style={{ backgroundImage: `url('${randImage}')` }}>
+
+
             <div className="container mx-auto h-full flex flex-1 justify-center items-center">
                 <SimpleForm onSubmit={handleSubmit} toolbar={false}>
                     <div className="w-full max-w-lg ">
                         <div className="leading-loose">
-                            <div className={`max-w-sm m-4 p-10 ${theme.palette.mode == 'dark'? 'bg-black': 'bg-white'} bg-opacity-80 rounded shadow-xl`}>
-                                <img src={logo} alt="logo" className="h-24 mx-auto mb-4"/>
-                                <p className="text-white text-center text-lg font-bold">Iniciar Sesion</p>
+                            <div className={`max-w-sm m-4 p-10 ${theme.palette.mode == 'dark' ? 'bg-black' : 'bg-white'} bg-opacity-80 rounded shadow-xl`}>
+                                <img src={logo} alt="logo" className="h-24 mx-auto mb-4" />
+                                <p className="text-white text-center text-lg font-bold mb-2">{translate('login.title')}</p>
                                 <div className="">
                                     <TextInput
                                         label={translate('login.username')}
@@ -136,7 +138,7 @@ const MyLoginPage: FC = () => {
                                     />
                                 </div>
                                 {showPassword ? (
-                                    <motion.div 
+                                    <motion.div
                                         className="mt-2"
                                         animate={{
                                             y: [-10, 0],
@@ -159,7 +161,7 @@ const MyLoginPage: FC = () => {
                                     <></>
                                 )}
 
-                                <div className="mt-4 items-center flex justify-between">
+                                <div className="mt-4 items-center flex justify-center">
                                     <Button
                                         type="submit"
                                         color="primary"

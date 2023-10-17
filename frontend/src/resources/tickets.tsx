@@ -15,6 +15,8 @@ import {
   ListProps,
   WithListContext,
   useRecordContext,
+  useTranslate,
+  useListContext,
   required,
   FieldProps,
   BooleanField,
@@ -23,6 +25,7 @@ import { useSuccessHandler } from "../hooks/successHandlers";
 import TicketCards from "../components/card";
 import React, { useEffect, useState } from "react";
 import ToggleButtons from "../components/toggleButton";
+import { Chip } from '@mui/material';
 
 const menu = [
   "Servicios",
@@ -89,10 +92,47 @@ interface TicketRecord {
 
 const menuChoices = menu.map((item) => ({ id: item, name: item }));
 
+interface QuickFilterProps {
+  label: string;
+  source: string;
+  defaultValue: any;
+}
+
+interface FilterValues {
+  [key: string]: string | number | boolean;
+}
+
+const QuickFilter: React.FC<QuickFilterProps> = ({ label, source, defaultValue }) => {
+  const translate = useTranslate();
+  const { filterValues, setFilters } = useListContext();
+
+  const handleClick = () => {
+    const newFilterValue = filterValues[source] ? false : true;
+
+    setFilters(
+      { ...filterValues, [source]: newFilterValue },
+      { ...filterValues, [source]: true }
+    );
+  };
+
+
+  const isActive = filterValues[source] === defaultValue;
+
+  return (
+    <Chip
+      sx={{ marginBottom: 1 }}
+      label={translate(label)}
+      onClick={handleClick}
+      color={isActive ? 'primary' : 'default'}
+    />
+  );
+};
+
 export const TicketList: React.FC<ListProps> = (props) => {
   const PriorityField: React.FC<FieldProps<TicketRecord>> = (props) => {
     const record = useRecordContext(props);
-    const priorities = ["Muy baja", "Baja", "Media", "Alta", "Muy alta"];
+    const translate = useTranslate();
+    const priorities = translate('resources.ticket.fields.priorities').split(',');
     return record ? (
       <TextField
         {...props}
@@ -106,7 +146,8 @@ export const TicketList: React.FC<ListProps> = (props) => {
 
   const StatusField: React.FC<FieldProps<TicketRecord>> = (props) => {
     const record = useRecordContext(props);
-    const statuses = ["Nuevo", "Abierto", "Pendiente", "En Espera", "Resuelto"];
+    const translate = useTranslate();
+    const statuses = translate('resources.ticket.fields.statuses').split(',');
     return record ? (
       <TextField
         {...props}
@@ -133,22 +174,16 @@ export const TicketList: React.FC<ListProps> = (props) => {
     setIsList(false); // Toggle the isList state when the button is clicked
   };
 
+  const translate = useTranslate();
+
   return (
     <List
       {...props}
       filterDefaultValues={{ isDeleted: true }}
       filters={
         <Filter>
-          <BooleanInput
-            label="Ocultar eliminados"
-            source="isDeleted"
-            alwaysOn
-          />
-          <BooleanInput
-            label="Ordenar por prioridad"
-            source="sortByPriority"
-            alwaysOn
-          />
+          <QuickFilter source="isDeleted" label={translate('resources.ticket.fields.hideDeleted')} defaultValue={true} />
+          <QuickFilter source="sortByPriority" label={translate('resources.ticket.fields.sortByPriority')} defaultValue={true} />
         </Filter>
       }
     >
@@ -168,16 +203,16 @@ export const TicketList: React.FC<ListProps> = (props) => {
         />
       ) : (
         <Datagrid>
-          <TextField source="id" label="ID" />
-          <TextField source="classification" label="Clasificación" />
-          <TextField source="subclassification" label="Subclasificación" />
-          <PriorityField source="priority" label="Prioridad" />
-          <StatusField source="status" label="Estatus" />
+          <TextField source="id" label={translate('resources.ticket.fields.id')} />
+          <TextField source="classification" label={translate('resources.ticket.fields.classification')} />
+          <TextField source="subclassification" label={translate('resources.ticket.fields.subclassification')} />
+          <PriorityField source="priority" label={translate('resources.ticket.fields.priority')} />
+          <StatusField source="status" label={translate('resources.ticket.fields.status')} />
           <ClosureTimeField
             source="resolution.closureTime"
-            label="Fecha de cierre"
+            label={translate('resources.ticket.fields.closureTime')}
           />
-          <BooleanField source="isDeleted" label="Eliminado" />
+          <BooleanField source="isDeleted" label={translate('resources.ticket.fields.isDeleted')} />
           <EditButton />
         </Datagrid>
       )}
@@ -196,38 +231,39 @@ export const TicketEdit = () => {
     showText = false,
   }) => {
     const record = useRecordContext();
+    const translate = useTranslate();
+    const statuses = translate('resources.ticket.fields.statuses').split(',');
 
     const getStatusText = (status: Number) => {
       switch (status) {
         case 1:
-          return "Nuevo";
+          return statuses[0];
         case 2:
-          return "Abierto";
+          return statuses[1];
         case 3:
-          return "Pendiente";
+          return statuses[2];
         case 4:
-          return "En Espera";
+          return statuses[3];
         case 5:
-          return "Resuelto";
+          return statuses[4];
         default:
-          return "Desconocido"; // You might want to handle unknown statuses differently.
+          return statuses[5];
       }
     };
 
     const statusText = record.isDeleted
-      ? `Ticket Eliminado. Último estatus: ${getStatusText(record.status)}`
+      ? `${translate('resources.ticket.fields.ticketDeleted')} ${getStatusText(record.status)}`
       : getStatusText(record.status);
 
     return (
       <div className="status-container flex flex-col items-center p-4">
         <div
-          className={`status-indicator ${
-            record.isDeleted
-              ? "bg-red-500"
-              : record.status === 5
+          className={`status-indicator ${record.isDeleted
+            ? "bg-red-500"
+            : record.status === 5
               ? "bg-green-500"
               : "bg-gray-500"
-          } p-4 rounded-full mb-4 shadow-lg transition-all duration-300`}
+            } p-4 rounded-full mb-4 shadow-lg transition-all duration-300`}
         />
         {showText && (
           <span className="status-text text-sm font-bold mb-2">
@@ -250,6 +286,8 @@ export const TicketEdit = () => {
       role === "user" ||
       (["admin", "agent"].includes(role) && userCreatedThisTicket);
 
+    const translate = useTranslate();
+
     return (
       <div className="flex flex-row justify-between gap-6">
         <div className="flex flex-col">
@@ -263,17 +301,25 @@ export const TicketEdit = () => {
             validate={required()}
           />
           {record.folio && (
-            <TextInput source="folio" label="Folio" disabled={true} />
+            <TextInput 
+              source="folio" 
+              label={translate('resources.ticket.fields.folio')}
+              disabled={true} 
+            />
           )}
           {record.responsible && (
             <TextInput
               source="responsible"
-              label="Responsable"
+              label={translate('resources.ticket.fields.responsible')}
               disabled={true}
             />
           )}
           {record.topic && (
-            <TextInput source="topic" label="Asunto" disabled={true} />
+            <TextInput 
+              source="topic" 
+              label={translate('resources.ticket.fields.topic')}
+              disabled={true} 
+            />
           )}
           <SelectInput
             source="priority"
@@ -291,8 +337,8 @@ export const TicketEdit = () => {
         <div className="flex flex-col">
           <TicketCards {...record} isView />
           {!["admin", "agent"].includes(role) ||
-          record.status === 5 ||
-          record.isDeleted ? (
+            record.status === 5 ||
+            record.isDeleted ? (
             <StatusIndicator showText />
           ) : (
             <div className="status-container flex flex-row items-center">
@@ -317,14 +363,19 @@ export const TicketEdit = () => {
       ["admin", "agent"].includes(role) ||
       (role === "user" && userCreatedThisTicket);
 
+      const translation = useTranslate();
+
+      const statuses = translation('resources.ticket.fields.statuses').split(',');
+
     return record.status !== 5 ? (
       <SelectInput
         source="status"
         choices={[
-          { id: "1", name: "Nuevo" },
-          { id: "2", name: "Abierto" },
-          { id: "3", name: "Pendiente" },
-          { id: "4", name: "En Espera" },
+          { id: "1", name: statuses[0] },
+          { id: "2", name: statuses[1] },
+          { id: "3", name: statuses[2] },
+          { id: "4", name: statuses[3] },
+          { id: "5", name: statuses[4] },
         ]}
         validate={required()}
         disabled={!canEditStatus || record.isDeleted}
@@ -415,11 +466,13 @@ export const TicketEdit = () => {
       }
     };
 
+    const translate = useTranslate();
+
     return (
       <>
         <BooleanInput
           source="isSolved"
-          label="¿Está resuelto?"
+          label={translate('resources.ticket.fields.isSolved')}
           onChange={handleIsSolvedChange}
           value={isSolved}
           // Allow editing only if canEdit prop is true and the record status is not 5.
@@ -430,7 +483,7 @@ export const TicketEdit = () => {
           <>
             <DateInput
               source="resolution.closureTime"
-              label="Closure Time"
+              label={translate('resources.ticket.fields.closureTime')}
               // Allow editing only if canEdit prop is true and the record status is not 5.
               disabled={
                 !props.canEdit || record.status === 5 || record.isDeleted
@@ -438,21 +491,21 @@ export const TicketEdit = () => {
             />
             <TextInput
               source="resolution.whatWasDone"
-              label="Qué se hizo"
+              label={translate('resources.ticket.fields.whatWasDone')}
               disabled={
                 !props.canEdit || record.status === 5 || record.isDeleted
               }
             />
             <TextInput
               source="resolution.howWasDone"
-              label="Cómo se hizo"
+              label={translate('resources.ticket.fields.howWasDone')}
               disabled={
                 !props.canEdit || record.status === 5 || record.isDeleted
               }
             />
             <TextInput
               source="resolution.whyWasDone"
-              label="Por qué se hizo"
+              label={translate('resources.ticket.fields.whyWasDone')}
               disabled={
                 !props.canEdit || record.status === 5 || record.isDeleted
               }
@@ -486,33 +539,35 @@ export const TicketCreate = () => {
     );
   };
 
+  const translate = useTranslate();
+
   return (
     <Create mutationOptions={{ onSuccess }}>
       <SimpleForm warnWhenUnsavedChanges>
         <SelectInput
           source="classification"
-          label="Clasificación"
+          label={translate('resources.ticket.fields.classification')}
           choices={menuChoices}
           onChange={handleClassificationChange}
           validate={required()}
         />
         <SelectInput
           source="subclassification"
-          label="Subclasificación"
+          label={translate('resources.ticket.fields.subclassification')}
           choices={typeChoices}
           validate={required()}
         />
 
         <TextInput
           source="description"
-          label="Descripción"
+          label={translate('resources.ticket.fields.description')}
           multiline
           validate={required()}
         />
         <SelectInput
           source="priority"
           validate={required()}
-          label="Prioridad"
+          label={translate('resources.ticket.fields.priority')}
           choices={[
             { id: "1", name: "Muy baja" },
             { id: "2", name: "Baja" },
@@ -525,7 +580,7 @@ export const TicketCreate = () => {
         <TextInput source="folio" label="Folio" />
         <SelectInput
           source="responsible"
-          label="Responsable"
+          label={translate('resources.ticket.fields.responsible')}
           choices={[
             { id: "Presidenta", name: "Presidenta" },
             {
@@ -576,7 +631,7 @@ export const TicketCreate = () => {
         />
         <SelectInput
           source="topic"
-          label="Asunto"
+          label={translate('resources.ticket.fields.topic')}
           choices={[
             { id: "Mobiliario", name: "Mobiliario" },
             { id: "Digital", name: "Digital" },

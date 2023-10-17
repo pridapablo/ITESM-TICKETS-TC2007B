@@ -10,7 +10,7 @@ import { MyResponsiveBar } from "../components/barGraph";
 import IndeterminateCheckbox from "../components/checkBox";
 import { MyResponsiveTreeMap } from "../components/boxGraph";
 import { MyResponsiveScatterPlot } from "../components/dotGraph";
-import { Button } from "react-admin";
+import { Button, useTranslate } from "react-admin";
 import { useTheme } from "@mui/material/styles";
 import ToggleButtonDashboard from "../components/toggleDashboard";
 
@@ -113,11 +113,13 @@ export const Dashboard = () => {
     fetchData();
   }, []);
 
+  const translate = useTranslate();
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title="Reporte de tickets" />
+          <CardHeader title={translate("resources.dashboard.name")} />
           <ToggleButtonDashboard
             handleClick1={toggleWeekView}
             handleClick2={toggleAllTimeView}
@@ -157,13 +159,12 @@ export const Dashboard = () => {
             <div className="flex flex-wrap h-screen overflow-y-auto custom-scrollbar justify-center">
               {isMySuburstVisible && (
                 <div
-                  className={`${
-                    isMySuburstExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
+                  className={`${isMySuburstExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
                 >
                   <h2 className="text-xl text-center">
                     {" "}
-                    Categorias más utilizadas
+                    {translate("resources.dashboard.mostReportedCategories")}
                   </h2>
                   <MyResponsiveSunburst
                     data={
@@ -176,18 +177,23 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMySuburstExpanded(!isMySuburstExpanded)}
                   >
-                    <span>{isMySuburstExpanded ? "Shrink" : "Expand"}</span>
+                    <span>{isMySuburstExpanded ?
+                      translate("ra.action.shrink")
+                      :
+                      translate("ra.action.expand")
+                    }</span>
                   </Button>
                 </div>
               )}
 
               {isMyPieVisible && (
                 <div
-                  className={`${
-                    isMyPieExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
+                  className={`${isMyPieExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl`}
                 >
-                  <h2 className="text-xl text-center"> Tickets creados</h2>
+                  <h2 className="text-xl text-center">
+                    {translate("resources.dashboard.ticketCreated")}
+                  </h2>
                   <MyResponsivePie
                     data={
                       weekView
@@ -199,18 +205,23 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyPieExpanded(!isMyPieExpanded)}
                   >
-                    <span>{isMyPieExpanded ? "Shrink" : "Expand"}</span>
+                    <span>{isMyPieExpanded ?
+                      translate("ra.action.shrink")
+                      :
+                      translate("ra.action.expand")}
+                    </span>
                   </Button>
                 </div>
               )}
 
               {isMyBarVisible && (
                 <div
-                  className={`${
-                    isMyBarExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
+                  className={`${isMyBarExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
                 >
-                  <h2 className="text-xl text-center"> Tickets por aula</h2>
+                  <h2 className="text-xl text-center">
+                    {translate("resources.dashboard.ticketByRoom")}
+                  </h2>
                   <MyResponsiveBar
                     data={
                       weekView
@@ -222,18 +233,21 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyBarExpanded(!isMyBarExpanded)}
                   >
-                    <span>{isMyBarExpanded ? "Shrink" : "Expand"}</span>
+                    <span>{isMyBarExpanded ?
+                      translate("ra.action.shrink")
+                      :
+                      translate("ra.action.expand")}
+                    </span>
                   </Button>
                 </div>
               )}
 
               {isMyBoxVisible && (
                 <div
-                  className={`${
-                    isMyBoxExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
+                  className={`${isMyBoxExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
                 >
-                  <h2 className="text-xl text-center"> Inventario por aula</h2>
+                  <h2 className="text-xl text-center"> {translate("resources.dashboard.inventoryByRoom")}</h2>
                   <MyResponsiveTreeMap
                     data={
                       weekView
@@ -245,19 +259,22 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyBoxExpanded(!isMyBoxExpanded)}
                   >
-                    <span>{isMyBoxExpanded ? "Shrink" : "Expand"}</span>
+                    <span>{isMyBoxExpanded ?
+                      translate("ra.action.shrink")
+                      :
+                      translate("ra.action.expand")}
+                    </span>
                   </Button>
                 </div>
               )}
 
               {isMyDotVisible && (
                 <div
-                  className={`${
-                    isMyDotExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
-                  } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
+                  className={`${isMyDotExpanded ? "h-[85%] w-[85%]" : "h-[50%] w-[45%]"
+                    } ${colorThemeBG} shadow-lg my-5 shadow-neutral-600 p-10 mx-5 rounded-xl `}
                 >
                   <h2 className="text-xl text-center">
-                    Tiempo en solucionar problemas
+                    {translate("resources.dashboard.avgResolutionTime")}
                   </h2>
                   <MyResponsiveScatterPlot
                     data={
@@ -275,7 +292,13 @@ export const Dashboard = () => {
                     variant="contained"
                     onClick={() => setMyDotExpanded(!isMyDotExpanded)}
                   >
-                    <span>{isMyDotExpanded ? "Shrink" : "Expand"}</span>
+                    <span>
+                      {isMyDotExpanded ?
+                        translate("ra.action.shrink")
+                        :
+                        translate("ra.action.expand")
+                      }
+                    </span>
                   </Button>
                 </div>
               )}
