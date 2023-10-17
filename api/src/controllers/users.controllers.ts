@@ -3,7 +3,6 @@ import LoggerUser from '../models/LoggerUser'
 import {Request,Response} from 'express'
 import jwt from 'jsonwebtoken'
 import {SECRET} from '../const'
-import mongoose from "mongoose";
 import { RequestWithRole } from "../types/ReqWithUserRole";
 //import { ConnectionPolicyPage } from "twilio/lib/rest/voice/v1/connectionPolicy";
 // import { printMessage } from "../helpers/phoneHelpers";
@@ -51,7 +50,6 @@ export const getUser = async (req:Request, res:Response) => {
 export const createUser = async (req: RequestWithRole, res: Response) => {
     const { username, pwdHash, role, phone} = req.body;
     const uLogger = req.userID;
-    console.log(uLogger); // TODO: CHANGE UNDEFINED VALUE
 
     if (!username || !pwdHash || !role) {
         return res.status(400).json({ message: 'Faltan datos' });
@@ -75,9 +73,6 @@ export const createUser = async (req: RequestWithRole, res: Response) => {
         action:"Created User"
     })
 
-    console.log(` result : \n ${result}`)
-    console.log(` Ulog : \n ${uLog}`)
-
     await uLog.save();
     return res.status(201).json({ message: result });
     } catch (error:any) {
@@ -87,16 +82,12 @@ export const createUser = async (req: RequestWithRole, res: Response) => {
 
 export const updateUser = async (req:RequestWithRole, res:Response) => {
     const filter  = req.params.id;
-    const { phone,userID } = req.body;
+    const { phone} = req.body;
     const uLogger = req.userID;
 
     if (!uLogger) {
         return res.status(400).json({ message: 'Faltan datos' });
     } 
-
-    if (!filter || !mongoose.Types.ObjectId.isValid(userID)) {
-        return res.status(400).json({ message: 'Faltan datos' });
-    }
 
     try {
         const userUpdatedResult = await User.findByIdAndUpdate(filter,req.body,{new:true});
@@ -115,7 +106,6 @@ export const updateUser = async (req:RequestWithRole, res:Response) => {
             return res.status(404).json({message:"User Not Found"});
         }
 
-        console.log(` Ulog : \n ${uLog}`)
         await uLog.save();
 
         const responseObj = {
@@ -149,7 +139,6 @@ export const deleteUser = async (req: RequestWithRole, res: Response) => {
             return res.status(400).json({message: "User not Found"});
         }
         
-        console.log(uLog);
         await uLog.save();
 
         return res.status(200).json(u);
