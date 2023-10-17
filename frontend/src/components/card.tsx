@@ -71,39 +71,42 @@ export default function TicketCards(props: TicketCardsProps) {
     ? props.description
     : props.description?.substring(0, 30) + "...";
 
+  function capitalizeWords(str: string) {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
   return (
     <div className="flex text-center">
       <div className="p-4 sm:w-3/3 lg:w-5/5 w-full hover:scale-105 duration-500">
         <div
-          className={`flex items-center justify-between p-4 rounded-lg ${
-            theme.palette.mode == "dark"
+          className={`flex items-center justify-between p-4 rounded-lg ${theme.palette.mode == "dark"
               ? "bg-black"
               : "bg-white border-2 border-gray-200"
-          } shadow-neutral-600 shadow-md`}
+            } shadow-neutral-600 shadow-md`}
         >
           <div
-            className={`border ${
-              theme.palette.mode == "dark" ? "border-black" : "border-white"
-            } w-[65%]`}
+            className={`border ${theme.palette.mode == "dark" ? "border-black" : "border-white"
+              } w-[65%]`}
           >
             <h2
-              className={`${
-                theme.palette.mode == "dark" ? "text-white" : "text-black"
-              } text-lg font-bold`}
+              className={`${theme.palette.mode == "dark" ? "text-white" : "text-black"
+                } text-lg font-bold`}
             >
-              {ticketID}
+              {capitalizeWords(props.creator.username)}
             </h2>
             <h3
-              className={`mt-2 text-xl font-bold ${
-                theme.palette.mode == "dark" ? "text-white" : "text-black"
-              }`}
+              className={`mt-2 text-xl font-bold ${theme.palette.mode == "dark" ? "text-white" : "text-black"
+                }`}
             >
               {props.classification}
             </h3>
             <h3
-              className={`text-base font-bold ${
-                theme.palette.mode == "dark" ? "text-white" : "text-black"
-              }`}
+              className={`text-base font-bold ${theme.palette.mode == "dark" ? "text-white" : "text-black"
+                }`}
             >
               {props.subclassification}
             </h3>

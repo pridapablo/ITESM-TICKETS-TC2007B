@@ -20,10 +20,21 @@ export const getTickets = async (req: RequestWithRole, res: Response) => {
           localField: "ticketID",
           foreignField: "_id",
           as: "ticket",
-        },
+        }
       },
       {
         $unwind: "$ticket",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userID",
+          foreignField: "_id",
+          as: "user",
+        }
+      },
+      {
+        $unwind: "$user",
       },
     ];
 
@@ -69,6 +80,10 @@ export const getTickets = async (req: RequestWithRole, res: Response) => {
         id: _id.toString(),
         ...otherProps,
         createdOn: ticketUser.interactionDate,
+        creator: {
+          _id: ticketUser.user._id,
+          username: ticketUser.user.username,
+        },
       };
     });
 

@@ -14,6 +14,7 @@ import {
   PasswordInput,
   Create,
   SelectInput,
+  useTranslate,
 } from "react-admin";
 
 import MyUrlField from "../components/MyUrlField";
@@ -31,6 +32,9 @@ export const UserList = () => {
     }
     return roleText;
   };
+
+  const translate = useTranslate();
+
   return (
     <List>
       {isSmall ? (
@@ -41,9 +45,9 @@ export const UserList = () => {
         />
       ) : (
         <Datagrid rowClick="show">
-          <TextField source="username" />
-          <FunctionField render={renderRoleField} source='role'/>
-          <TextField source="phone" />
+          <TextField source="username" label={translate('resources.user.fields.username')} />
+          <FunctionField render={renderRoleField} source='role' label={translate('resources.user.fields.role')} />
+          <TextField source="phone" label={translate('resources.user.fields.phone')} />
           <EditButton />
         </Datagrid>
       )}
@@ -53,17 +57,20 @@ export const UserList = () => {
 
 
 
-export const UserEdit = () => (
+export const UserEdit = () => {
+  const translate = useTranslate();
 
+  return (
   <Edit>
     <SimpleForm warnWhenUnsavedChanges>
-      <TextInput source="id" disabled />
-      <TextInput source="username" />
-      <PasswordInput source='pwdHash' label="Password"/>
-      <TextInput source="phone" />
+      <TextInput source="id" disabled label={translate('resources.user.fields.id')} />
+      <TextInput source="username" label={translate('resources.user.fields.username')} />
+      <PasswordInput source='pwdHash' label={translate('resources.user.fields.password')} />
+      <TextInput source="phone" label={translate('resources.user.fields.phone')} />
     </SimpleForm>
   </Edit>
-);
+  )
+};
 
 
 export const UserCreate = () => {
@@ -75,19 +82,21 @@ export const UserCreate = () => {
     setSelectedRol(event.target.value);
   }
 
+  const translate = useTranslate();
+
   return (
     <Create mutationOptions={{onSuccess}}>
       <SimpleForm warnWhenUnsavedChanges>
-        <TextInput source="username"  autoComplete='off'/>
+        <TextInput source="username"  autoComplete='off' label={translate('resources.user.fields.username')} />
         <SelectInput 
           source="role"
-          label="Rol"
+          label={translate('resources.user.fields.role')}
           choices={roles.map(role => ({id:role,name: role }))}
           onChange={handleRolChange}
           value={selectedRol}
         />
-        <TextInput source="phone" autoComplete='off' />
-        <PasswordInput source="pwdHash" label="Password"/>
+        <TextInput source="phone" autoComplete='off' label={translate('resources.user.fields.phone')} />
+        <PasswordInput source="pwdHash" label={translate('resources.user.fields.password')} />
       </SimpleForm>
     </Create>
   );

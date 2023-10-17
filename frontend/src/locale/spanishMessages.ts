@@ -1,6 +1,14 @@
 import { TranslationMessages } from "react-admin";
 
 export const es: TranslationMessages = {
+  pos: {
+    dashboard: {
+      today: "Hoy",
+      date_range: "Rango de fechas",
+      week: "Semana",
+      all_time: "Historial completo",
+    },
+  },
   profileModal: {
     phoneNumber: "Número de teléfono",
     editPhoneNumber: "Editar número de teléfono",
@@ -23,6 +31,14 @@ export const es: TranslationMessages = {
     albums: 'Álbumes',
     tickets: 'Tickets',
     profile: 'Mi Perfil',
+    dashboard: {
+      name: "Reporte de tickets",
+      mostReportedCategories: "Categorías más reportadas",
+      ticketCreated: "Tickets creados",
+      ticketByRoom: "Tickets por aula",
+      inventoryByRoom: "Inventario por aula",
+      avgResolutionTime: "Tiempo promedio de resolución",
+    },
     ticket: {
       fields: {
         id: 'Id',
@@ -37,8 +53,25 @@ export const es: TranslationMessages = {
         whyWasDone: '¿Por qué se hizo?',
         hideDeleted: 'Ocultar eliminados',
         sortByPriority: 'Ordenar por prioridad',
+        status: 'Estado',
+        isDeleted: 'Está eliminado',
+        folio: 'Folio',
+        responsible: 'Responsable',
+        topic: 'Asunto',
+        statuses: "Nuevo,Abierto,Pendiente,En Espera,Resuelto,Desconocido",
+        priorities: "Sin prioridad,Muy baja,Baja,Media,Alta,Muy alta",
+        ticketDeleted: "Ticket eliminado. Último estado:",
       }
-    }
+    },
+    user: {
+      fields: {
+        phone: 'Teléfono',
+        role: 'Rol',
+        username: 'Nombre de usuario',
+        id: 'Id',
+        password: 'Contraseña',
+      },
+    },
   },
   login: {
     title: 'Iniciar sesión',
@@ -89,6 +122,8 @@ export const es: TranslationMessages = {
       toggle_theme: "Cambiar tema",
       select_columns: "Columnas",
       update_application: "Recargar aplicación",
+      shrink: "Contraer",
+      expand_all: "Expandir",
     },
     boolean: {
       true: "Sí",

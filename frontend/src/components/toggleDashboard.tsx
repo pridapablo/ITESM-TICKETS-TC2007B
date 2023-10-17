@@ -3,6 +3,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import TodayIcon from '@mui/icons-material/Today';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { useTranslate } from 'react-admin';
 
 export default function ToggleButtonDashboard(props: any) {
   const [alignment, setAlignment] = React.useState<string | null>('left');
@@ -20,6 +21,8 @@ export default function ToggleButtonDashboard(props: any) {
     }
   };
 
+  const translate = useTranslate();
+
   return (
     <ToggleButtonGroup
       value={alignment}
@@ -28,10 +31,12 @@ export default function ToggleButtonDashboard(props: any) {
       aria-label="text alignment"
     >
       <ToggleButton value="left" aria-label='Card'>
-        <TodayIcon />
+        <TodayIcon className="mr-2" />
+        {translate('pos.dashboard.week')}
       </ToggleButton>
       <ToggleButton value="center" aria-label='List'>
-        <DateRangeIcon />
+        <DateRangeIcon className="mr-2" />
+        {translate('pos.dashboard.all_time')}
       </ToggleButton>
     </ToggleButtonGroup>
   );
