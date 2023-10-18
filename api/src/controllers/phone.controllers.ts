@@ -27,6 +27,7 @@ export const handleTicket = async (req, res) => {
         if (!u) {
             // User is not signed up
             await printMessage(WaId, "Lo sentimos, tu teléfono no está dado de alta");
+            console.log("User not found");
 
             return res.status(404).json({
                 success: false,
