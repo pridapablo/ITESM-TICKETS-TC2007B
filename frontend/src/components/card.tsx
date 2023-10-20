@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
@@ -15,6 +16,9 @@ interface TicketCardsProps {
     howWasDone: string;
     whyWasDone: string;
     closureTime: Date | null; // Use Date | null if it can be null
+  };
+  creator: {
+    username: string;
   };
   isDeleted?: boolean;
   isView?: boolean;

@@ -8,6 +8,7 @@ import { RequestWithRole } from "../types/ReqWithUserRole";
 // import { printMessage } from "../helpers/phoneHelpers";
 export const getUsers = async (_req:Request, res:Response) => {
     try {
+        console.log("getUsers");
         const u = await User.find().select("-pwdHash -_v");
         if(!u){
             return res.status(404).json({message: "Error al obtener los usuarios"});
@@ -24,6 +25,7 @@ export const getUsers = async (_req:Request, res:Response) => {
             return res.status(200).json(modifiedUsers);
 
     } catch (error: any) {
+        console.log(error)
         return res.status(500).json({message:error.message});
     }
 };

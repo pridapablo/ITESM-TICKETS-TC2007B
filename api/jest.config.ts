@@ -1,4 +1,6 @@
 // jest.config.js or jest.config.ts
+import 'ts-node/register';
+
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',

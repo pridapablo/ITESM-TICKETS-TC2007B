@@ -1,3 +1,4 @@
+import React from 'react';
 import { ResponsiveTreeMap } from '@nivo/treemap'
 import { useTheme } from '@mui/material/styles';
 
