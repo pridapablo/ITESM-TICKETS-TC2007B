@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "createAdmin": "ts-node-dev src/createAdmin.ts $1 $2 $3",
     "dev": "ts-node-dev src/index.ts",
     "tsc": "tsc",
     "lint": "ts-standard",
