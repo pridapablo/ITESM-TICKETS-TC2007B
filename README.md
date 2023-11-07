@@ -12,7 +12,7 @@ Special thanks to our instructors for their invaluable guidance throughout the p
 - Lizbeth Peralta Malváez (React Admin/Frontend)
 - Jorge Rodriguez Ruiz (Cybersecurity/Backend)
 
-## Collaborators
+## Collaborators (Teammitty team)
 - Pablo Banzo Prida
 - Gabriel Rodríguez De los Reyes
 - Miguel Ángel Cabrera Victoria
